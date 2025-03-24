@@ -40,15 +40,21 @@ export default function Home() {
                   <Button className="bg-white text-black hover:bg-gray-200">Contact Me</Button>
                 </div>
                 <div className="flex gap-4 justify-center md:justify-start">
-                  <Button size="icon" variant="ghost" className="rounded-full">
-                    <Github className="h-5 w-5" />
-                  </Button>
-                  <Button size="icon" variant="ghost" className="rounded-full">
+                    <a href="https://github.com/Ozauri0" target="_blank" rel="noopener noreferrer">
+                    <Button size="icon" variant="ghost" className="rounded-full">
+                      <Github className="h-5 w-5" />
+                    </Button>
+                    </a>
+                  <a href="https://www.linkedin.com/in/christian-ferrer-640b7b216/" target="_blank" rel="noopener noreferrer">
+                    <Button size="icon" variant="ghost" className="rounded-full">
                     <Linkedin className="h-5 w-5" />
-                  </Button>
-                  <Button size="icon" variant="ghost" className="rounded-full">
+                    </Button>
+                  </a>
+                  <a href="mailto:christianferrer.dev@gmail.com.com" rel="noopener noreferrer">
+                    <Button size="icon" variant="ghost" className="rounded-full">
                     <Mail className="h-5 w-5" />
-                  </Button>
+                    </Button>
+                  </a>
                 </div>
               </div>
               
@@ -104,6 +110,12 @@ export default function Home() {
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="outline" className="bg-zinc-800">
                       Ionic Angular
+                    </Badge>
+                    <Badge variant="outline" className="bg-zinc-800">
+                      Capacitor
+                    </Badge>
+                    <Badge variant="outline" className="bg-zinc-800">
+                      Android Studio
                     </Badge>
                   </div>
                 </CardContent>
@@ -248,7 +260,7 @@ export default function Home() {
                       </Badge>
                     </div>
                     <div className="flex gap-2">
-                      <a href="https://github.com/Ozauri0/MyBudget" target="_blank" rel="noopener noreferrer">q
+                      <a href="https://github.com/Ozauri0/MyBudget" target="_blank" rel="noopener noreferrer">
                         <Button size="sm" variant="outline" className="gap-1">
                           <Github className="h-4 w-4"/> Code
                         </Button>
