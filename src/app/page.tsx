@@ -225,62 +225,149 @@ export default function Home() {
         </section>
 
         {/* Projects Section */}
-        <section className="py-20 px-4 bg-zinc-900">
-          <div className="container mx-auto max-w-6xl">
-            <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">Featured Projects</h2>
+<section className="py-20 px-4 bg-zinc-900">
+  <div className="container mx-auto max-w-6xl">
+    <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">Featured Projects</h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[1, 2, 3].map((project) => (
-                <Card key={project} className="bg-black border-zinc-800 overflow-hidden">
-                  <div className="relative h-48">
-                    <Image
-                      src={`/placeholder.svg?height=192&width=384`}
-                      alt={`Project ${project}`}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <CardContent className="pt-6">
-                    <h3 className="text-xl font-bold mb-2">MyBudget</h3>
-                    <p className="text-gray-400 mb-4">
-                      A budgeting app to help you manage personal finances and track expenses.
-                    </p>
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      <Badge variant="secondary" className="bg-zinc-800">
-                        Ionic
-                      </Badge>
-                      <Badge variant="secondary" className="bg-zinc-800">
-                        SQlite
-                      </Badge>
-                      <Badge variant="secondary" className="bg-zinc-800">
-                        Angular
-                      </Badge>
-                      <Badge variant="secondary" className="bg-zinc-800">
-                        Capacitor
-                      </Badge>
-                    </div>
-                    <div className="flex gap-2">
-                      <a href="https://github.com/Ozauri0/MyBudget" target="_blank" rel="noopener noreferrer">
-                        <Button size="sm" variant="outline" className="gap-1">
-                          <Github className="h-4 w-4"/> Code
-                        </Button>
-                      </a>
-                      <a href="https://drive.google.com/file/d/1vmzhouVOfmvh0CM3LvYGwwfjK5TsUofm/view?usp=sharing" target="_blank" rel="noopener noreferrer">
-                        <Button size="sm" className="gap-1 bg-white text-black hover:bg-gray-200">
-                          <ExternalLink className="h-4 w-4" /> Download
-                        </Button>
-                      </a>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            <div className="flex justify-center mt-12">
-              <Button variant="outline">View All Projects</Button>
-            </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {/* Proyecto 1: MyBudget */}
+      <Card className="bg-black border-zinc-800 overflow-hidden">
+        <div className="relative h-48">
+          <Image
+            src={`/MyBudget.png`}
+            alt="MyBudget Project"
+            fill
+            className="object-cover"
+          />
+        </div>
+        <CardContent className="pt-6">
+          <h3 className="text-xl font-bold mb-2">MyBudget</h3>
+          <p className="text-gray-400 mb-4">
+            A budgeting app to help you manage personal finances and track expenses.
+          </p>
+          <div className="flex flex-wrap gap-2 mb-4">
+            <Badge variant="secondary" className="bg-zinc-800">
+              Ionic
+            </Badge>
+            <Badge variant="secondary" className="bg-zinc-800">
+              SQLite
+            </Badge>
+            <Badge variant="secondary" className="bg-zinc-800">
+              Angular
+            </Badge>
+            <Badge variant="secondary" className="bg-zinc-800">
+              Capacitor
+            </Badge>
           </div>
-        </section>
+          <div className="flex gap-2">
+            <a href="https://github.com/Ozauri0/MyBudget" target="_blank" rel="noopener noreferrer">
+              <Button size="sm" variant="outline" className="gap-1">
+                <Github className="h-4 w-4"/> Code
+              </Button>
+            </a>
+            <a href="https://drive.google.com/file/d/1vmzhouVOfmvh0CM3LvYGwwfjK5TsUofm/view?usp=sharing" target="_blank" rel="noopener noreferrer">
+              <Button size="sm" className="gap-1 bg-white text-black hover:bg-gray-200">
+                <ExternalLink className="h-4 w-4" /> Download
+              </Button>
+            </a>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Proyecto 2: Portfolio Website */}
+      <Card className="bg-black border-zinc-800 overflow-hidden">
+        <div className="relative h-48">
+          <Image
+            src={`/placeholder.svg?height=192&width=384`}
+            alt="Portfolio Website"
+            fill
+            className="object-cover"
+          />
+        </div>
+        <CardContent className="pt-6">
+          <h3 className="text-xl font-bold mb-2">Portfolio Website</h3>
+          <p className="text-gray-400 mb-4">
+            A modern portfolio website built with Next.js and TailwindCSS showcasing my projects and skills.
+          </p>
+          <div className="flex flex-wrap gap-2 mb-4">
+            <Badge variant="secondary" className="bg-zinc-800">
+              Next.js
+            </Badge>
+            <Badge variant="secondary" className="bg-zinc-800">
+              TailwindCSS
+            </Badge>
+            <Badge variant="secondary" className="bg-zinc-800">
+              React
+            </Badge>
+            <Badge variant="secondary" className="bg-zinc-800">
+              TypeScript
+            </Badge>
+          </div>
+          <div className="flex gap-2">
+            <a href="https://github.com/Ozauri0/portfolio" target="_blank" rel="noopener noreferrer">
+              <Button size="sm" variant="outline" className="gap-1">
+                <Github className="h-4 w-4"/> Code
+              </Button>
+            </a>
+            <a href="#" target="_blank" rel="noopener noreferrer">
+              <Button size="sm" className="gap-1 bg-white text-black hover:bg-gray-200">
+                <ExternalLink className="h-4 w-4" /> Live Demo
+              </Button>
+            </a>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Proyecto 3: LearnPro */}
+      <Card className="bg-black border-zinc-800 overflow-hidden">
+        <div className="relative h-48">
+          <Image
+            src={`/placeholder.svg?height=192&width=384`}
+            alt="LearnPro"
+            fill
+            className="object-cover"
+          />
+        </div>
+        <CardContent className="pt-6">
+          <h3 className="text-xl font-bold mb-2">LearnPro</h3>
+            <p className="text-gray-400 mb-4">
+            A learning management platform that enables educators to create courses.
+            </p>
+            <div className="flex flex-wrap gap-2 mb-4">
+            <Badge variant="secondary" className="bg-zinc-800">
+              Next.js
+            </Badge>
+            <Badge variant="secondary" className="bg-zinc-800">
+              TailwindCSS
+            </Badge>
+            <Badge variant="secondary" className="bg-zinc-800">
+              React
+            </Badge>
+            <Badge variant="secondary" className="bg-zinc-800">
+              TypeScript
+            </Badge>
+          </div>
+          <div className="flex gap-2">
+            <a href="https://github.com/Ozauri0/app-empresariales" target="_blank" rel="noopener noreferrer">
+              <Button size="sm" variant="outline" className="gap-1">
+                <Github className="h-4 w-4"/> Code
+              </Button>
+            </a>
+            <a href="#" target="_blank" rel="noopener noreferrer">
+              <Button size="sm" className="gap-1 bg-white text-black hover:bg-gray-200">
+                <ExternalLink className="h-4 w-4" /> Documentation
+              </Button>
+            </a>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+
+    <div className="flex justify-center mt-12">
+      <Button variant="outline">View All Projects</Button>
+    </div>
+  </div>
+</section>
 
         {/* Contact Section */}
         <section className="py-20 px-4 bg-black">
