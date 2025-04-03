@@ -51,7 +51,8 @@ export const es = {
         send: "Enviar Mensaje",
         sending: "Enviando...",
         successMessage: "Tu mensaje ha sido enviado correctamente. ¡Gracias por contactarme!",
-        errorMessage: "Ocurrió un error al enviar tu mensaje. Por favor, inténtalo de nuevo más tarde."
+        errorMessage: "Ocurrió un error al enviar tu mensaje. Por favor, inténtalo de nuevo más tarde.",
+        spamProtectionMessage: "Por favor espera antes de enviar otro mensaje. Tiempo restante:",
       },
     footer: {
       rights: "Todos los Derechos Reservados"

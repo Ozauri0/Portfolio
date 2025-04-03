@@ -51,7 +51,8 @@ export const en = {
         send: "Send Message",
         sending: "Sending...",
         successMessage: "Your message has been sent successfully. Thank you for contacting me!",
-        errorMessage: "An error occurred while sending your message. Please try again later."
+        errorMessage: "An error occurred while sending your message. Please try again later.",
+        spamProtectionMessage: "Please wait before sending another message. Time remaining:",
       },
     footer: {
       rights: "All Rights Reserved"
