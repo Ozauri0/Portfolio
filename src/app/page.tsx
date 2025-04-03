@@ -17,10 +17,18 @@ export default function Home() {
   
   // Referencia a la sección de proyectos
   const projectsRef = useRef<HTMLDivElement>(null);
+  const contactRef = useRef<HTMLDivElement>(null);
 
   // Función para desplazarse a la sección de proyectos
   const scrollToProjects = () => {
     projectsRef.current?.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'start'
+    });
+  };
+
+  const scrollToContact = () => {
+    contactRef.current?.scrollIntoView({ 
       behavior: 'smooth',
       block: 'start'
     });
@@ -60,7 +68,9 @@ export default function Home() {
                   >
                     {t.hero.viewProjects}
                   </Button>
-                  <Button className="bg-white text-black hover:bg-gray-200">{t.hero.contactMe}</Button>
+                  <Button className="bg-white text-black hover:bg-gray-200" 
+                  onClick={scrollToContact}>
+                    {t.hero.contactMe}</Button>
                 </div>
                 <div className="flex gap-4 justify-center md:justify-start">
                   <a href="https://github.com/Ozauri0" target="_blank" rel="noopener noreferrer">
@@ -389,7 +399,7 @@ export default function Home() {
         </section>
 
         {/* Contact Section */}
-        <section className="py-20 px-4 bg-black">
+        <section ref={contactRef} className="py-20 px-4 bg-black">
           <div className="container mx-auto max-w-3xl">
             <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center text-white">{t.contact.title}</h2>
 
