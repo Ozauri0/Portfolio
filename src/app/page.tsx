@@ -1,5 +1,6 @@
 'use client';
 
+import { useRef } from "react";
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -13,6 +14,17 @@ import LanguageSelector from "@/components/language-selector"
 export default function Home() {
   const { language } = useLanguage();
   const t = translations[language];
+  
+  // Referencia a la sección de proyectos
+  const projectsRef = useRef<HTMLDivElement>(null);
+
+  // Función para desplazarse a la sección de proyectos
+  const scrollToProjects = () => {
+    projectsRef.current?.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'start'
+    });
+  };
 
   return (
     <div className="relative min-h-screen bg-black text-white">
@@ -41,7 +53,11 @@ export default function Home() {
                   {t.hero.description}
                 </p>
                 <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-                  <Button variant="outline" className="border-white hover:bg-white hover:text-black text-white">
+                  <Button 
+                    variant="outline" 
+                    className="border-white hover:bg-white hover:text-black text-white"
+                    onClick={scrollToProjects}
+                  >
                     {t.hero.viewProjects}
                   </Button>
                   <Button className="bg-white text-black hover:bg-gray-200">{t.hero.contactMe}</Button>
@@ -228,7 +244,7 @@ export default function Home() {
         </section>
 
         {/* Projects Section */}
-        <section className="py-20 px-4 bg-zinc-900">
+        <section ref={projectsRef} className="py-20 px-4 bg-zinc-900">
           <div className="container mx-auto max-w-6xl">
             <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center text-white">{t.projects.title}</h2>
 
