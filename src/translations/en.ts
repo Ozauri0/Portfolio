@@ -43,13 +43,16 @@ export const en = {
       }
     },
     contact: {
-      title: "Get In Touch",
-      name: "Name",
-      email: "Email",
-      subject: "Subject",
-      message: "Message",
-      send: "Send Message"
-    },
+        title: "Get In Touch",
+        name: "Name",
+        email: "Email",
+        subject: "Subject",
+        message: "Message",
+        send: "Send Message",
+        sending: "Sending...",
+        successMessage: "Your message has been sent successfully. Thank you for contacting me!",
+        errorMessage: "An error occurred while sending your message. Please try again later."
+      },
     footer: {
       rights: "All Rights Reserved"
     }

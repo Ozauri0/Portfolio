@@ -16,19 +16,26 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Detecta el idioma del navegador al cargar
     const detectBrowserLanguage = () => {
-      const browserLang = navigator.language.split('-')[0];
-      if (browserLang === 'es') {
+      const browserLang = navigator.language.toLowerCase();
+      // Detecta cualquier variante de español (es, es-ES, es-MX, etc.)
+      if (browserLang.startsWith('es')) {
         setLanguage('es');
       } else {
+        // Para inglés o cualquier otro idioma, usa inglés
         setLanguage('en');
       }
     };
-
+  
     // Intenta recuperar el idioma guardado en localStorage
-    const savedLanguage = localStorage.getItem('preferredLanguage') as Language;
-    if (savedLanguage && (savedLanguage === 'es' || savedLanguage === 'en')) {
-      setLanguage(savedLanguage);
-    } else {
+    try {
+      const savedLanguage = localStorage.getItem('preferredLanguage') as Language;
+      if (savedLanguage && (savedLanguage === 'es' || savedLanguage === 'en')) {
+        setLanguage(savedLanguage);
+      } else {
+        detectBrowserLanguage();
+      }
+    } catch (error) {
+      // Si hay algún problema con localStorage (navegador en modo privado, etc.)
       detectBrowserLanguage();
     }
   }, []);

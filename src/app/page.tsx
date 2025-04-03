@@ -1,23 +1,47 @@
 'use client';
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import NodeBackground from "@/components/node-background"
-import { Github, Linkedin, Mail, ExternalLink } from "lucide-react"
+import { Github, Linkedin, Mail, ExternalLink, CheckCircle, AlertCircle } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { translations } from "@/translations"
 import LanguageSelector from "@/components/language-selector"
+import emailjs from '@emailjs/browser';
 
 export default function Home() {
   const { language } = useLanguage();
   const t = translations[language];
+
+  // Inicializar EmailJS solo una vez al cargar el componente
+  useEffect(() => {
+    // Acceso a las variables de entorno
+    const emailjsPublicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+    
+    if (!emailjsPublicKey) {
+      console.error('La clave pública de EmailJS no está configurada.');
+      return;
+    }
+    
+    emailjs.init(emailjsPublicKey);
+  }, []);
   
-  // Referencia a la sección de proyectos
+  // Referencias para el scroll
   const projectsRef = useRef<HTMLDivElement>(null);
   const contactRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // Estado del formulario
+  const [formStatus, setFormStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
 
   // Función para desplazarse a la sección de proyectos
   const scrollToProjects = () => {
@@ -27,12 +51,79 @@ export default function Home() {
     });
   };
 
+  // Función para desplazarse a la sección de contacto
   const scrollToContact = () => {
     contactRef.current?.scrollIntoView({ 
       behavior: 'smooth',
       block: 'start'
     });
   };
+
+  // Manejo de cambios en el formulario
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Envío del formulario
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validación básica
+    if (!formData.name || !formData.email || !formData.message) {
+      return;
+    }
+    
+    setFormStatus('loading');
+    
+    try {
+      // Acceso a las variables de entorno
+      const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+      const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+      
+      if (!serviceId || !templateId) {
+        throw new Error('Faltan las configuraciones de EmailJS.');
+      }
+
+      const result = await emailjs.send(
+        serviceId,
+        templateId,
+        {
+          from_name: formData.name,
+          reply_to: formData.email,
+          subject: formData.subject || "Mensaje desde Portfolio",
+          message: formData.message
+        }
+      );
+      
+      console.log('Email enviado!', result.text);
+      setFormStatus('success');
+      
+      // Limpiar formulario
+      setFormData({
+        name: '',
+        email: '',
+        subject: '',
+        message: ''
+      });
+      
+      // Resetear después de 5 segundos
+      setTimeout(() => setFormStatus('idle'), 5000);
+      
+    } catch (error: any) {
+      // Mostrar detalles más específicos del error para depuración
+      console.error('Error al enviar email:', error);
+      console.error('Detalles del error:', JSON.stringify(error, null, 2));
+      setFormStatus('error');
+      
+      // Resetear después de 5 segundos
+      setTimeout(() => setFormStatus('idle'), 5000);
+    }
+  };
+
 
   return (
     <div className="relative min-h-screen bg-black text-white">
@@ -399,57 +490,90 @@ export default function Home() {
         </section>
 
         {/* Contact Section */}
-        <section ref={contactRef} className="py-20 px-4 bg-black">
-          <div className="container mx-auto max-w-3xl">
-            <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center text-white">{t.contact.title}</h2>
+<section ref={contactRef} className="py-20 px-4 bg-black">
+  <div className="container mx-auto max-w-3xl">
+    <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center text-white">{t.contact.title}</h2>
 
-            <form className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label htmlFor="name" className="text-sm font-medium text-white">
-                    {t.contact.name}
-                  </label>
-                  <input
-                    id="name"
-                    type="text"
-                    className="w-full px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-md focus:outline-none focus:ring-2 focus:ring-white text-white"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label htmlFor="email" className="text-sm font-medium text-white">
-                    {t.contact.email}
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    className="w-full px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-md focus:outline-none focus:ring-2 focus:ring-white text-white"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="subject" className="text-sm font-medium text-white">
-                  {t.contact.subject}
-                </label>
-                <input
-                  id="subject"
-                  type="text"
-                  className="w-full px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-md focus:outline-none focus:ring-2 focus:ring-white text-white"
-                />
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="message" className="text-sm font-medium text-white">
-                  {t.contact.message}
-                </label>
-                <textarea
-                  id="message"
-                  rows={6}
-                  className="w-full px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-md focus:outline-none focus:ring-2 focus:ring-white text-white"
-                ></textarea>
-              </div>
-              <Button className="w-full bg-white text-black hover:bg-gray-200">{t.contact.send}</Button>
-            </form>
-          </div>
-        </section>
+    {formStatus === 'success' ? (
+      <div className="bg-green-900/30 border border-green-500 rounded-md p-6 flex items-center gap-3 mb-8">
+        <CheckCircle className="text-green-500 h-6 w-6" />
+        <p className="text-white">{t.contact.successMessage}</p>
+      </div>
+    ) : formStatus === 'error' ? (
+      <div className="bg-red-900/30 border border-red-500 rounded-md p-6 flex items-center gap-3 mb-8">
+        <AlertCircle className="text-red-500 h-6 w-6" />
+        <p className="text-white">{t.contact.errorMessage}</p>
+      </div>
+    ) : null}
+
+    <form ref={formRef} className="space-y-6" onSubmit={handleSubmit}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <label htmlFor="name" className="text-sm font-medium text-white">
+            {t.contact.name}
+          </label>
+          <input
+            id="name"
+            name="name"
+            type="text"
+            value={formData.name}
+            onChange={handleInputChange}
+            className="w-full px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-md focus:outline-none focus:ring-2 focus:ring-white text-white"
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <label htmlFor="email" className="text-sm font-medium text-white">
+            {t.contact.email}
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            value={formData.email}
+            onChange={handleInputChange}
+            className="w-full px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-md focus:outline-none focus:ring-2 focus:ring-white text-white"
+            required
+          />
+        </div>
+      </div>
+      <div className="space-y-2">
+        <label htmlFor="subject" className="text-sm font-medium text-white">
+          {t.contact.subject}
+        </label>
+        <input
+          id="subject"
+          name="subject"
+          type="text"
+          value={formData.subject}
+          onChange={handleInputChange}
+          className="w-full px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-md focus:outline-none focus:ring-2 focus:ring-white text-white"
+        />
+      </div>
+      <div className="space-y-2">
+        <label htmlFor="message" className="text-sm font-medium text-white">
+          {t.contact.message}
+        </label>
+        <textarea
+          id="message"
+          name="message"
+          rows={6}
+          value={formData.message}
+          onChange={handleInputChange}
+          className="w-full px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-md focus:outline-none focus:ring-2 focus:ring-white text-white"
+          required
+        ></textarea>
+      </div>
+      <Button 
+        type="submit" 
+        className="w-full bg-white text-black hover:bg-gray-200" 
+        disabled={formStatus === 'loading'}
+      >
+        {formStatus === 'loading' ? t.contact.sending : t.contact.send}
+      </Button>
+    </form>
+  </div>
+</section>
 
         {/* Footer */}
         <footer className="py-8 px-4 bg-zinc-900 border-t border-zinc-800">

@@ -43,13 +43,16 @@ export const es = {
       }
     },
     contact: {
-      title: "Contáctame",
-      name: "Nombre",
-      email: "Correo",
-      subject: "Asunto",
-      message: "Mensaje",
-      send: "Enviar Mensaje"
-    },
+        title: "Contáctame",
+        name: "Nombre",
+        email: "Correo",
+        subject: "Asunto",
+        message: "Mensaje",
+        send: "Enviar Mensaje",
+        sending: "Enviando...",
+        successMessage: "Tu mensaje ha sido enviado correctamente. ¡Gracias por contactarme!",
+        errorMessage: "Ocurrió un error al enviar tu mensaje. Por favor, inténtalo de nuevo más tarde."
+      },
     footer: {
       rights: "Todos los Derechos Reservados"
     }
