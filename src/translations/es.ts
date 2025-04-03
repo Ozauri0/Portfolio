@@ -45,6 +45,7 @@ export const es = {
     contact: {
         title: "Contáctame",
         name: "Nombre",
+        lastname: "Apellido",
         email: "Correo",
         subject: "Asunto",
         message: "Mensaje",

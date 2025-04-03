@@ -144,37 +144,62 @@ export default function ContactForm() {
         </div>
       ) : null}
 
-      <form ref={formRef} className="space-y-6" onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <label htmlFor="name" className="text-sm font-medium text-white">
-              {t.contact.name}
-            </label>
-            <input
-              id="name"
-              name="name"
-              type="text"
-              value={formData.name}
-              onChange={handleInputChange}
-              className="w-full px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-md focus:outline-none focus:ring-2 focus:ring-white text-white"
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <label htmlFor="email" className="text-sm font-medium text-white">
-              {t.contact.email}
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              className="w-full px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-md focus:outline-none focus:ring-2 focus:ring-white text-white"
-              required
-            />
-          </div>
+    <form ref={formRef} className="space-y-6" onSubmit={handleSubmit}>
+      <div className="grid grid-cols-2 gap-6">
+        <div className="space-y-2">
+        <label htmlFor="name" className="text-sm font-medium text-white">
+          {t.contact.name}
+        </label>
+        <input
+          id="name"
+          name="name"
+          type="text"
+          value={formData.name.split(' ')[0] || ''}
+          onChange={(e) => {
+            const lastName = formData.name.split(' ').slice(1).join(' ');
+            setFormData(prev => ({
+            ...prev,
+            name: `${e.target.value} ${lastName}`.trim()
+            }));
+          }}
+          className="w-full px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-md focus:outline-none focus:ring-2 focus:ring-white text-white"
+          required
+        />
         </div>
+        <div className="space-y-2">
+        <label htmlFor="lastName" className="text-sm font-medium text-white">
+          {t.contact.lastname || "Last Name"}
+        </label>
+        <input
+          id="lastName"
+          type="text"
+          value={formData.name.split(' ').slice(1).join(' ') || ''}
+          onChange={(e) => {
+            const firstName = formData.name.split(' ')[0] || '';
+            setFormData(prev => ({
+            ...prev,
+            name: `${firstName} ${e.target.value}`.trim()
+            }));
+          }}
+          className="w-full px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-md focus:outline-none focus:ring-2 focus:ring-white text-white"
+          required
+        />
+        </div>
+      </div>
+      <div className="space-y-2">
+        <label htmlFor="email" className="text-sm font-medium text-white">
+        {t.contact.email}
+        </label>
+        <input
+        id="email"
+        name="email"
+        type="email"
+        value={formData.email}
+        onChange={handleInputChange}
+        className="w-full px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-md focus:outline-none focus:ring-2 focus:ring-white text-white"
+        required
+        />
+      </div>
         <div className="space-y-2">
           <label htmlFor="subject" className="text-sm font-medium text-white">
             {t.contact.subject}
