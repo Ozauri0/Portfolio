@@ -1,12 +1,12 @@
 'use client';
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import NodeBackground from "@/components/node-background"
-import { Github, Linkedin, Mail, ExternalLink } from "lucide-react"
+import { Github, Linkedin, Mail, ExternalLink, ArrowUp } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { translations } from "@/translations"
 import LanguageSelector from "@/components/language-selector"
@@ -17,8 +17,20 @@ export default function Home() {
   const t = translations[language];
   
   // Referencias para el scroll
+  const heroRef = useRef<HTMLDivElement>(null);
   const projectsRef = useRef<HTMLDivElement>(null);
   const contactRef = useRef<HTMLDivElement>(null);
+  
+  // Estado para controlar la visibilidad del botón
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  // Función para desplazarse a la sección hero (inicio)
+  const scrollToTop = () => {
+    heroRef.current?.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'start'
+    });
+  };
 
   // Función para desplazarse a la sección de proyectos
   const scrollToProjects = () => {
@@ -35,6 +47,21 @@ export default function Home() {
       block: 'start'
     });
   };
+  
+  // Controlamos la visibilidad del botón basándonos en el scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      // Mostrar el botón cuando el usuario ha desplazado más de 300px
+      setShowScrollTop(window.scrollY > 300);
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    
+    // Limpieza del event listener
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   return (
     <div className="relative min-h-screen bg-black text-white">
@@ -43,7 +70,7 @@ export default function Home() {
 
       <main className="relative z-10">
         {/* Hero Section - Rediseñado */}
-        <section className="flex flex-col items-center justify-center min-h-screen px-4">
+        <section ref={heroRef} className="flex flex-col items-center justify-center min-h-screen px-4">
           <div className="container mx-auto max-w-6xl">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               {/* Contenido de texto */}
@@ -433,6 +460,20 @@ export default function Home() {
             </div>
           </div>
         </footer>
+        
+        {/* Botón flotante para volver arriba - Aparece solo después de scroll */}
+        {showScrollTop && (
+          <div className="fixed right-6 bottom-6 z-50">
+            <Button 
+              onClick={scrollToTop}
+              size="icon" 
+              className="h-12 w-12 rounded-full shadow-lg bg-white text-black hover:bg-gray-200 transition-all duration-300"
+            >
+              <ArrowUp className="h-6 w-6" />
+              <span className="sr-only">Volver al inicio</span>
+            </Button>
+          </div>
+        )}
       </main>
     </div>
   )
