@@ -12,6 +12,65 @@ import { translations } from "@/translations"
 import LanguageSelector from "@/components/language-selector"
 import emailjs from '@emailjs/browser';
 
+// Función para comprobar si se puede enviar un correo (límite anti-spam)
+const canSendEmail = (): boolean => {
+  try {
+    const lastSentTime = localStorage.getItem('lastEmailSent');
+    
+    if (!lastSentTime) {
+      return true; // Si nunca se ha enviado un correo, permitir
+    }
+    
+    const lastTime = parseInt(lastSentTime, 10);
+    const currentTime = Date.now();
+    const fiveMinutesInMs = 5 * 60 * 1000; // 5 minutos en milisegundos
+    
+    // Si han pasado más de 5 minutos desde el último envío, permitir
+    return currentTime - lastTime >= fiveMinutesInMs;
+  } catch (error) {
+    // Si hay algún error accediendo a localStorage, permitir por defecto
+    console.error('Error accediendo a localStorage:', error);
+    return true;
+  }
+};
+
+// Función para registrar el envío de un correo
+const recordEmailSent = (): void => {
+  try {
+    localStorage.setItem('lastEmailSent', Date.now().toString());
+  } catch (error) {
+    console.error('Error guardando en localStorage:', error);
+  }
+};
+
+// Función para obtener el tiempo restante en formato legible
+const getTimeRemaining = (): string => {
+  try {
+    const lastSentTime = localStorage.getItem('lastEmailSent');
+    
+    if (!lastSentTime) {
+      return '0:00';
+    }
+    
+    const lastTime = parseInt(lastSentTime, 10);
+    const currentTime = Date.now();
+    const fiveMinutesInMs = 5 * 60 * 1000;
+    const timeElapsed = currentTime - lastTime;
+    
+    if (timeElapsed >= fiveMinutesInMs) {
+      return '0:00';
+    }
+    
+    const timeRemaining = fiveMinutesInMs - timeElapsed;
+    const minutes = Math.floor(timeRemaining / 60000);
+    const seconds = Math.floor((timeRemaining % 60000) / 1000);
+    
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  } catch (error) {
+    return '0:00';
+  }
+};
+
 export default function Home() {
   const { language } = useLanguage();
   const t = translations[language];
@@ -42,6 +101,52 @@ export default function Home() {
     subject: '',
     message: ''
   });
+  
+  // Estado para rastrear el tiempo de espera y mensaje anti-spam
+  const [waitTime, setWaitTime] = useState<string>('');
+  const [spamError, setSpamError] = useState<boolean>(false);
+  const waitTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Efecto para inicializar y limpiar el temporizador
+  useEffect(() => {
+    // Comprueba si hay un tiempo de espera activo al cargar
+    if (!canSendEmail()) {
+      updateWaitTimer();
+    }
+    
+    return () => {
+      if (waitTimerRef.current) {
+        clearInterval(waitTimerRef.current);
+      }
+    };
+  }, []);
+
+  // Función para actualizar el temporizador de espera
+  const updateWaitTimer = () => {
+    // Limpiar temporizador existente si hay alguno
+    if (waitTimerRef.current) {
+      clearInterval(waitTimerRef.current);
+    }
+    
+    // Actualiza el tiempo inmediatamente
+    setWaitTime(getTimeRemaining());
+    
+    // Configura un intervalo para actualizar cada segundo
+    waitTimerRef.current = setInterval(() => {
+      const remaining = getTimeRemaining();
+      setWaitTime(remaining);
+      
+      // Si el tiempo ha expirado, limpia el intervalo
+      if (remaining === '0:00') {
+        if (waitTimerRef.current) {
+          clearInterval(waitTimerRef.current);
+          waitTimerRef.current = null;
+        }
+        setWaitTime('');
+        setSpamError(false);
+      }
+    }, 1000);
+  };
 
   // Función para desplazarse a la sección de proyectos
   const scrollToProjects = () => {
@@ -77,6 +182,15 @@ export default function Home() {
       return;
     }
     
+    // Verificar límite anti-spam
+    if (!canSendEmail()) {
+      setFormStatus('error');
+      setSpamError(true);
+      updateWaitTimer();
+      setTimeout(() => setFormStatus('idle'), 5000);
+      return;
+    }
+    
     setFormStatus('loading');
     
     try {
@@ -100,6 +214,10 @@ export default function Home() {
       );
       
       console.log('Email enviado!', result.text);
+      
+      // Registrar el envío exitoso en localStorage
+      recordEmailSent();
+      
       setFormStatus('success');
       
       // Limpiar formulario
@@ -118,6 +236,7 @@ export default function Home() {
       console.error('Error al enviar email:', error);
       console.error('Detalles del error:', JSON.stringify(error, null, 2));
       setFormStatus('error');
+      setSpamError(false);
       
       // Resetear después de 5 segundos
       setTimeout(() => setFormStatus('idle'), 5000);
