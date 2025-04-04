@@ -1,16 +1,23 @@
 'use client';
 
-import { useRef, useState, useEffect } from "react";
+import { useRef } from "react";
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
+import { ScrollToTopButton } from "@/components/ui/scroll-to-top-button"
 import NodeBackground from "@/components/node-background"
-import { Github, Linkedin, Mail, ExternalLink, ArrowUp } from "lucide-react"
+import { 
+  Github, 
+  Linkedin, 
+  Mail, 
+  ExternalLink
+} from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { translations } from "@/translations"
 import LanguageSelector from "@/components/language-selector"
 import ContactForm from "@/components/contact-form"
+import SkillsSection from "@/components/skills-section"
 
 export default function Home() {
   const { language } = useLanguage();
@@ -20,9 +27,6 @@ export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
   const projectsRef = useRef<HTMLDivElement>(null);
   const contactRef = useRef<HTMLDivElement>(null);
-  
-  // Estado para controlar la visibilidad del botón
-  const [showScrollTop, setShowScrollTop] = useState(false);
 
   // Función para desplazarse a la sección hero (inicio)
   const scrollToTop = () => {
@@ -47,21 +51,6 @@ export default function Home() {
       block: 'start'
     });
   };
-  
-  // Controlamos la visibilidad del botón basándonos en el scroll
-  useEffect(() => {
-    const handleScroll = () => {
-      // Mostrar el botón cuando el usuario ha desplazado más de 300px
-      setShowScrollTop(window.scrollY > 300);
-    };
-    
-    window.addEventListener('scroll', handleScroll);
-    
-    // Limpieza del event listener
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
 
   return (
     <div className="relative min-h-screen bg-black text-white">
@@ -156,131 +145,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Skills Section */}
-        <section className="py-20 px-4 bg-black">
-          <div className="container mx-auto max-w-6xl">
-            <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center text-white">{t.skills.title}</h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Card className="bg-zinc-900 border-zinc-800">
-                <CardContent className="pt-6">
-                  <h3 className="text-xl font-bold mb-4 text-white">{t.skills.mobile}</h3>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline" className="bg-zinc-800 text-white">
-                      Ionic Angular
-                    </Badge>
-                    <Badge variant="outline" className="bg-zinc-800 text-white">
-                      Capacitor
-                    </Badge>
-                    <Badge variant="outline" className="bg-zinc-800 text-white">
-                      Android Studio
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-zinc-900 border-zinc-800">
-                <CardContent className="pt-6">
-                  <h3 className="text-xl font-bold mb-4 text-white">{t.skills.web}</h3>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline" className="bg-zinc-800 text-white">
-                      Angular
-                    </Badge>
-                    <Badge variant="outline" className="bg-zinc-800 text-white">
-                      React
-                    </Badge>
-                    <Badge variant="outline" className="bg-zinc-800 text-white">
-                      Django
-                    </Badge>
-                    <Badge variant="outline" className="bg-zinc-800 text-white">
-                      Flask
-                    </Badge>
-                    <Badge variant="outline" className="bg-zinc-800 text-white">
-                      HTML5
-                    </Badge>
-                    <Badge variant="outline" className="bg-zinc-800 text-white">
-                      CSS
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-zinc-900 border-zinc-800">
-                <CardContent className="pt-6">
-                  <h3 className="text-xl font-bold mb-4 text-white">{t.skills.api}</h3>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline" className="bg-zinc-800 text-white">
-                      Django
-                    </Badge>
-                    <Badge variant="outline" className="bg-zinc-800 text-white">
-                      Flask
-                    </Badge>
-                    <Badge variant="outline" className="bg-zinc-800 text-white">
-                      FastAPI
-                    </Badge>
-                    <Badge variant="outline" className="bg-zinc-800 text-white">
-                      Node.js
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-zinc-900 border-zinc-800">
-                <CardContent className="pt-6">
-                  <h3 className="text-xl font-bold mb-4 text-white">{t.skills.languages}</h3>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline" className="bg-zinc-800 text-white">
-                      Python
-                    </Badge>
-                    <Badge variant="outline" className="bg-zinc-800 text-white">
-                      JavaScript
-                    </Badge>
-                    <Badge variant="outline" className="bg-zinc-800 text-white">
-                      TypeScript
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-zinc-900 border-zinc-800">
-                <CardContent className="pt-6">
-                  <h3 className="text-xl font-bold mb-4 text-white">{t.skills.devops}</h3>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline" className="bg-zinc-800 text-white">
-                      Git
-                    </Badge>
-                    <Badge variant="outline" className="bg-zinc-800 text-white">
-                      MySQL
-                    </Badge>
-                    <Badge variant="outline" className="bg-zinc-800 text-white">
-                      Docker
-                    </Badge>
-                    <Badge variant="outline" className="bg-zinc-800 text-white">
-                      Linux
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-zinc-900 border-zinc-800">
-                <CardContent className="pt-6">
-                  <h3 className="text-xl font-bold mb-4 text-white">{t.skills.other}</h3>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline" className="bg-zinc-800 text-white">
-                      UI/UX Design
-                    </Badge>
-                    <Badge variant="outline" className="bg-zinc-800 text-white">
-                      RESTful APIs
-                    </Badge>
-                    <Badge variant="outline" className="bg-zinc-800 text-white">
-                      Database Design
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
+        {/* Skills Section - Ahora es un componente separado */}
+        <SkillsSection />
 
         {/* Projects Section */}
         <section ref={projectsRef} className="py-20 px-4 bg-zinc-900">
@@ -288,10 +154,8 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center text-white">{t.projects.title}</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              
-
               {/* Proyecto 1: LearnPro */}
-              <Card className="bg-black border-zinc-800 overflow-hidden">
+              <Card className="bg-black border-zinc-800 overflow-hidden hover:border-blue-500/30 transition-all duration-300">
                 <div className="relative h-48">
                   <Image
                     src={`/placeholder.svg?height=192&width=384`}
@@ -341,7 +205,7 @@ export default function Home() {
               </Card>
 
               {/* Proyecto 2: MyBudget */}
-              <Card className="bg-black border-zinc-800 overflow-hidden">
+              <Card className="bg-black border-zinc-800 overflow-hidden hover:border-green-500/30 transition-all duration-300">
                 <div className="relative h-48">
                   <Image
                     src={`/MyBudget.png`}
@@ -385,7 +249,7 @@ export default function Home() {
               </Card>
 
               {/* Proyecto 3: Educa+*/}
-              <Card className="bg-black border-zinc-800 overflow-hidden">
+              <Card className="bg-black border-zinc-800 overflow-hidden hover:border-purple-500/30 transition-all duration-300">
                 <div className="relative h-48">
                   <Image
                     src={`/placeholder.svg?height=192&width=384`}
@@ -472,19 +336,11 @@ export default function Home() {
           </div>
         </footer>
         
-        {/* Botón flotante para volver arriba - Aparece solo después de scroll */}
-        {showScrollTop && (
-          <div className="fixed right-6 bottom-6 z-50">
-            <Button 
-              onClick={scrollToTop}
-              size="icon" 
-              className="h-12 w-12 rounded-full shadow-lg bg-white text-black hover:bg-gray-200 transition-all duration-300"
-            >
-              <ArrowUp className="h-6 w-6" />
-              <span className="sr-only">Volver al inicio</span>
-            </Button>
-          </div>
-        )}
+        {/* Botón flotante para volver arriba - Con animación de crecimiento */}
+        <ScrollToTopButton 
+          onClick={scrollToTop} 
+          srText={language === 'es' ? "Volver al inicio" : "Back to top"}
+        />
       </main>
     </div>
   )

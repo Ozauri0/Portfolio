@@ -15,12 +15,14 @@ export const en = {
     },
     skills: {
       title: "Skills & Technologies",
+      description: "Technologies and tools I use to create effective and scalable digital solutions.",
       mobile: "Mobile Development",
       web: "Web Development",
       api: "API Development",
       languages: "Languages",
       devops: "DevOps & Tools",
-      other: "Other Skills"
+      other: "Other Skills",
+      mainSkills: "Main Skills"
     },
     projects: {
       title: "Featured Projects",

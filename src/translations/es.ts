@@ -15,12 +15,14 @@ export const es = {
     },
     skills: {
       title: "Habilidades y Tecnologías",
+      description: "Tecnologías y herramientas que utilizo para crear soluciones digitales efectivas y escalables.",
       mobile: "Desarrollo Móvil",
       web: "Desarrollo Web",
       api: "Desarrollo de APIs",
       languages: "Lenguajes",
       devops: "DevOps y Herramientas",
-      other: "Otras Habilidades"
+      other: "Otras Habilidades",
+      mainSkills: "Competencias principales"
     },
     projects: {
       title: "Proyectos Destacados",
