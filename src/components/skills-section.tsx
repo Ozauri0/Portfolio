@@ -246,54 +246,7 @@ export default function SkillsSection() {
           </Card>
         </div>
         
-        {/* Skills Summary Bar */}
-        <div className="mt-16 bg-zinc-900 rounded-lg p-6 border border-zinc-800">
-          <h3 className="text-lg font-semibold text-white mb-6 text-center">
-            {language === 'es' ? "Competencias principales" : "Main Skills"}
-          </h3>
-          
-          <div className="space-y-4">
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-sm text-gray-300">Frontend Development</span>
-                <span className="text-sm text-gray-400">90%</span>
-              </div>
-              <div className="w-full bg-zinc-800 rounded-full h-2">
-                <div className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full" style={{ width: '90%' }}></div>
-              </div>
-            </div>
-            
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-sm text-gray-300">Backend Development</span>
-                <span className="text-sm text-gray-400">85%</span>
-              </div>
-              <div className="w-full bg-zinc-800 rounded-full h-2">
-                <div className="bg-gradient-to-r from-green-500 to-teal-500 h-2 rounded-full" style={{ width: '85%' }}></div>
-              </div>
-            </div>
-            
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-sm text-gray-300">Mobile App Development</span>
-                <span className="text-sm text-gray-400">80%</span>
-              </div>
-              <div className="w-full bg-zinc-800 rounded-full h-2">
-                <div className="bg-gradient-to-r from-yellow-500 to-orange-500 h-2 rounded-full" style={{ width: '80%' }}></div>
-              </div>
-            </div>
-            
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-sm text-gray-300">DevOps & Cloud Services</span>
-                <span className="text-sm text-gray-400">75%</span>
-              </div>
-              <div className="w-full bg-zinc-800 rounded-full h-2">
-                <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full" style={{ width: '75%' }}></div>
-              </div>
-            </div>
-          </div>
-        </div>
+        
       </div>
     </section>
   );
