@@ -19,6 +19,33 @@ import LanguageSelector from "@/components/language-selector"
 import ContactForm from "@/components/contact-form"
 import SkillsSection from "@/components/skills-section"
 
+import { 
+  SiAngular, 
+  SiReact, 
+  SiIonic, 
+  SiCapacitor, 
+  SiAndroidstudio, 
+  SiDjango, 
+  SiFlask, 
+  SiFastapi, 
+  SiNodedotjs, 
+  SiPython, 
+  SiJavascript, 
+  SiTypescript, 
+  SiGit, 
+  SiMysql, 
+  SiDocker, 
+  SiLinux,
+  SiHtml5,
+  SiCss3,
+  SiMongodb,
+  SiSqlite,
+  SiNextdotjs,
+  SiTails,
+  SiTailwindcss,
+  SiC
+} from 'react-icons/si';
+
 export default function Home() {
   const { language } = useLanguage();
   const t = translations[language];
@@ -69,7 +96,10 @@ export default function Home() {
                     Christian Ferrer
                   </h2>
                   <h1 className="text-4xl md:text-6xl font-bold text-white">
-                    {t.hero.title} <span className="text-gray-400">{t.hero.subtitle}</span>
+                    {t.hero.title} 
+                  </h1>
+                  <h1 className="text-4xl md:text-6xl font-bold text-white">
+                  <span className="text-gray-400">{t.hero.subtitle}</span>
                   </h1>
                 </div>
                 <p className="text-xl md:text-2xl text-gray-300">
@@ -171,21 +201,27 @@ export default function Home() {
                   </p>
                   <div className="flex flex-wrap gap-2 mb-4">
                     <Badge variant="secondary" className="bg-zinc-800 text-white">
+                    <SiNextdotjs className="text-[#00000] h-4 w-4" />
                       Next.js
                     </Badge>
                     <Badge variant="secondary" className="bg-zinc-800 text-white">
+                      <SiTailwindcss className="text-[#06B6D4] h-4 w-4" />
                       TailwindCSS
                     </Badge>
                     <Badge variant="secondary" className="bg-zinc-800 text-white">
+                    <SiReact className="text-[#61DAFB] h-4 w-4" />
                       React
                     </Badge>
                     <Badge variant="secondary" className="bg-zinc-800 text-white">
+                    <SiTypescript className="text-[#3178C6] h-4 w-4" />
                       TypeScript
                     </Badge>
                     <Badge variant="secondary" className="bg-zinc-800 text-white">
-                      express
+                    <SiNodedotjs className="text-[#339933] h-4 w-4" />
+                      Node.js + Express
                     </Badge>
                     <Badge variant="secondary" className="bg-zinc-800 text-white">
+                      <SiMongodb className="text-[#47A248] h-4 w-4" />
                       MongoDB
                     </Badge>
                   </div>
@@ -221,15 +257,19 @@ export default function Home() {
                   </p>
                   <div className="flex flex-wrap gap-2 mb-4">
                     <Badge variant="secondary" className="bg-zinc-800 text-white">
+                      <SiIonic className="text-[#3880FF] h-4 w-4" />
                       Ionic
                     </Badge>
                     <Badge variant="secondary" className="bg-zinc-800 text-white">
+                      <SiSqlite className="text-[#003B57] h-4 w-4" />
                       SQLite
                     </Badge>
                     <Badge variant="secondary" className="bg-zinc-800 text-white">
+                      <SiAngular className="text-[#DD0031] h-4 w-4" />
                       Angular
                     </Badge>
                     <Badge variant="secondary" className="bg-zinc-800 text-white">
+                      <SiCapacitor className="text-[#119EFF] h-4 w-4" />
                       Capacitor
                     </Badge>
                   </div>
@@ -265,18 +305,23 @@ export default function Home() {
                   </p>
                   <div className="flex flex-wrap gap-2 mb-4">
                     <Badge variant="secondary" className="bg-zinc-800 text-white">
+                      <SiIonic className="text-[#3880FF] h-4 w-4" />
                       Ionic
                     </Badge>
                     <Badge variant="secondary" className="bg-zinc-800 text-white">
+                      <SiAngular className="text-[#DD0031] h-4 w-4" />
                       Angular
                     </Badge>
                     <Badge variant="secondary" className="bg-zinc-800 text-white">
+                      <SiCapacitor className="text-[#119EFF] h-4 w-4" />
                       Capacitor
                     </Badge>
                     <Badge variant="secondary" className="bg-zinc-800 text-white">
-                      Express
+                      <SiNodedotjs className="text-[#339933] h-4 w-4" />
+                      Node.js + Express
                     </Badge>
                     <Badge variant="secondary" className="bg-zinc-800 text-white">
+                      <SiMysql className="text-[#00758F] h-4 w-4" />
                       MySQL
                     </Badge>
                   </div>

@@ -33,7 +33,8 @@ import {
   SiHtml5,
   SiCss3,
   SiMongodb,
-  SiSqlite
+  SiSqlite,
+  SiNextdotjs,
 } from 'react-icons/si';
 
 export default function SkillsSection() {
