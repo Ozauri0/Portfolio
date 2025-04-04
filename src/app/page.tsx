@@ -288,7 +288,59 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center text-white">{t.projects.title}</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {/* Proyecto 1: MyBudget */}
+              
+
+              {/* Proyecto 1: LearnPro */}
+              <Card className="bg-black border-zinc-800 overflow-hidden">
+                <div className="relative h-48">
+                  <Image
+                    src={`/placeholder.svg?height=192&width=384`}
+                    alt="LearnPro"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <CardContent className="pt-6">
+                  <h3 className="text-xl font-bold mb-2 text-white">{t.projects.project1.title}</h3>
+                  <p className="text-gray-400 mb-4">
+                    {t.projects.project1.description}
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <Badge variant="secondary" className="bg-zinc-800 text-white">
+                      Next.js
+                    </Badge>
+                    <Badge variant="secondary" className="bg-zinc-800 text-white">
+                      TailwindCSS
+                    </Badge>
+                    <Badge variant="secondary" className="bg-zinc-800 text-white">
+                      React
+                    </Badge>
+                    <Badge variant="secondary" className="bg-zinc-800 text-white">
+                      TypeScript
+                    </Badge>
+                    <Badge variant="secondary" className="bg-zinc-800 text-white">
+                      express
+                    </Badge>
+                    <Badge variant="secondary" className="bg-zinc-800 text-white">
+                      MongoDB
+                    </Badge>
+                  </div>
+                  <div className="flex gap-2">
+                    <a href="https://github.com/Ozauri0/portfolio" target="_blank" rel="noopener noreferrer">
+                      <Button size="sm" variant="outline" className="gap-1 text-white">
+                        <Github className="h-4 w-4"/> {t.projects.code}
+                      </Button>
+                    </a>
+                    <a href="#" target="_blank" rel="noopener noreferrer">
+                      <Button size="sm" className="gap-1 bg-white text-black hover:bg-gray-200">
+                        <ExternalLink className="h-4 w-4" /> {t.projects.liveDemo}
+                      </Button>
+                    </a>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Proyecto 2: MyBudget */}
               <Card className="bg-black border-zinc-800 overflow-hidden">
                 <div className="relative h-48">
                   <Image
@@ -299,9 +351,9 @@ export default function Home() {
                   />
                 </div>
                 <CardContent className="pt-6">
-                  <h3 className="text-xl font-bold mb-2 text-white">{t.projects.project1.title}</h3>
+                  <h3 className="text-xl font-bold mb-2 text-white">{t.projects.project2.title}</h3>
                   <p className="text-gray-400 mb-4">
-                    {t.projects.project1.description}
+                    {t.projects.project2.description}
                   </p>
                   <div className="flex flex-wrap gap-2 mb-4">
                     <Badge variant="secondary" className="bg-zinc-800 text-white">
@@ -332,51 +384,7 @@ export default function Home() {
                 </CardContent>
               </Card>
 
-              {/* Proyecto 2: Portfolio Website */}
-              <Card className="bg-black border-zinc-800 overflow-hidden">
-                <div className="relative h-48">
-                  <Image
-                    src={`/placeholder.svg?height=192&width=384`}
-                    alt="Portfolio Website"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <CardContent className="pt-6">
-                  <h3 className="text-xl font-bold mb-2 text-white">{t.projects.project2.title}</h3>
-                  <p className="text-gray-400 mb-4">
-                    {t.projects.project2.description}
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <Badge variant="secondary" className="bg-zinc-800 text-white">
-                      Next.js
-                    </Badge>
-                    <Badge variant="secondary" className="bg-zinc-800 text-white">
-                      TailwindCSS
-                    </Badge>
-                    <Badge variant="secondary" className="bg-zinc-800 text-white">
-                      React
-                    </Badge>
-                    <Badge variant="secondary" className="bg-zinc-800 text-white">
-                      TypeScript
-                    </Badge>
-                  </div>
-                  <div className="flex gap-2">
-                    <a href="https://github.com/Ozauri0/portfolio" target="_blank" rel="noopener noreferrer">
-                      <Button size="sm" variant="outline" className="gap-1 text-white">
-                        <Github className="h-4 w-4"/> {t.projects.code}
-                      </Button>
-                    </a>
-                    <a href="#" target="_blank" rel="noopener noreferrer">
-                      <Button size="sm" className="gap-1 bg-white text-black hover:bg-gray-200">
-                        <ExternalLink className="h-4 w-4" /> {t.projects.liveDemo}
-                      </Button>
-                    </a>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Proyecto 3: LearnPro */}
+              {/* Proyecto 3: Educa+*/}
               <Card className="bg-black border-zinc-800 overflow-hidden">
                 <div className="relative h-48">
                   <Image
@@ -393,16 +401,19 @@ export default function Home() {
                   </p>
                   <div className="flex flex-wrap gap-2 mb-4">
                     <Badge variant="secondary" className="bg-zinc-800 text-white">
-                      Next.js
+                      Ionic
                     </Badge>
                     <Badge variant="secondary" className="bg-zinc-800 text-white">
-                      TailwindCSS
+                      Angular
                     </Badge>
                     <Badge variant="secondary" className="bg-zinc-800 text-white">
-                      React
+                      Capacitor
                     </Badge>
                     <Badge variant="secondary" className="bg-zinc-800 text-white">
-                      TypeScript
+                      Express
+                    </Badge>
+                    <Badge variant="secondary" className="bg-zinc-800 text-white">
+                      MySQL
                     </Badge>
                   </div>
                   <div className="flex gap-2">

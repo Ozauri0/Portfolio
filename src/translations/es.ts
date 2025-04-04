@@ -30,16 +30,16 @@ export const es = {
       liveDemo: "Demo en Vivo",
       documentation: "Documentación",
       project1: {
+        title: "LearnPro",
+        description: "Una plataforma de gestión de aprendizaje que permite a los educadores crear cursos."
+      },
+      project2: {
         title: "MyBudget",
         description: "Una aplicación de presupuesto para ayudarte a administrar finanzas personales y realizar seguimiento de gastos."
       },
-      project2: {
-        title: "Sitio Portfolio",
-        description: "Un sitio web de portafolio moderno construido con Next.js y TailwindCSS que muestra mis proyectos y habilidades."
-      },
       project3: {
-        title: "LearnPro",
-        description: "Una plataforma de gestión de aprendizaje que permite a los educadores crear cursos."
+        title: "Educa+",
+        description: "Una plataforma de gestion de cursos online mobile"
       }
     },
     contact: {

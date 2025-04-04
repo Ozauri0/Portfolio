@@ -29,17 +29,18 @@ export const en = {
       download: "Download",
       liveDemo: "Live Demo",
       documentation: "Documentation",
+
       project1: {
+        title: "LearnPro",
+        description: "A learning management platform that enables educators to create courses."
+      },
+      project2: {
         title: "MyBudget",
         description: "A budgeting app to help you manage personal finances and track expenses."
       },
-      project2: {
-        title: "Portfolio Website",
-        description: "A modern portfolio website built with Next.js and TailwindCSS showcasing my projects and skills."
-      },
       project3: {
-        title: "LearnPro",
-        description: "A learning management platform that enables educators to create courses."
+        title: "Educa+",
+        description: "A mobile course management platform"
       }
     },
     contact: {
