@@ -252,8 +252,8 @@ export default function Home() {
               <Card className="bg-black border-zinc-800 overflow-hidden hover:border-purple-500/30 transition-all duration-300">
                 <div className="relative h-48">
                   <Image
-                    src={`/placeholder.svg?height=192&width=384`}
-                    alt="LearnPro"
+                    src={`/educa+.png`}
+                    alt="Educa+"
                     fill
                     className="object-cover"
                   />
