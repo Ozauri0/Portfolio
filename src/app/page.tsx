@@ -188,7 +188,7 @@ export default function Home() {
               <Card className="bg-black border-zinc-800 overflow-hidden hover:border-blue-500/30 transition-all duration-300">
                 <div className="relative h-48">
                   <Image
-                    src={`/placeholder.svg?height=192&width=384`}
+                    src={`/learnpro.png`}
                     alt="LearnPro"
                     fill
                     className="object-cover"
@@ -226,7 +226,7 @@ export default function Home() {
                     </Badge>
                   </div>
                   <div className="flex gap-2">
-                    <a href="https://github.com/Ozauri0/portfolio" target="_blank" rel="noopener noreferrer">
+                    <a href="https://github.com/Ozauri0/app-empresariales" target="_blank" rel="noopener noreferrer">
                       <Button size="sm" variant="outline" className="gap-1 text-white">
                         <Github className="h-4 w-4"/> {t.projects.code}
                       </Button>
@@ -326,7 +326,7 @@ export default function Home() {
                     </Badge>
                   </div>
                   <div className="flex gap-2">
-                    <a href="https://github.com/Ozauri0/app-empresariales" target="_blank" rel="noopener noreferrer">
+                    <a href="https://github.com/Ozauri0/educaplus" target="_blank" rel="noopener noreferrer">
                       <Button size="sm" variant="outline" className="gap-1 text-white">
                         <Github className="h-4 w-4"/> {t.projects.code}
                       </Button>
