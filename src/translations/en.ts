@@ -24,6 +24,11 @@ export const en = {
       other: "Other Skills",
       mainSkills: "Main Skills"
     },
+    otherskills:{
+      otherskills1: "UI/UX Design",
+      otherskills2: "Restful APIs",
+      otherskills3: "Database Design",
+    },
     projects: {
       title: "Featured Projects",
       viewAll: "View All Projects",

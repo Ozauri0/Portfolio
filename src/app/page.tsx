@@ -166,11 +166,6 @@ export default function Home() {
               <p className="text-gray-300">
                 {t.about.paragraph2}
               </p>
-              <div className="flex justify-center mt-6">
-                <Button variant="outline" className="border-white/50 hover:border-white text-white">
-                  {t.about.downloadCV}
-                </Button>
-              </div>
             </div>
           </div>
         </section>

@@ -46,9 +46,7 @@ export default function SkillsSection() {
       <div className="container mx-auto max-w-6xl">
         <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center text-white">{t.skills.title}</h2>
         <p className="text-gray-400 text-center max-w-2xl mx-auto mb-12">
-          {language === 'es' 
-            ? "Tecnologías y herramientas que utilizo para crear soluciones digitales efectivas y escalables." 
-            : "Technologies and tools I use to create effective and scalable digital solutions."}
+          {t.skills.description}
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -228,19 +226,15 @@ export default function SkillsSection() {
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-gray-300">
                   <PenTool className="text-[#FF61F6] h-4 w-4" />
-                  <span>UI/UX Design</span>
+                  {t.otherskills.otherskills1}
                 </div>
                 <div className="flex items-center gap-2 text-gray-300">
                   <Server className="text-[#6C63FF] h-4 w-4" />
-                  <span>RESTful APIs</span>
+                  {t.otherskills.otherskills2}
                 </div>
                 <div className="flex items-center gap-2 text-gray-300">
                   <Database className="text-[#38B2AC] h-4 w-4" />
-                  <span>Database Design</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-300">
-                  <Shield className="text-[#F56565] h-4 w-4" />
-                  <span>Security Best Practices</span>
+                  {t.otherskills.otherskills3}
                 </div>
               </div>
             </CardContent>
