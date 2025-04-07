@@ -143,7 +143,7 @@ export default function Home() {
               <div className="flex justify-center order-1 md:order-2">
                 <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 border-white/20 shadow-lg shadow-blue-500/10">
                   <Image
-                    src="/perfil.png"
+                    src="/perfil.webp"
                     alt="Developer Profile"
                     fill
                     className="object-cover"
@@ -183,7 +183,7 @@ export default function Home() {
       <Card className="bg-black border-zinc-800 overflow-hidden hover:border-blue-500/30 transition-all duration-300 flex flex-col">
         <div className="relative h-48">
           <Image
-            src={`/learnpro.png`}
+            src={`/learnpro.webp`}
             alt="LearnPro"
             fill
             className="object-cover"
@@ -241,7 +241,7 @@ export default function Home() {
       <Card className="bg-black border-zinc-800 overflow-hidden hover:border-green-500/30 transition-all duration-300 flex flex-col">
         <div className="relative h-48">
           <Image
-            src={`/MyBudget.png`}
+            src={`/MyBudget.webp`}
             alt="MyBudget Project"
             fill
             className="object-cover"
@@ -291,7 +291,7 @@ export default function Home() {
       <Card className="bg-black border-zinc-800 overflow-hidden hover:border-purple-500/30 transition-all duration-300 flex flex-col">
         <div className="relative h-48">
           <Image
-            src={`/educa+.png`}
+            src={`/educa+.webp`}
             alt="Educa+"
             fill
             className="object-cover"
