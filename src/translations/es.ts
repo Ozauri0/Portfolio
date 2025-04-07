@@ -46,7 +46,7 @@ export const es = {
       },
       project3: {
         title: "Educa+",
-        description: "Una plataforma de gestion de cursos online mobile"
+        description: "Una plataforma de gestion de cursos online que permite a educadores crear y gestionar cursos."
       }
     },
     contact: {

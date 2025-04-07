@@ -43,11 +43,11 @@ export const en = {
       },
       project2: {
         title: "MyBudget",
-        description: "A budgeting app to help you manage personal finances and track expenses."
+        description: "A budgeting app to help you manage personal finances, track expenses and create goals."
       },
       project3: {
         title: "Educa+",
-        description: "A mobile course management platform"
+        description: "A mobile course management platform that allows educators to create and manage courses."
       }
     },
     contact: {

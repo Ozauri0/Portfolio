@@ -174,173 +174,179 @@ export default function Home() {
         <SkillsSection />
 
         {/* Projects Section */}
-        <section ref={projectsRef} className="py-20 px-4 bg-zinc-900">
-          <div className="container mx-auto max-w-6xl">
-            <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center text-white">{t.projects.title}</h2>
+<section ref={projectsRef} className="py-20 px-4 bg-zinc-900">
+  <div className="container mx-auto max-w-6xl">
+    <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center text-white">{t.projects.title}</h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {/* Proyecto 1: LearnPro */}
-              <Card className="bg-black border-zinc-800 overflow-hidden hover:border-blue-500/30 transition-all duration-300">
-                <div className="relative h-48">
-                  <Image
-                    src={`/learnpro.png`}
-                    alt="LearnPro"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <CardContent className="pt-6">
-                  <h3 className="text-xl font-bold mb-2 text-white">{t.projects.project1.title}</h3>
-                  <p className="text-gray-400 mb-4">
-                    {t.projects.project1.description}
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <Badge variant="secondary" className="bg-zinc-800 text-white">
-                    <SiNextdotjs className="text-[#00000] h-4 w-4" />
-                      Next.js
-                    </Badge>
-                    <Badge variant="secondary" className="bg-zinc-800 text-white">
-                      <SiTailwindcss className="text-[#06B6D4] h-4 w-4" />
-                      TailwindCSS
-                    </Badge>
-                    <Badge variant="secondary" className="bg-zinc-800 text-white">
-                    <SiReact className="text-[#61DAFB] h-4 w-4" />
-                      React
-                    </Badge>
-                    <Badge variant="secondary" className="bg-zinc-800 text-white">
-                    <SiTypescript className="text-[#3178C6] h-4 w-4" />
-                      TypeScript
-                    </Badge>
-                    <Badge variant="secondary" className="bg-zinc-800 text-white">
-                    <SiNodedotjs className="text-[#339933] h-4 w-4" />
-                      Node.js + Express
-                    </Badge>
-                    <Badge variant="secondary" className="bg-zinc-800 text-white">
-                      <SiMongodb className="text-[#47A248] h-4 w-4" />
-                      MongoDB
-                    </Badge>
-                  </div>
-                  <div className="flex gap-2">
-                    <a href="https://github.com/Ozauri0/app-empresariales" target="_blank" rel="noopener noreferrer">
-                      <Button size="sm" variant="outline" className="gap-1 text-white">
-                        <Github className="h-4 w-4"/> {t.projects.code}
-                      </Button>
-                    </a>
-                    <a href="#" target="_blank" rel="noopener noreferrer">
-                      <Button size="sm" className="gap-1 bg-white text-black hover:bg-gray-200">
-                        <ExternalLink className="h-4 w-4" /> {t.projects.liveDemo}
-                      </Button>
-                    </a>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Proyecto 2: MyBudget */}
-              <Card className="bg-black border-zinc-800 overflow-hidden hover:border-green-500/30 transition-all duration-300">
-                <div className="relative h-48">
-                  <Image
-                    src={`/MyBudget.png`}
-                    alt="MyBudget Project"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <CardContent className="pt-6">
-                  <h3 className="text-xl font-bold mb-2 text-white">{t.projects.project2.title}</h3>
-                  <p className="text-gray-400 mb-4">
-                    {t.projects.project2.description}
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <Badge variant="secondary" className="bg-zinc-800 text-white">
-                      <SiIonic className="text-[#3880FF] h-4 w-4" />
-                      Ionic
-                    </Badge>
-                    <Badge variant="secondary" className="bg-zinc-800 text-white">
-                      <SiSqlite className="text-[#003B57] h-4 w-4" />
-                      SQLite
-                    </Badge>
-                    <Badge variant="secondary" className="bg-zinc-800 text-white">
-                      <SiAngular className="text-[#DD0031] h-4 w-4" />
-                      Angular
-                    </Badge>
-                    <Badge variant="secondary" className="bg-zinc-800 text-white">
-                      <SiCapacitor className="text-[#119EFF] h-4 w-4" />
-                      Capacitor
-                    </Badge>
-                  </div>
-                  <div className="flex gap-2">
-                    <a href="https://github.com/Ozauri0/MyBudget" target="_blank" rel="noopener noreferrer">
-                      <Button size="sm" variant="outline" className="gap-1 text-white">
-                        <Github className="h-4 w-4"/> {t.projects.code}
-                      </Button>
-                    </a>
-                    <a href="https://drive.google.com/file/d/1vmzhouVOfmvh0CM3LvYGwwfjK5TsUofm/view?usp=sharing" target="_blank" rel="noopener noreferrer">
-                      <Button size="sm" className="gap-1 bg-white text-black hover:bg-gray-200">
-                        <ExternalLink className="h-4 w-4" /> {t.projects.download}
-                      </Button>
-                    </a>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Proyecto 3: Educa+*/}
-              <Card className="bg-black border-zinc-800 overflow-hidden hover:border-purple-500/30 transition-all duration-300">
-                <div className="relative h-48">
-                  <Image
-                    src={`/educa+.png`}
-                    alt="Educa+"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <CardContent className="pt-6">
-                  <h3 className="text-xl font-bold mb-2 text-white">{t.projects.project3.title}</h3>
-                  <p className="text-gray-400 mb-4">
-                    {t.projects.project3.description}
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <Badge variant="secondary" className="bg-zinc-800 text-white">
-                      <SiIonic className="text-[#3880FF] h-4 w-4" />
-                      Ionic
-                    </Badge>
-                    <Badge variant="secondary" className="bg-zinc-800 text-white">
-                      <SiAngular className="text-[#DD0031] h-4 w-4" />
-                      Angular
-                    </Badge>
-                    <Badge variant="secondary" className="bg-zinc-800 text-white">
-                      <SiCapacitor className="text-[#119EFF] h-4 w-4" />
-                      Capacitor
-                    </Badge>
-                    <Badge variant="secondary" className="bg-zinc-800 text-white">
-                      <SiNodedotjs className="text-[#339933] h-4 w-4" />
-                      Node.js + Express
-                    </Badge>
-                    <Badge variant="secondary" className="bg-zinc-800 text-white">
-                      <SiMysql className="text-[#00758F] h-4 w-4" />
-                      MySQL
-                    </Badge>
-                  </div>
-                  <div className="flex gap-2">
-                    <a href="https://github.com/Ozauri0/educaplus" target="_blank" rel="noopener noreferrer">
-                      <Button size="sm" variant="outline" className="gap-1 text-white">
-                        <Github className="h-4 w-4"/> {t.projects.code}
-                      </Button>
-                    </a>
-                    <a href="#" target="_blank" rel="noopener noreferrer">
-                      <Button size="sm" className="gap-1 bg-white text-black hover:bg-gray-200">
-                        <ExternalLink className="h-4 w-4" /> {t.projects.documentation}
-                      </Button>
-                    </a>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="flex justify-center mt-12">
-              <Button variant="outline" className="text-white">{t.projects.viewAll}</Button>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {/* Proyecto 1: LearnPro */}
+      <Card className="bg-black border-zinc-800 overflow-hidden hover:border-blue-500/30 transition-all duration-300 flex flex-col">
+        <div className="relative h-48">
+          <Image
+            src={`/learnpro.png`}
+            alt="LearnPro"
+            fill
+            className="object-cover"
+          />
+        </div>
+        <CardContent className="pt-6 flex-1 flex flex-col">
+          <div className="flex-1">
+            <h3 className="text-xl font-bold mb-2 text-white">{t.projects.project1.title}</h3>
+            <p className="text-gray-400 mb-4">
+              {t.projects.project1.description}
+            </p>
+            <div className="flex flex-wrap gap-2 mb-4">
+              <Badge variant="secondary" className="bg-zinc-800 text-white">
+                <SiNextdotjs className="text-[#00000] h-4 w-4" />
+                Next.js
+              </Badge>
+              <Badge variant="secondary" className="bg-zinc-800 text-white">
+                <SiTailwindcss className="text-[#06B6D4] h-4 w-4" />
+                TailwindCSS
+              </Badge>
+              <Badge variant="secondary" className="bg-zinc-800 text-white">
+                <SiReact className="text-[#61DAFB] h-4 w-4" />
+                React
+              </Badge>
+              <Badge variant="secondary" className="bg-zinc-800 text-white">
+                <SiTypescript className="text-[#3178C6] h-4 w-4" />
+                TypeScript
+              </Badge>
+              <Badge variant="secondary" className="bg-zinc-800 text-white">
+                <SiNodedotjs className="text-[#339933] h-4 w-4" />
+                Node.js + Express
+              </Badge>
+              <Badge variant="secondary" className="bg-zinc-800 text-white">
+                <SiMongodb className="text-[#47A248] h-4 w-4" />
+                MongoDB
+              </Badge>
             </div>
           </div>
-        </section>
+          <div className="mt-auto flex gap-2">
+            <a href="https://github.com/Ozauri0/app-empresariales" target="_blank" rel="noopener noreferrer" className="flex-1">
+              <Button size="sm" variant="outline" className="gap-1 text-white w-full">
+                <Github className="h-4 w-4"/> {t.projects.code}
+              </Button>
+            </a>
+            <a href="#" target="_blank" rel="noopener noreferrer" className="flex-1">
+              <Button size="sm" className="gap-1 bg-white text-black hover:bg-gray-200 w-full">
+                <ExternalLink className="h-4 w-4" /> {t.projects.liveDemo}
+              </Button>
+            </a>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Proyecto 2: MyBudget */}
+      <Card className="bg-black border-zinc-800 overflow-hidden hover:border-green-500/30 transition-all duration-300 flex flex-col">
+        <div className="relative h-48">
+          <Image
+            src={`/MyBudget.png`}
+            alt="MyBudget Project"
+            fill
+            className="object-cover"
+          />
+        </div>
+        <CardContent className="pt-6 flex-1 flex flex-col">
+          <div className="flex-1">
+            <h3 className="text-xl font-bold mb-2 text-white">{t.projects.project2.title}</h3>
+            <p className="text-gray-400 mb-4">
+              {t.projects.project2.description}
+            </p>
+            <div className="flex flex-wrap gap-2 mb-4">
+              <Badge variant="secondary" className="bg-zinc-800 text-white">
+                <SiIonic className="text-[#3880FF] h-4 w-4" />
+                Ionic
+              </Badge>
+              <Badge variant="secondary" className="bg-zinc-800 text-white">
+                <SiSqlite className="text-[#003B57] h-4 w-4" />
+                SQLite
+              </Badge>
+              <Badge variant="secondary" className="bg-zinc-800 text-white">
+                <SiAngular className="text-[#DD0031] h-4 w-4" />
+                Angular
+              </Badge>
+              <Badge variant="secondary" className="bg-zinc-800 text-white">
+                <SiCapacitor className="text-[#119EFF] h-4 w-4" />
+                Capacitor
+              </Badge>
+            </div>
+          </div>
+          <div className="mt-auto flex gap-2">
+            <a href="https://github.com/Ozauri0/MyBudget" target="_blank" rel="noopener noreferrer" className="flex-1">
+              <Button size="sm" variant="outline" className="gap-1 text-white w-full">
+                <Github className="h-4 w-4"/> {t.projects.code}
+              </Button>
+            </a>
+            <a href="https://drive.google.com/file/d/1vmzhouVOfmvh0CM3LvYGwwfjK5TsUofm/view?usp=sharing" target="_blank" rel="noopener noreferrer" className="flex-1">
+              <Button size="sm" className="gap-1 bg-white text-black hover:bg-gray-200 w-full">
+                <ExternalLink className="h-4 w-4" /> {t.projects.download}
+              </Button>
+            </a>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Proyecto 3: Educa+*/}
+      <Card className="bg-black border-zinc-800 overflow-hidden hover:border-purple-500/30 transition-all duration-300 flex flex-col">
+        <div className="relative h-48">
+          <Image
+            src={`/educa+.png`}
+            alt="Educa+"
+            fill
+            className="object-cover"
+          />
+        </div>
+        <CardContent className="pt-6 flex-1 flex flex-col">
+          <div className="flex-1">
+            <h3 className="text-xl font-bold mb-2 text-white">{t.projects.project3.title}</h3>
+            <p className="text-gray-400 mb-4">
+              {t.projects.project3.description}
+            </p>
+            <div className="flex flex-wrap gap-2 mb-4">
+              <Badge variant="secondary" className="bg-zinc-800 text-white">
+                <SiIonic className="text-[#3880FF] h-4 w-4" />
+                Ionic
+              </Badge>
+              <Badge variant="secondary" className="bg-zinc-800 text-white">
+                <SiAngular className="text-[#DD0031] h-4 w-4" />
+                Angular
+              </Badge>
+              <Badge variant="secondary" className="bg-zinc-800 text-white">
+                <SiCapacitor className="text-[#119EFF] h-4 w-4" />
+                Capacitor
+              </Badge>
+              <Badge variant="secondary" className="bg-zinc-800 text-white">
+                <SiNodedotjs className="text-[#339933] h-4 w-4" />
+                Node.js + Express
+              </Badge>
+              <Badge variant="secondary" className="bg-zinc-800 text-white">
+                <SiMysql className="text-[#00758F] h-4 w-4" />
+                MySQL
+              </Badge>
+            </div>
+          </div>
+          <div className="mt-auto flex gap-2">
+            <a href="https://github.com/Ozauri0/educaplus" target="_blank" rel="noopener noreferrer" className="flex-1">
+              <Button size="sm" variant="outline" className="gap-1 text-white w-full">
+                <Github className="h-4 w-4"/> {t.projects.code}
+              </Button>
+            </a>
+            <a href="#" target="_blank" rel="noopener noreferrer" className="flex-1">
+              <Button size="sm" className="gap-1 bg-white text-black hover:bg-gray-200 w-full">
+                <ExternalLink className="h-4 w-4" /> {t.projects.documentation}
+              </Button>
+            </a>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+
+    <div className="flex justify-center mt-12">
+      <Button variant="outline" className="text-white">{t.projects.viewAll}</Button>
+    </div>
+  </div>
+</section>
 
         {/* Contact Section */}
         <section ref={contactRef} className="py-20 px-4 bg-black">
