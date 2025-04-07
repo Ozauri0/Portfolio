@@ -228,11 +228,12 @@ export default function Home() {
                 <Github className="h-4 w-4"/> {t.projects.code}
               </Button>
             </a>
-            <a href="#" target="_blank" rel="noopener noreferrer" className="flex-1">
+            <a href="https://leanpro.christianferrer.me" target="_blank" rel="noopener noreferrer" className="flex-1">
               <Button size="sm" className="gap-1 bg-white text-black hover:bg-gray-200 w-full">
                 <ExternalLink className="h-4 w-4" /> {t.projects.liveDemo}
               </Button>
             </a>
+            
           </div>
         </CardContent>
       </Card>
@@ -278,7 +279,7 @@ export default function Home() {
                 <Github className="h-4 w-4"/> {t.projects.code}
               </Button>
             </a>
-            <a href="https://drive.google.com/file/d/1vmzhouVOfmvh0CM3LvYGwwfjK5TsUofm/view?usp=sharing" target="_blank" rel="noopener noreferrer" className="flex-1">
+            <a href="https://play.google.com/store/apps/details?id=com.mybudget.app&pcampaignid=web_share" target="_blank" rel="noopener noreferrer" className="flex-1">
               <Button size="sm" className="gap-1 bg-white text-black hover:bg-gray-200 w-full">
                 <ExternalLink className="h-4 w-4" /> {t.projects.download}
               </Button>
@@ -332,18 +333,22 @@ export default function Home() {
                 <Github className="h-4 w-4"/> {t.projects.code}
               </Button>
             </a>
+            {/*}
             <a href="#" target="_blank" rel="noopener noreferrer" className="flex-1">
               <Button size="sm" className="gap-1 bg-white text-black hover:bg-gray-200 w-full">
                 <ExternalLink className="h-4 w-4" /> {t.projects.documentation}
               </Button>
             </a>
+            */}
           </div>
         </CardContent>
       </Card>
     </div>
 
     <div className="flex justify-center mt-12">
+      <a href="https://github.com/Ozauri0/" target="_blank" rel="noopener noreferrer">
       <Button variant="outline" className="text-white">{t.projects.viewAll}</Button>
+      </a>
     </div>
   </div>
 </section>
