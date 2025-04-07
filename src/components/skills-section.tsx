@@ -52,8 +52,8 @@ export default function SkillsSection() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Mobile Development */}
           <Card className="bg-zinc-900 border-zinc-800 hover:border-blue-500/30 transition-all duration-300">
-            <CardContent className="pt-6 relative z-10">
-              <div className="flex items-center gap-3 mb-4">
+            <CardContent className="pt-1 relative z-10">
+              <div className="flex items-center gap-3 mb-5">
                 <div className="p-2 bg-blue-500/10 rounded-lg">
                   <Smartphone className="h-5 w-5 text-blue-400" />
                 </div>
@@ -79,8 +79,8 @@ export default function SkillsSection() {
 
           {/* Web Development */}
           <Card className="bg-zinc-900 border-zinc-800 hover:border-green-500/30 transition-all duration-300">
-            <CardContent className="pt-6 relative z-10">
-              <div className="flex items-center gap-3 mb-4">
+            <CardContent className="pt-1 relative z-10">
+              <div className="flex items-center gap-3 mb-5">
                 <div className="p-2 bg-green-500/10 rounded-lg">
                   <Globe className="h-5 w-5 text-green-400" />
                 </div>
@@ -118,8 +118,8 @@ export default function SkillsSection() {
 
           {/* API Development */}
           <Card className="bg-zinc-900 border-zinc-800 hover:border-purple-500/30 transition-all duration-300">
-            <CardContent className="pt-6 relative z-10">
-              <div className="flex items-center gap-3 mb-4">
+            <CardContent className="pt-1 relative z-10">
+              <div className="flex items-center gap-3 mb-5">
                 <div className="p-2 bg-purple-500/10 rounded-lg">
                   <Server className="h-5 w-5 text-purple-400" />
                 </div>
@@ -149,8 +149,8 @@ export default function SkillsSection() {
 
           {/* Programming Languages */}
           <Card className="bg-zinc-900 border-zinc-800 hover:border-yellow-500/30 transition-all duration-300">
-            <CardContent className="pt-6 relative z-10">
-              <div className="flex items-center gap-3 mb-4">
+            <CardContent className="pt-1 relative z-10">
+              <div className="flex items-center gap-3 mb-5">
                 <div className="p-2 bg-yellow-500/10 rounded-lg">
                   <Code className="h-5 w-5 text-yellow-400" />
                 </div>
@@ -176,8 +176,8 @@ export default function SkillsSection() {
 
           {/* DevOps */}
           <Card className="bg-zinc-900 border-zinc-800 hover:border-teal-500/30 transition-all duration-300">
-            <CardContent className="pt-6 relative z-10">
-              <div className="flex items-center gap-3 mb-4">
+            <CardContent className="pt-1 relative z-10">
+              <div className="flex items-center gap-3 mb-5">
                 <div className="p-2 bg-teal-500/10 rounded-lg">
                   <Terminal className="h-5 w-5 text-teal-400" />
                 </div>
@@ -215,8 +215,8 @@ export default function SkillsSection() {
 
           {/* Other Skills */}
           <Card className="bg-zinc-900 border-zinc-800 hover:border-pink-500/30 transition-all duration-300">
-            <CardContent className="pt-6 relative z-10">
-              <div className="flex items-center gap-3 mb-4">
+            <CardContent className="pt-1 relative z-10">
+              <div className="flex items-center gap-3 mb-5">
                 <div className="p-2 bg-pink-500/10 rounded-lg">
                   <PenTool className="h-5 w-5 text-pink-400" />
                 </div>
@@ -240,8 +240,6 @@ export default function SkillsSection() {
             </CardContent>
           </Card>
         </div>
-        
-        
       </div>
     </section>
   );
