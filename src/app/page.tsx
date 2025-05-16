@@ -228,7 +228,7 @@ export default function Home() {
                 <Github className="h-4 w-4"/> {t.projects.code}
               </Button>
             </a>
-            <a href="https://leanpro.christianferrer.me" target="_blank" rel="noopener noreferrer" className="flex-1">
+            <a href="https://lp.christianferrer.me" target="_blank" rel="noopener noreferrer" className="flex-1">
               <Button size="sm" className="gap-1 bg-white text-black hover:bg-gray-200 w-full">
                 <ExternalLink className="h-4 w-4" /> {t.projects.liveDemo}
               </Button>
