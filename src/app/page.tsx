@@ -87,9 +87,9 @@ export default function Home() {
       <NodeBackground />
       
       {/* Header with navigation */}
-      <header className="fixed top-0 right-0 z-50 p-4 flex items-center space-x-4">
-        <LanguageSelector />
+      <header className="fixed top-0 left-0 z-50 p-4 flex items-center space-x-4">
         <AuthNavigation />
+        <LanguageSelector />
       </header>
 
       <main className="relative z-10">

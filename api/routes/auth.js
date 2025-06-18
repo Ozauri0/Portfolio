@@ -31,12 +31,23 @@ router.post('/login', async (req, res) => {
       });
     }
 
+    // Get user profile data from profiles table
+    console.log('Buscando perfil para usuario ID:', data.user.id);
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .select('full_name')
+      .eq('id', data.user.id)
+      .single();
+
+    console.log('Perfil encontrado:', profile);
+    console.log('Error de perfil:', profileError);
+
     res.json({
       message: 'Login exitoso',
       user: {
         id: data.user.id,
         email: data.user.email,
-        fullName: data.user.user_metadata?.full_name
+        fullName: profile?.full_name || null
       },
       session: {
         access_token: data.session.access_token,
@@ -78,11 +89,18 @@ router.post('/logout', authenticateToken, async (req, res) => {
 // Get authenticated user profile
 router.get('/profile', authenticateToken, async (req, res) => {
   try {
+    // Get user profile data from profiles table
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .select('full_name')
+      .eq('id', req.user.id)
+      .single();
+
     res.json({
       user: {
         id: req.user.id,
         email: req.user.email,
-        fullName: req.user.user_metadata?.full_name,
+        fullName: profile?.full_name || null,
         createdAt: req.user.created_at
       }
     });

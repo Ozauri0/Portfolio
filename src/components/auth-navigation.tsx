@@ -74,13 +74,16 @@ export default function AuthNavigation() {
   // Only show something if user is authenticated
   // The login button is completely hidden from the public
   return (
-    <div className="flex items-center space-x-4">
+    <div className="flex items-center justify-start space-x-4">
       {isAuthenticated && user ? (
-        <div className="flex items-center space-x-3">          {/* Show user information */}
+        <div className="flex items-center space-x-3">
+          {/* Show user information */}
           <div className="flex items-center space-x-2 text-sm text-gray-300">
             <User className="h-4 w-4" />
-            <span>Hola, {user.fullName || user.email}</span>
-          </div>          {/* Admin button (only if admin) */}
+            <span>{user.fullName || user.email}</span>
+          </div>
+
+          {/* Admin button (only if admin) */}
           {isAdmin && (
             <Link href="/admin-access">
               <Button
@@ -92,7 +95,9 @@ export default function AuthNavigation() {
                 Admin
               </Button>
             </Link>
-          )}          {/* Logout button */}
+          )}
+
+          {/* Logout button */}
           <Button
             onClick={handleLogout}
             variant="outline"
