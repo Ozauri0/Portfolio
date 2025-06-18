@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { ScrollToTopButton } from "@/components/ui/scroll-to-top-button"
 import NodeBackground from "@/components/node-background"
+import AuthNavigation from "@/components/auth-navigation"
+import useSecretAccess from "@/hooks/useSecretAccess"
 import { 
   Github, 
   Linkedin, 
@@ -50,12 +52,15 @@ export default function Home() {
   const { language } = useLanguage();
   const t = translations[language];
   
-  // Referencias para el scroll
+  // Secret access hook (Ctrl + Shift + L)
+  useSecretAccess();
+  
+  // References for scrolling
   const heroRef = useRef<HTMLDivElement>(null);
   const projectsRef = useRef<HTMLDivElement>(null);
   const contactRef = useRef<HTMLDivElement>(null);
 
-  // Función para desplazarse a la sección hero (inicio)
+  // Function to scroll to hero section (top)
   const scrollToTop = () => {
     heroRef.current?.scrollIntoView({ 
       behavior: 'smooth',
@@ -63,7 +68,7 @@ export default function Home() {
     });
   };
 
-  // Función para desplazarse a la sección de proyectos
+  // Function to scroll to projects section
   const scrollToProjects = () => {
     projectsRef.current?.scrollIntoView({ 
       behavior: 'smooth',
@@ -71,25 +76,28 @@ export default function Home() {
     });
   };
 
-  // Función para desplazarse a la sección de contacto
+  // Function to scroll to contact section
   const scrollToContact = () => {
     contactRef.current?.scrollIntoView({ 
       behavior: 'smooth',
       block: 'start'
     });
-  };
-
-  return (
+  };  return (
     <div className="relative min-h-screen bg-black text-white">
       <NodeBackground />
-      <LanguageSelector />
+      
+      {/* Header with navigation */}
+      <header className="fixed top-0 right-0 z-50 p-4 flex items-center space-x-4">
+        <LanguageSelector />
+        <AuthNavigation />
+      </header>
 
       <main className="relative z-10">
-        {/* Hero Section - Rediseñado */}
+        {/* Hero Section - Redesigned */}
         <section ref={heroRef} className="flex flex-col items-center justify-center min-h-screen px-4">
           <div className="container mx-auto max-w-6xl">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-              {/* Contenido de texto */}
+              {/* Text content */}
               <div className="space-y-6 text-center md:text-left order-2 md:order-1">
                 <div className="space-y-2">
                   <h2 className="text-2xl md:text-4xl tracking-wider bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent font-semibold">
@@ -138,8 +146,7 @@ export default function Home() {
                   </a>
                 </div>
               </div>
-              
-              {/* Foto de perfil */}
+                {/* Profile picture */}
               <div className="flex justify-center order-1 md:order-2">
                 <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 border-white/20 shadow-lg shadow-blue-500/10">
                   <Image
@@ -155,7 +162,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* About Section - Modificado para complementar la información */}
+        {/* About Section - Modified to complement the information */}
         <section className="py-20 px-4 bg-zinc-900">
           <div className="container mx-auto max-w-6xl">
             <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center text-white">{t.about.title}</h2>
@@ -170,16 +177,14 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Skills Section - Ahora es un componente separado */}
+        {/* Skills Section - Now it's a separate component */}
         <SkillsSection />
 
         {/* Projects Section */}
 <section ref={projectsRef} className="py-20 px-4 bg-zinc-900">
   <div className="container mx-auto max-w-6xl">
-    <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center text-white">{t.projects.title}</h2>
-
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {/* Proyecto 1: LearnPro */}
+    <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center text-white">{t.projects.title}</h2>    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {/* Project 1: LearnPro */}
       <Card className="bg-black border-zinc-800 overflow-hidden hover:border-blue-500/30 transition-all duration-300 flex flex-col">
         <div className="relative h-48">
           <Image
@@ -236,9 +241,7 @@ export default function Home() {
             
           </div>
         </CardContent>
-      </Card>
-
-      {/* Proyecto 2: MyBudget */}
+      </Card>      {/* Project 2: MyBudget */}
       <Card className="bg-black border-zinc-800 overflow-hidden hover:border-green-500/30 transition-all duration-300 flex flex-col">
         <div className="relative h-48">
           <Image
@@ -286,9 +289,7 @@ export default function Home() {
             </a>
           </div>
         </CardContent>
-      </Card>
-
-      {/* Proyecto 3: Educa+*/}
+      </Card>      {/* Project 3: Educa+*/}
       <Card className="bg-black border-zinc-800 overflow-hidden hover:border-purple-500/30 transition-all duration-300 flex flex-col">
         <div className="relative h-48">
           <Image
@@ -385,9 +386,8 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </footer>
-        
-        {/* Botón flotante para volver arriba - Con animación de crecimiento */}
+        </footer>        
+        {/* Floating button to go back to top - With grow animation */}
         <ScrollToTopButton 
           onClick={scrollToTop} 
           srText={language === 'es' ? "Volver al inicio" : "Back to top"}

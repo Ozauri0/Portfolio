@@ -25,14 +25,14 @@ export function ScrollToTopButton({
   showAfter = 300,
   srText = "Volver al inicio",
 }: ScrollToTopButtonProps) {
-  // Estado para controlar la visibilidad y animación del botón
+  // State to control button visibility and animation
   const [visible, setVisible] = useState(false);
   const [buttonScaled, setButtonScaled] = useState(false);
   
-  // Referencia para el temporizador de debounce
+  // Reference for debounce timer
   const [scrollTimer, setScrollTimer] = useState<NodeJS.Timeout | null>(null);
 
-  // Controlamos la visibilidad del botón basándonos en el scroll con debounce
+  // Control button visibility based on scroll with debounce
   const handleScroll = useCallback(() => {
     // Limpiar el temporizador anterior si existe
     if (scrollTimer) clearTimeout(scrollTimer);
@@ -40,34 +40,32 @@ export function ScrollToTopButton({
     // Crear un nuevo temporizador
     const timer = setTimeout(() => {
       const shouldShow = window.scrollY > showAfter;
-      
-      if (shouldShow && !visible) {
-        // Si debe mostrarse y no está visible:
-        // 1. Hacemos visible el botón primero (con escala 0)
+        if (shouldShow && !visible) {
+        // If it should be shown and is not visible:
+        // 1. Make the button visible first (with scale 0)
         setVisible(true);
         
-        // 2. Forzamos un reflow para asegurar que la transición funcione
+        // 2. Force a reflow to ensure the transition works
         requestAnimationFrame(() => {
-          // 3. Después aplicamos la escala para animar la entrada
+          // 3. Then apply scale to animate the entrance
           setButtonScaled(true);
         });
       } else if (!shouldShow && visible) {
-        // Si no debe mostrarse y está visible:
-        // 1. Primero quitamos la escala
-        setButtonScaled(false);
+        // If it should not be shown and is visible:
+        // 1. First remove the scale        setButtonScaled(false);
         
-        // 2. Después de la animación ocultamos el botón completamente
+        // 2. After the animation hide the button completely
         setTimeout(() => {
           setVisible(false);
-        }, 300); // Este tiempo debe coincidir con la duración de la transición
+        }, 300); // This time should match the transition duration
       }
-    }, 150); // Aumentamos ligeramente el debounce para mayor estabilidad
+    }, 150); // Slightly increase debounce for greater stability
     
     setScrollTimer(timer);
   }, [showAfter, visible, scrollTimer]);
 
   useEffect(() => {
-    // Verificar el estado inicial de manera asíncrona para dar tiempo al navegador
+    // Check initial state asynchronously to give time to the browser
     setTimeout(handleScroll, 100);
     
     // Agregar el evento de scroll

@@ -46,8 +46,7 @@ export default function ContactForm() {
       }
     };
   }, []);
-
-  // Función para actualizar el temporizador de espera
+  // Function to update wait timer
   const updateWaitTimer = () => {
     // Limpiar temporizador existente si hay alguno
     if (waitTimerRef.current) {
@@ -73,8 +72,7 @@ export default function ContactForm() {
       }
     }, 1000);
   };
-
-  // Manejo de cambios en el formulario
+  // Handle form changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -82,31 +80,25 @@ export default function ContactForm() {
       [name]: value
     }));
   };
-
-  // Envío del formulario
+  // Form submission
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Validación básica
+    e.preventDefault();    
+    // Basic validation
     if (!formData.name || !formData.email || !formData.message) {
       return;
-    }
-    
-    // Verificar límite anti-spam
+    }    
+    // Check anti-spam limit
     if (!canSendEmail()) {
       setFormStatus('error');
       setSpamError(true);
       updateWaitTimer();
       setTimeout(() => setFormStatus('idle'), 5000);
       return;
-    }
-    
-    setFormStatus('loading');
+    }    setFormStatus('loading');
     
     const result = await sendEmail(formData);
-    
-    if (result.success) {
-      // Registrar el envío exitoso
+      if (result.success) {
+      // Record successful sending
       recordEmailSent();
       setFormStatus('success');
       
@@ -119,10 +111,9 @@ export default function ContactForm() {
       });
     } else {
       setFormStatus('error');
-      setSpamError(false);
-    }
+      setSpamError(false);    }
     
-    // Resetear después de 5 segundos
+    // Reset after 5 seconds
     setTimeout(() => setFormStatus('idle'), 5000);
   };
 

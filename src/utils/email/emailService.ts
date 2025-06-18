@@ -1,6 +1,6 @@
 import emailjs from '@emailjs/browser';
 
-// Inicializar EmailJS con la clave pública
+// Initialize EmailJS with public key
 export const initEmailJS = (): void => {
   const emailjsPublicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
   
@@ -12,7 +12,7 @@ export const initEmailJS = (): void => {
   emailjs.init(emailjsPublicKey);
 };
 
-// Enviar correo electrónico
+// Send email
 export const sendEmail = async (data: {
   name: string;
   email: string;

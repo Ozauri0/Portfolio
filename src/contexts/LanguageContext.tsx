@@ -12,16 +12,15 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguage] = useState<Language>('en');
-
   useEffect(() => {
-    // Detecta el idioma del navegador al cargar
+    // Detect browser language on load
     const detectBrowserLanguage = () => {
       const browserLang = navigator.language.toLowerCase();
-      // Detecta cualquier variante de español (es, es-ES, es-MX, etc.)
+      // Detect any Spanish variant (es, es-ES, es-MX, etc.)
       if (browserLang.startsWith('es')) {
         setLanguage('es');
       } else {
-        // Para inglés o cualquier otro idioma, usa inglés
+        // For English or any other language, use English
         setLanguage('en');
       }
     };
@@ -33,9 +32,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         setLanguage(savedLanguage);
       } else {
         detectBrowserLanguage();
-      }
-    } catch (error) {
-      // Si hay algún problema con localStorage (navegador en modo privado, etc.)
+      }    } catch (error) {
+      // If there's any problem with localStorage (private browsing mode, etc.)
       detectBrowserLanguage();
     }
   }, []);
