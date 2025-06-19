@@ -13,11 +13,22 @@ router.post('/register', async (req, res) => {
 // User login
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;    // Basic validation
+    const { email, password } = req.body;
+    
+    // Get client IP address
+    const clientIP = req.headers['x-forwarded-for'] || 
+                     req.headers['x-real-ip'] || 
+                     req.connection.remoteAddress || 
+                     req.socket.remoteAddress ||
+                     (req.connection.socket ? req.connection.socket.remoteAddress : null) ||
+                     '127.0.0.1';
+
+    // Basic validation
     if (!email || !password) {
       return res.status(400).json({
         error: 'Email y contraseña son requeridos'
-      });    }
+      });
+    }
 
     // Authenticate with Supabase
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -41,6 +52,29 @@ router.post('/login', async (req, res) => {
 
     console.log('Perfil encontrado:', profile);
     console.log('Error de perfil:', profileError);
+
+    // Register login log
+    try {
+      const { error: logError } = await supabaseAdmin
+        .from('login_logs')
+        .insert({
+          user_id: data.user.id,
+          email: data.user.email,
+          ip_address: clientIP,
+          user_agent: req.headers['user-agent'] || 'Unknown',
+          login_time: new Date().toISOString(),
+          success: true
+        });
+      
+      if (logError) {
+        console.warn('Error registrando log de login:', logError);
+        // No fails the login if logging fails
+      } else {
+        console.log('✅ Login registrado exitosamente para:', data.user.email, 'desde IP:', clientIP);
+      }
+    } catch (logErr) {
+      console.warn('Error en sistema de logs:', logErr);
+    }
 
     res.json({
       message: 'Login exitoso',

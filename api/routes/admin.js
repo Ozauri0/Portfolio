@@ -129,19 +129,63 @@ router.get('/settings', (req, res) => {
   });
 });
 
-// Logs del sistema (placeholder)
-router.get('/logs', (req, res) => {
-  res.json({
-    logs: [
-      {
-        id: 1,
-        timestamp: new Date().toISOString(),
-        level: 'info',
-        message: 'Sistema iniciado correctamente',
-        user: req.user.email
+// Logs de conexiones del usuario (reemplaza el placeholder anterior)
+router.get('/logs', async (req, res) => {
+  try {
+    const { page = 1, limit = 20 } = req.query;
+    const offset = (page - 1) * limit;
+
+    // Get login logs for the authenticated user
+    const { data: logs, error } = await supabaseAdmin
+      .from('login_logs')
+      .select('*')
+      .eq('user_id', req.user.id)
+      .order('login_time', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) {
+      console.error('Error obteniendo logs:', error);
+      return res.status(500).json({
+        error: 'Error obteniendo logs de conexión'
+      });
+    }
+
+    // Format the logs for better display
+    const formattedLogs = logs.map(log => ({
+      id: log.id,
+      loginTime: log.login_time,
+      ipAddress: log.ip_address,
+      userAgent: log.user_agent,
+      success: log.success,
+      location: log.location || 'Desconocida',
+      // Format date for display
+      formattedDate: new Date(log.login_time).toLocaleString('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        timeZone: 'America/Mexico_City'
+      })
+    }));
+
+    res.json({
+      logs: formattedLogs,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total: logs.length,
+        hasMore: logs.length === parseInt(limit)
       }
-    ]
-  });
+    });
+
+  } catch (error) {
+    console.error('Error en endpoint de logs:', error);
+    res.status(500).json({
+      error: 'Error interno del servidor'
+    });
+  }
 });
 
 module.exports = router;
