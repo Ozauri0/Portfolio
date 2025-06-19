@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { supabase } = require('../config/supabase');
+const { supabase, supabaseAdmin } = require('../config/supabase');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
 // Middleware for all admin routes
@@ -9,11 +9,25 @@ router.use(requireAdmin);
 
 // Administrator dashboard
 router.get('/dashboard', async (req, res) => {
-  try {    // Get basic statistics
+  try {
+    // Get basic statistics
     const stats = {
       totalUsers: 0,
       recentLogins: 0,
-      systemStatus: 'operational'    };
+      systemStatus: 'operational',
+      socialClicks: {
+        github: 0,
+        linkedin: 0,
+        email: 0,
+        total: 0
+      },
+      projectClicks: {
+        learnpro: 0,
+        mybudget: 0,
+        educaplus: 0,
+        total: 0
+      }
+    };
 
     // Count total users
     const { count: userCount, error: userError } = await supabase
@@ -22,6 +36,34 @@ router.get('/dashboard', async (req, res) => {
 
     if (!userError) {
       stats.totalUsers = userCount || 0;
+    }    // Get social media clicks
+    const { data: socialClicks, error: socialError } = await supabaseAdmin
+      .from('analytics_clicks')
+      .select('*')
+      .in('type', ['social']);
+
+    if (!socialError && socialClicks) {
+      socialClicks.forEach(click => {
+        if (click.target === 'github') stats.socialClicks.github += click.count || 0;
+        if (click.target === 'linkedin') stats.socialClicks.linkedin += click.count || 0;
+        if (click.target === 'email') stats.socialClicks.email += click.count || 0;
+      });
+      stats.socialClicks.total = stats.socialClicks.github + stats.socialClicks.linkedin + stats.socialClicks.email;
+    }
+
+    // Get project clicks
+    const { data: projectClicks, error: projectError } = await supabaseAdmin
+      .from('analytics_clicks')
+      .select('*')
+      .in('type', ['project']);
+
+    if (!projectError && projectClicks) {
+      projectClicks.forEach(click => {
+        if (click.target === 'learnpro') stats.projectClicks.learnpro += click.count || 0;
+        if (click.target === 'mybudget') stats.projectClicks.mybudget += click.count || 0;
+        if (click.target === 'educaplus') stats.projectClicks.educaplus += click.count || 0;
+      });
+      stats.projectClicks.total = stats.projectClicks.learnpro + stats.projectClicks.mybudget + stats.projectClicks.educaplus;
     }
 
     res.json({

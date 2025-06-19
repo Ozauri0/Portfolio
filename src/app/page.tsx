@@ -20,6 +20,7 @@ import { translations } from "@/translations"
 import LanguageSelector from "@/components/language-selector"
 import ContactForm from "@/components/contact-form"
 import SkillsSection from "@/components/skills-section"
+import analyticsService from "@/services/analyticsService"
 
 import { 
   SiAngular, 
@@ -75,14 +76,22 @@ export default function Home() {
       block: 'start'
     });
   };
-
   // Function to scroll to contact section
   const scrollToContact = () => {
     contactRef.current?.scrollIntoView({ 
       behavior: 'smooth',
       block: 'start'
     });
-  };  return (
+  };
+
+  // Analytics tracking functions
+  const handleSocialClick = (platform: 'github' | 'linkedin' | 'email') => {
+    analyticsService.trackSocialClick(platform);
+  };
+
+  const handleProjectClick = (project: 'learnpro' | 'mybudget' | 'educaplus') => {
+    analyticsService.trackProjectClick(project);
+  };return (
     <div className="relative min-h-screen bg-black text-white">
       <NodeBackground />
       
@@ -127,19 +136,18 @@ export default function Home() {
                   <Button className="bg-white text-black hover:bg-gray-200" 
                   onClick={scrollToContact}>
                     {t.hero.contactMe}</Button>
-                </div>
-                <div className="flex gap-4 justify-center md:justify-start">
-                  <a href="https://github.com/Ozauri0" target="_blank" rel="noopener noreferrer">
+                </div>                <div className="flex gap-4 justify-center md:justify-start">
+                  <a href="https://github.com/Ozauri0" target="_blank" rel="noopener noreferrer" onClick={() => handleSocialClick('github')}>
                     <Button size="icon" variant="ghost" className="rounded-full text-white">
                       <Github className="h-5 w-5" />
                     </Button>
                   </a>
-                  <a href="https://www.linkedin.com/in/christian-ferrer-640b7b216/" target="_blank" rel="noopener noreferrer">
+                  <a href="https://www.linkedin.com/in/christian-ferrer-640b7b216/" target="_blank" rel="noopener noreferrer" onClick={() => handleSocialClick('linkedin')}>
                     <Button size="icon" variant="ghost" className="rounded-full text-white">
                       <Linkedin className="h-5 w-5" />
                     </Button>
                   </a>
-                  <a href="mailto:christianferrer.dev@gmail.com" rel="noopener noreferrer">
+                  <a href="mailto:christianferrer.dev@gmail.com" rel="noopener noreferrer" onClick={() => handleSocialClick('email')}>
                     <Button size="icon" variant="ghost" className="rounded-full text-white">
                       <Mail className="h-5 w-5" />
                     </Button>
@@ -226,14 +234,13 @@ export default function Home() {
                 MongoDB
               </Badge>
             </div>
-          </div>
-          <div className="mt-auto flex gap-2">
-            <a href="https://github.com/Ozauri0/app-empresariales" target="_blank" rel="noopener noreferrer" className="flex-1">
+          </div>          <div className="mt-auto flex gap-2">
+            <a href="https://github.com/Ozauri0/app-empresariales" target="_blank" rel="noopener noreferrer" className="flex-1" onClick={() => handleProjectClick('learnpro')}>
               <Button size="sm" variant="outline" className="gap-1 text-white w-full">
                 <Github className="h-4 w-4"/> {t.projects.code}
               </Button>
             </a>
-            <a href="https://lp.christianferrer.me" target="_blank" rel="noopener noreferrer" className="flex-1">
+            <a href="https://lp.christianferrer.me" target="_blank" rel="noopener noreferrer" className="flex-1" onClick={() => handleProjectClick('learnpro')}>
               <Button size="sm" className="gap-1 bg-white text-black hover:bg-gray-200 w-full">
                 <ExternalLink className="h-4 w-4" /> {t.projects.liveDemo}
               </Button>
@@ -275,14 +282,13 @@ export default function Home() {
                 Capacitor
               </Badge>
             </div>
-          </div>
-          <div className="mt-auto flex gap-2">
-            <a href="https://github.com/Ozauri0/MyBudget" target="_blank" rel="noopener noreferrer" className="flex-1">
+          </div>          <div className="mt-auto flex gap-2">
+            <a href="https://github.com/Ozauri0/MyBudget" target="_blank" rel="noopener noreferrer" className="flex-1" onClick={() => handleProjectClick('mybudget')}>
               <Button size="sm" variant="outline" className="gap-1 text-white w-full">
                 <Github className="h-4 w-4"/> {t.projects.code}
               </Button>
             </a>
-            <a href="https://play.google.com/store/apps/details?id=com.mybudget.app&pcampaignid=web_share" target="_blank" rel="noopener noreferrer" className="flex-1">
+            <a href="https://play.google.com/store/apps/details?id=com.mybudget.app&pcampaignid=web_share" target="_blank" rel="noopener noreferrer" className="flex-1" onClick={() => handleProjectClick('mybudget')}>
               <Button size="sm" className="gap-1 bg-white text-black hover:bg-gray-200 w-full">
                 <ExternalLink className="h-4 w-4" /> {t.projects.download}
               </Button>
@@ -327,9 +333,8 @@ export default function Home() {
                 MySQL
               </Badge>
             </div>
-          </div>
-          <div className="mt-auto flex gap-2">
-            <a href="https://github.com/Ozauri0/educaplus" target="_blank" rel="noopener noreferrer" className="flex-1">
+          </div>          <div className="mt-auto flex gap-2">
+            <a href="https://github.com/Ozauri0/educaplus" target="_blank" rel="noopener noreferrer" className="flex-1" onClick={() => handleProjectClick('educaplus')}>
               <Button size="sm" variant="outline" className="gap-1 text-white w-full">
                 <Github className="h-4 w-4"/> {t.projects.code}
               </Button>
@@ -366,19 +371,18 @@ export default function Home() {
         <footer className="py-8 px-4 bg-zinc-900 border-t border-zinc-800">
           <div className="container mx-auto max-w-6xl">
             <div className="flex flex-col md:flex-row justify-between items-center">
-              <p className="text-gray-400">© {new Date().getFullYear()} | {t.footer.rights}</p>
-              <div className="flex gap-4 mt-4 md:mt-0">
-                <a href="https://github.com/Ozauri0" target="_blank" rel="noopener noreferrer">
+              <p className="text-gray-400">© {new Date().getFullYear()} | {t.footer.rights}</p>              <div className="flex gap-4 mt-4 md:mt-0">
+                <a href="https://github.com/Ozauri0" target="_blank" rel="noopener noreferrer" onClick={() => handleSocialClick('github')}>
                   <Button size="icon" variant="ghost" className="rounded-full text-white">
                     <Github className="h-5 w-5" />
                   </Button>
                 </a>
-                <a href="https://www.linkedin.com/in/christian-ferrer-640b7b216/" target="_blank" rel="noopener noreferrer">
+                <a href="https://www.linkedin.com/in/christian-ferrer-640b7b216/" target="_blank" rel="noopener noreferrer" onClick={() => handleSocialClick('linkedin')}>
                   <Button size="icon" variant="ghost" className="rounded-full text-white">
                     <Linkedin className="h-5 w-5" />
                   </Button>
                 </a>
-                <a href="mailto:christianferrer.dev@gmail.com" rel="noopener noreferrer">
+                <a href="mailto:christianferrer.dev@gmail.com" rel="noopener noreferrer" onClick={() => handleSocialClick('email')}>
                   <Button size="icon" variant="ghost" className="rounded-full text-white">
                     <Mail className="h-5 w-5" />
                   </Button>

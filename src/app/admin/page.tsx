@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Shield, Users, Activity, Database, ArrowLeft } from 'lucide-react';
+import { Shield, Users, Activity, Database, ArrowLeft, ExternalLink, MousePointer } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import authService from '@/services/authService';
 
@@ -12,6 +12,18 @@ interface AdminStats {
   totalUsers: number;
   recentLogins: number;
   systemStatus: string;
+  socialClicks: {
+    github: number;
+    linkedin: number;
+    email: number;
+    total: number;
+  };
+  projectClicks: {
+    learnpro: number;
+    mybudget: number;
+    educaplus: number;
+    total: number;
+  };
 }
 
 export default function AdminAccess() {
@@ -110,15 +122,13 @@ export default function AdminAccess() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Volver al portfolio
           </Button>
-        </div>
-
-        {/* Stats Cards */}
+        </div>        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card className="bg-zinc-900 border-zinc-800">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-400">Total de Usuarios</p>
+                  <p className="text-sm text-gray-400">Visitantes totales</p>
                   <p className="text-2xl font-bold text-white">
                     {adminStats?.totalUsers || 0}
                   </p>
@@ -157,21 +167,85 @@ export default function AdminAccess() {
           </Card>
         </div>
 
-        {/* Admin Actions */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Click Analytics */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Social Media Clicks */}
           <Card className="bg-zinc-900 border-zinc-800">
             <CardContent className="p-6">
-              <h3 className="text-xl font-bold text-white mb-4">Gestión de Usuarios</h3>
-              <p className="text-gray-400 mb-4">
-                Administra los usuarios registrados en el sistema
-              </p>
-              <Button className="bg-blue-600 hover:bg-blue-700">
-                <Users className="h-4 w-4 mr-2" />
-                Ver Usuarios
-              </Button>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-white">Clicks en Redes Sociales</h3>
+                <ExternalLink className="h-5 w-5 text-blue-400" />
+              </div>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-300">GitHub</span>
+                  <span className="text-white font-semibold">
+                    {adminStats?.socialClicks?.github || 0}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-300">LinkedIn</span>
+                  <span className="text-white font-semibold">
+                    {adminStats?.socialClicks?.linkedin || 0}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-300">Email</span>
+                  <span className="text-white font-semibold">
+                    {adminStats?.socialClicks?.email || 0}
+                  </span>
+                </div>
+                <hr className="border-gray-700" />
+                <div className="flex justify-between items-center font-bold">
+                  <span className="text-blue-400">Total</span>
+                  <span className="text-blue-400">
+                    {adminStats?.socialClicks?.total || 0}
+                  </span>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
+          {/* Project Clicks */}
+          <Card className="bg-zinc-900 border-zinc-800">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-white">Clicks en Proyectos</h3>
+                <MousePointer className="h-5 w-5 text-purple-400" />
+              </div>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-300">LearnPro</span>
+                  <span className="text-white font-semibold">
+                    {adminStats?.projectClicks?.learnpro || 0}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-300">MyBudget</span>
+                  <span className="text-white font-semibold">
+                    {adminStats?.projectClicks?.mybudget || 0}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-300">Educa+</span>
+                  <span className="text-white font-semibold">
+                    {adminStats?.projectClicks?.educaplus || 0}
+                  </span>
+                </div>
+                <hr className="border-gray-700" />
+                <div className="flex justify-between items-center font-bold">
+                  <span className="text-purple-400">Total</span>
+                  <span className="text-purple-400">
+                    {adminStats?.projectClicks?.total || 0}
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Admin Actions */}
+        <div className="grid grid-cols-1 gap-6">
           <Card className="bg-zinc-900 border-zinc-800">
             <CardContent className="p-6">
               <h3 className="text-xl font-bold text-white mb-4">Logs del Sistema</h3>

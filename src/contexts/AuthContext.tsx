@@ -6,7 +6,7 @@ import authService from '@/services/authService';
 interface User {
   id: string;
   email: string;
-  full_name?: string;
+  fullName?: string;
   createdAt?: string;
   role?: string;
 }

@@ -85,7 +85,7 @@ export default function AuthNavigation() {
 
           {/* Admin button (only if admin) */}
           {isAdmin && (
-            <Link href="/admin-access">
+            <Link href="/admin">
               <Button
                 variant="outline"
                 size="sm"
