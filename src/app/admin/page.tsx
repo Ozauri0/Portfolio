@@ -4,9 +4,19 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Shield, Users, Activity, Database, ArrowLeft, ExternalLink, MousePointer } from 'lucide-react';
+import { Shield, Users, Activity, Database, ArrowLeft, ExternalLink, MousePointer, Clock, MapPin, Monitor, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import authService from '@/services/authService';
+
+interface LoginLog {
+  id: string;
+  loginTime: string;
+  ipAddress: string;
+  userAgent: string;
+  success: boolean;
+  location: string;
+  formattedDate: string;
+}
 
 interface AdminStats {
   totalUsers: number;
@@ -27,12 +37,18 @@ interface AdminStats {
 }
 
 export default function AdminAccess() {
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, logout, isLoading } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminStats, setAdminStats] = useState<AdminStats | null>(null);
   const [loadingStats, setLoadingStats] = useState(true);
   const [error, setError] = useState('');
+  const [recentLogs, setRecentLogs] = useState<LoginLog[]>([]);
+  const [allLogs, setAllLogs] = useState<LoginLog[]>([]);
+  const [loadingLogs, setLoadingLogs] = useState(false);
+  const [showAllLogs, setShowAllLogs] = useState(false);
+  const [loadingRecentLogs, setLoadingRecentLogs] = useState(true);
   const router = useRouter();
+  
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -50,12 +66,89 @@ export default function AdminAccess() {
       const adminData = await authService.getAdminDashboard();
       setIsAdmin(true);
       setAdminStats(adminData.stats);
+      // Cargar automáticamente los últimos 5 logs
+      await fetchRecentLogs();
     } catch (error) {
       setIsAdmin(false);
       setError('No tienes permisos de administrador');
     } finally {
       setLoadingStats(false);
     }
+  };
+
+  const fetchRecentLogs = async () => {
+    setLoadingRecentLogs(true);
+    try {
+      const token = localStorage.getItem('auth_token');
+      if (!token) return;
+
+      const response = await fetch('http://localhost:5000/api/admin/logs?limit=5', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setRecentLogs(data.logs || []);
+      } else {
+        console.error('Error obteniendo logs recientes:', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching recent logs:', error);
+    } finally {
+      setLoadingRecentLogs(false);
+    }
+  };
+
+  const fetchAllLogs = async () => {
+    setLoadingLogs(true);
+    try {
+      const token = localStorage.getItem('auth_token');
+      if (!token) return;
+
+      const response = await fetch('http://localhost:5000/api/admin/logs?limit=50', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAllLogs(data.logs || []);
+        setShowAllLogs(true);
+      } else {
+        console.error('Error obteniendo todos los logs:', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching all logs:', error);
+    } finally {
+      setLoadingLogs(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    }
+  };
+
+  const getBrowserInfo = (userAgent: string) => {
+    if (userAgent.includes('Chrome')) return 'Chrome';
+    if (userAgent.includes('Firefox')) return 'Firefox';
+    if (userAgent.includes('Safari')) return 'Safari';
+    if (userAgent.includes('Edge')) return 'Edge';
+    return 'Desconocido';
+  };
+
+  const getDeviceInfo = (userAgent: string) => {
+    if (userAgent.includes('Mobile')) return 'Móvil';
+    if (userAgent.includes('Tablet')) return 'Tablet';
+    return 'Escritorio';
   };
 
   if (isLoading || loadingStats) {
@@ -114,15 +207,27 @@ export default function AdminAccess() {
               <p className="text-gray-400">Bienvenido, {user?.fullName || user?.email}</p>
             </div>
           </div>
-          <Button 
-            onClick={() => router.push('/')}
-            variant="outline"
-            className="border-gray-600 text-gray-300 hover:bg-gray-800"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Volver al portfolio
-          </Button>
-        </div>        {/* Stats Cards */}
+          <div className="flex items-center space-x-3">
+            <Button 
+              onClick={() => router.push('/')}
+              variant="outline"
+              className="border-gray-600 text-gray-300 hover:bg-gray-800"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Volver al portfolio
+            </Button>
+            <Button
+              onClick={handleLogout}
+              variant="outline"
+              className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white"
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Cerrar sesión
+            </Button>
+          </div>
+        </div>
+
+        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card className="bg-zinc-900 border-zinc-800">
             <CardContent className="p-6">
@@ -244,24 +349,116 @@ export default function AdminAccess() {
           </Card>
         </div>
 
-        {/* Admin Actions */}
-        <div className="grid grid-cols-1 gap-6">
-          <Card className="bg-zinc-900 border-zinc-800">
-            <CardContent className="p-6">
-              <h3 className="text-xl font-bold text-white mb-4">Logs del Sistema</h3>
-              <p className="text-gray-400 mb-4">
-                Revisa la actividad y logs del sistema
-              </p>
-              <Button className="bg-green-600 hover:bg-green-700">
+        {/* Recent Login Logs - Mostrar automáticamente los últimos 5 */}
+        <Card className="bg-zinc-900 border-zinc-800 mb-6">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-3">
+                <Clock className="h-6 w-6 text-green-400" />
+                <h3 className="text-xl font-bold text-white">Últimas Conexiones</h3>
+              </div>
+              <Button 
+                onClick={fetchAllLogs}
+                variant="outline"
+                className="border-green-600 text-green-400 hover:bg-green-600 hover:text-white"
+                disabled={loadingLogs}
+              >
                 <Activity className="h-4 w-4 mr-2" />
-                Ver Logs
+                {loadingLogs ? 'Cargando...' : 'Ver Todos los Logs'}
               </Button>
+            </div>
+            
+            {loadingRecentLogs ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+                <span className="ml-3 text-gray-400">Cargando conexiones recientes...</span>
+              </div>
+            ) : recentLogs.length === 0 ? (
+              <div className="text-center py-8">
+                <Clock className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-400">No hay logs de conexión disponibles</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {recentLogs.map((log) => (
+                  <div key={log.id} className="flex items-center justify-between p-3 bg-zinc-800 rounded-lg border border-zinc-700">
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center space-x-2">
+                        <Monitor className="h-4 w-4 text-blue-400" />
+                        <span className="text-sm text-gray-300">{getBrowserInfo(log.userAgent)}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <MapPin className="h-4 w-4 text-purple-400" />
+                        <span className="text-sm text-gray-300">{log.ipAddress}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Clock className="h-4 w-4 text-green-400" />
+                        <span className="text-sm text-gray-300">{log.formattedDate}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xs text-gray-400">{getDeviceInfo(log.userAgent)}</span>
+                      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${log.success ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
+                        {log.success ? 'Exitoso' : 'Fallido'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* All Logs Table - Solo se muestra cuando el usuario hace clic */}
+        {showAllLogs && (
+          <Card className="bg-zinc-900 border-zinc-800 mb-6">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-white">Historial Completo de Conexiones</h3>
+                <Button 
+                  onClick={() => setShowAllLogs(false)}
+                  variant="outline"
+                  className="border-gray-600 text-gray-400 hover:bg-gray-700"
+                >
+                  Ocultar
+                </Button>
+              </div>
+              <div className="max-h-96 overflow-y-auto">
+                <table className="min-w-full divide-y divide-gray-700">
+                  <thead className="sticky top-0 bg-zinc-800">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Fecha</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">IP</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Ubicación</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Navegador</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Dispositivo</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-zinc-800 divide-y divide-gray-700">
+                    {allLogs.map((log) => (
+                      <tr key={log.id} className="hover:bg-zinc-700">
+                        <td className="px-4 py-3 text-sm text-white">{log.formattedDate}</td>
+                        <td className="px-4 py-3 text-sm text-white font-mono">{log.ipAddress}</td>
+                        <td className="px-4 py-3 text-sm text-white">{log.location}</td>
+                        <td className="px-4 py-3 text-sm text-white">{getBrowserInfo(log.userAgent)}</td>
+                        <td className="px-4 py-3 text-sm text-white">{getDeviceInfo(log.userAgent)}</td>
+                        <td className="px-4 py-3 text-sm">
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${log.success ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
+                            {log.success ? 'Exitoso' : 'Fallido'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </CardContent>
           </Card>
-        </div>
+        )}
 
         {/* System Information */}
-        <Card className="bg-zinc-900 border-zinc-800 mt-6">
+        <Card className="bg-zinc-900 border-zinc-800">
           <CardContent className="p-6">
             <h3 className="text-xl font-bold text-white mb-4">Información del Sistema</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
