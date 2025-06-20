@@ -141,4 +141,84 @@ router.get('/stats', async (req, res) => {
   }
 });
 
+// Track unique visitor by IP address
+router.post('/track-visitor', async (req, res) => {
+  try {
+    // Get IP address from request
+    const ipAddress = req.ip || 
+                     req.connection.remoteAddress || 
+                     req.socket.remoteAddress ||
+                     (req.headers['x-forwarded-for'] && req.headers['x-forwarded-for'].split(',')[0]) ||
+                     'unknown';
+
+    // Clean IP address (remove ::ffff: prefix if present)
+    const cleanIp = ipAddress.replace(/^::ffff:/, '');
+
+    // Get user agent for additional context
+    const userAgent = req.headers['user-agent'] || 'Unknown';
+
+    // Check if this IP has visited before
+    const { data: existingVisitor, error: selectError } = await supabaseAdmin
+      .from('unique_visitors')
+      .select('*')
+      .eq('ip_address', cleanIp)
+      .single();
+
+    if (selectError && selectError.code !== 'PGRST116') {
+      // PGRST116 is "not found" error, which is expected for new visitors
+      throw selectError;
+    }
+
+    if (!existingVisitor) {
+      // New unique visitor - insert record
+      const { error: insertError } = await supabaseAdmin
+        .from('unique_visitors')
+        .insert({
+          ip_address: cleanIp,
+          user_agent: userAgent,
+          first_visit: new Date().toISOString(),
+          last_visit: new Date().toISOString(),
+          visit_count: 1
+        });
+
+      if (insertError) {
+        throw insertError;
+      }
+
+      res.json({
+        success: true,
+        message: 'New unique visitor tracked',
+        isNewVisitor: true
+      });
+    } else {
+      // Update existing visitor's last visit and count
+      const { error: updateError } = await supabaseAdmin
+        .from('unique_visitors')
+        .update({ 
+          last_visit: new Date().toISOString(),
+          visit_count: existingVisitor.visit_count + 1,
+          user_agent: userAgent // Update user agent in case it changed
+        })
+        .eq('id', existingVisitor.id);
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      res.json({
+        success: true,
+        message: 'Existing visitor updated',
+        isNewVisitor: false,
+        visitCount: existingVisitor.visit_count + 1
+      });
+    }
+
+  } catch (error) {
+    console.error('Error tracking visitor:', error);
+    res.status(500).json({
+      error: 'Error interno del servidor'
+    });
+  }
+});
+
 module.exports = router;

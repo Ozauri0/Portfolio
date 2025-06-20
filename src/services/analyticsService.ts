@@ -48,6 +48,27 @@ class AnalyticsService {
     }
   }
 
+  // Track unique visitor (call this on page load)
+  async trackVisitor() {
+    try {
+      const response = await fetch(`${API_URL}/api/analytics/track-visitor`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      } else {
+        console.warn('Failed to track visitor');
+      }
+    } catch (error) {
+      console.warn('Error tracking visitor:', error);
+    }
+  }
+
   // Get public analytics stats
   async getStats() {
     try {

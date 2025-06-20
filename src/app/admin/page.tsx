@@ -13,6 +13,7 @@ interface LoginLog {
   loginTime: string;
   ipAddress: string;
   userAgent: string;
+  email: string;
   success: boolean;
   location: string;
   formattedDate: string;
@@ -231,9 +232,8 @@ export default function AdminAccess() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card className="bg-zinc-900 border-zinc-800">
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-400">Visitantes totales</p>
+              <div className="flex items-center justify-between">                <div>
+                  <p className="text-sm text-gray-400">Visitantes Únicos</p>
                   <p className="text-2xl font-bold text-white">
                     {adminStats?.totalUsers || 0}
                   </p>
@@ -378,29 +378,31 @@ export default function AdminAccess() {
                 <Clock className="h-12 w-12 text-gray-600 mx-auto mb-4" />
                 <p className="text-gray-400">No hay logs de conexión disponibles</p>
               </div>
-            ) : (
-              <div className="space-y-3">
+            ) : (              <div className="space-y-3">
                 {recentLogs.map((log) => (
-                  <div key={log.id} className="flex items-center justify-between p-3 bg-zinc-800 rounded-lg border border-zinc-700">
-                    <div className="flex items-center space-x-4">
+                  <div key={log.id} className="p-4 bg-zinc-800 rounded-lg border border-zinc-700">
+                    <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center space-x-2">
-                        <Monitor className="h-4 w-4 text-blue-400" />
-                        <span className="text-sm text-gray-300">{getBrowserInfo(log.userAgent)}</span>
+                        <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                        <span className="text-white font-medium">{log.email}</span>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <MapPin className="h-4 w-4 text-purple-400" />
-                        <span className="text-sm text-gray-300">{log.ipAddress}</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Clock className="h-4 w-4 text-green-400" />
-                        <span className="text-sm text-gray-300">{log.formattedDate}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xs text-gray-400">{getDeviceInfo(log.userAgent)}</span>
                       <span className={`px-2 py-1 rounded-full text-xs font-semibold ${log.success ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
                         {log.success ? 'Exitoso' : 'Fallido'}
                       </span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                      <div className="flex items-center space-x-2">
+                        <Clock className="h-4 w-4 text-green-400" />
+                        <span className="text-gray-300">{log.formattedDate}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <MapPin className="h-4 w-4 text-purple-400" />
+                        <span className="text-gray-300">{log.ipAddress}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Monitor className="h-4 w-4 text-blue-400" />
+                        <span className="text-gray-300">{getBrowserInfo(log.userAgent)} - {getDeviceInfo(log.userAgent)}</span>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -423,10 +425,10 @@ export default function AdminAccess() {
                   Ocultar
                 </Button>
               </div>
-              <div className="max-h-96 overflow-y-auto">
-                <table className="min-w-full divide-y divide-gray-700">
+              <div className="max-h-96 overflow-y-auto">                <table className="min-w-full divide-y divide-gray-700">
                   <thead className="sticky top-0 bg-zinc-800">
                     <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Email</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Fecha</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">IP</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Ubicación</th>
@@ -438,6 +440,7 @@ export default function AdminAccess() {
                   <tbody className="bg-zinc-800 divide-y divide-gray-700">
                     {allLogs.map((log) => (
                       <tr key={log.id} className="hover:bg-zinc-700">
+                        <td className="px-4 py-3 text-sm text-white">{log.email}</td>
                         <td className="px-4 py-3 text-sm text-white">{log.formattedDate}</td>
                         <td className="px-4 py-3 text-sm text-white font-mono">{log.ipAddress}</td>
                         <td className="px-4 py-3 text-sm text-white">{log.location}</td>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -55,6 +55,11 @@ export default function Home() {
   
   // Secret access hook (Ctrl + Shift + L)
   useSecretAccess();
+  
+  // Track visitor on page load
+  useEffect(() => {
+    analyticsService.trackVisitor();
+  }, []);
   
   // References for scrolling
   const heroRef = useRef<HTMLDivElement>(null);

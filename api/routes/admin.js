@@ -27,16 +27,28 @@ router.get('/dashboard', async (req, res) => {
         educaplus: 0,
         total: 0
       }
-    };
-
-    // Count total users
-    const { count: userCount, error: userError } = await supabase
-      .from('auth.users')
+    };    // Count total unique visitors
+    const { count: uniqueVisitorCount, error: visitorError } = await supabaseAdmin
+      .from('unique_visitors')
       .select('*', { count: 'exact', head: true });
 
-    if (!userError) {
-      stats.totalUsers = userCount || 0;
-    }    // Get social media clicks
+    if (!visitorError) {
+      stats.totalUsers = uniqueVisitorCount || 0;
+    }
+
+    // Count recent logins (last 24 hours)
+    const oneDayAgo = new Date();
+    oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+    
+    const { count: recentLoginCount, error: loginError } = await supabaseAdmin
+      .from('login_logs')
+      .select('*', { count: 'exact', head: true })
+      .gte('login_time', oneDayAgo.toISOString())
+      .eq('success', true);
+
+    if (!loginError) {
+      stats.recentLogins = recentLoginCount || 0;
+    }// Get social media clicks
     const { data: socialClicks, error: socialError } = await supabaseAdmin
       .from('analytics_clicks')
       .select('*')
@@ -129,17 +141,16 @@ router.get('/settings', (req, res) => {
   });
 });
 
-// Logs de conexiones del usuario (reemplaza el placeholder anterior)
+// Login logs endpoint
 router.get('/logs', async (req, res) => {
   try {
     const { page = 1, limit = 20 } = req.query;
     const offset = (page - 1) * limit;
 
-    // Get login logs for the authenticated user
+    // Get ALL login logs (not just for authenticated user) since this is admin panel
     const { data: logs, error } = await supabaseAdmin
       .from('login_logs')
       .select('*')
-      .eq('user_id', req.user.id)
       .order('login_time', { ascending: false })
       .range(offset, offset + limit - 1);
 
@@ -150,25 +161,30 @@ router.get('/logs', async (req, res) => {
       });
     }
 
-    // Format the logs for better display
-    const formattedLogs = logs.map(log => ({
-      id: log.id,
-      loginTime: log.login_time,
-      ipAddress: log.ip_address,
-      userAgent: log.user_agent,
-      success: log.success,
-      location: log.location || 'Desconocida',
-      // Format date for display
-      formattedDate: new Date(log.login_time).toLocaleString('es-ES', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        timeZone: 'America/Mexico_City'
-      })
-    }));
+    // Format the logs for better display with correct timezone
+    const formattedLogs = logs.map(log => {
+      const loginDate = new Date(log.login_time);
+      
+      return {
+        id: log.id,
+        loginTime: log.login_time,
+        ipAddress: log.ip_address,
+        userAgent: log.user_agent || 'Desconocido',
+        email: log.email,
+        success: log.success,
+        location: log.location || 'Desconocida',
+        // Format date correctly - using UTC and adjusting for Chile timezone
+        formattedDate: loginDate.toLocaleString('es-CL', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          timeZone: 'America/Santiago',
+        })
+      };
+    });
 
     res.json({
       logs: formattedLogs,
@@ -182,6 +198,61 @@ router.get('/logs', async (req, res) => {
 
   } catch (error) {
     console.error('Error en endpoint de logs:', error);
+    res.status(500).json({
+      error: 'Error interno del servidor'
+    });
+  }
+});
+
+// Get visitor statistics
+router.get('/visitor-stats', async (req, res) => {
+  try {
+    // Get total unique visitors
+    const { count: totalVisitors, error: visitorError } = await supabaseAdmin
+      .from('unique_visitors')
+      .select('*', { count: 'exact', head: true });
+
+    if (visitorError) {
+      console.error('Error getting visitor count:', visitorError);
+    }
+
+    // Get visitors from last 24 hours
+    const oneDayAgo = new Date();
+    oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+    
+    const { count: recentVisitors, error: recentError } = await supabaseAdmin
+      .from('unique_visitors')
+      .select('*', { count: 'exact', head: true })
+      .gte('last_visit', oneDayAgo.toISOString());
+
+    if (recentError) {
+      console.error('Error getting recent visitors:', recentError);
+    }
+
+    // Get visitors from last 7 days
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    
+    const { count: weeklyVisitors, error: weeklyError } = await supabaseAdmin
+      .from('unique_visitors')
+      .select('*', { count: 'exact', head: true })
+      .gte('last_visit', oneWeekAgo.toISOString());
+
+    if (weeklyError) {
+      console.error('Error getting weekly visitors:', weeklyError);
+    }
+
+    res.json({
+      success: true,
+      stats: {
+        totalVisitors: totalVisitors || 0,
+        recentVisitors: recentVisitors || 0,
+        weeklyVisitors: weeklyVisitors || 0
+      }
+    });
+
+  } catch (error) {
+    console.error('Error getting visitor stats:', error);
     res.status(500).json({
       error: 'Error interno del servidor'
     });
