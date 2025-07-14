@@ -33,7 +33,7 @@ export default function AuthNavigation() {
 
       console.log('Checking admin status with token:', token.substring(0, 20) + '...');
       
-      const response = await fetch('http://localhost:5000/api/admin/dashboard', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/dashboard`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

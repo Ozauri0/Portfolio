@@ -259,4 +259,68 @@ router.get('/visitor-stats', async (req, res) => {
   }
 });
 
+// Añadir estos endpoints para el reinicio de estadísticas
+
+// Endpoint para reiniciar estadísticas de redes sociales
+router.post('/reset-social', async (req, res) => {
+  try {
+    // Reiniciar estadísticas de clicks en redes sociales
+    const { error } = await supabaseAdmin
+      .from('analytics_clicks')
+      .update({ 
+        count: 0,
+        updated_at: new Date().toISOString()
+      })
+      .eq('type', 'social');
+
+    if (error) {
+      console.error('Error reiniciando clicks sociales:', error);
+      return res.status(500).json({
+        error: 'Error reiniciando estadísticas'
+      });
+    }
+
+    res.json({
+      message: 'Estadísticas de redes sociales reiniciadas correctamente'
+    });
+
+  } catch (error) {
+    console.error('Error en endpoint reset-social:', error);
+    res.status(500).json({
+      error: 'Error interno del servidor'
+    });
+  }
+});
+
+// Endpoint para reiniciar estadísticas de proyectos
+router.post('/reset-projects', async (req, res) => {
+  try {
+    // Reiniciar estadísticas de clicks en proyectos
+    const { error } = await supabaseAdmin
+      .from('analytics_clicks')
+      .update({ 
+        count: 0,
+        updated_at: new Date().toISOString()
+      })
+      .eq('type', 'project');
+
+    if (error) {
+      console.error('Error reiniciando clicks de proyectos:', error);
+      return res.status(500).json({
+        error: 'Error reiniciando estadísticas'
+      });
+    }
+
+    res.json({
+      message: 'Estadísticas de proyectos reiniciadas correctamente'
+    });
+
+  } catch (error) {
+    console.error('Error en endpoint reset-projects:', error);
+    res.status(500).json({
+      error: 'Error interno del servidor'
+    });
+  }
+});
+
 module.exports = router;

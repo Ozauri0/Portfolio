@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Shield, Users, Activity, Database, ArrowLeft, ExternalLink, MousePointer, Clock, MapPin, Monitor, LogOut } from 'lucide-react';
+import { Shield, Users, Activity, Database, ArrowLeft, ExternalLink, MousePointer, Clock, MapPin, Monitor, LogOut, RefreshCw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import authService from '@/services/authService';
 
@@ -48,6 +48,10 @@ export default function AdminAccess() {
   const [loadingLogs, setLoadingLogs] = useState(false);
   const [showAllLogs, setShowAllLogs] = useState(false);
   const [loadingRecentLogs, setLoadingRecentLogs] = useState(true);
+  const [resetAction, setResetAction] = useState<'social' | 'projects' | null>(null);
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState(false);
+  const [resetMessage, setResetMessage] = useState('');
   const router = useRouter();
   
 
@@ -83,7 +87,7 @@ export default function AdminAccess() {
       const token = localStorage.getItem('auth_token');
       if (!token) return;
 
-      const response = await fetch('http://localhost:5000/api/admin/logs?limit=5', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/logs?limit=5`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -109,7 +113,7 @@ export default function AdminAccess() {
       const token = localStorage.getItem('auth_token');
       if (!token) return;
 
-      const response = await fetch('http://localhost:5000/api/admin/logs?limit=50', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/logs?limit=50`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -150,6 +154,64 @@ export default function AdminAccess() {
     if (userAgent.includes('Mobile')) return 'Móvil';
     if (userAgent.includes('Tablet')) return 'Tablet';
     return 'Escritorio';
+  };
+
+  const handleResetRequest = (type: 'social' | 'projects') => {
+    const message = type === 'social' 
+      ? '¿Estás seguro de que deseas reiniciar todas las estadísticas de clicks en redes sociales? Esta acción no se puede deshacer.'
+      : '¿Estás seguro de que deseas reiniciar todas las estadísticas de clicks en proyectos? Esta acción no se puede deshacer.';
+    
+    const confirmed = window.confirm(message);
+    
+    if (confirmed) {
+      setResetAction(type);
+      handleConfirmReset(type);
+    }
+  };
+
+  const handleConfirmReset = async (type: 'social' | 'projects') => {
+    setResetLoading(true);
+    try {
+      const token = localStorage.getItem('auth_token');
+      if (!token) return;
+
+      // Usar exactamente las rutas que ya funcionan en tu backend pero con la variable de entorno
+      const endpoint = type === 'social' 
+        ? `${process.env.NEXT_PUBLIC_API_URL}/api/admin/reset-social` 
+        : `${process.env.NEXT_PUBLIC_API_URL}/api/admin/reset-projects`;
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        // Update admin stats
+        const adminData = await authService.getAdminDashboard();
+        setAdminStats(adminData.stats);
+        setResetSuccess(true);
+        
+        // Mostrar mensaje de éxito
+        const successMessage = type === 'social'
+          ? 'Estadísticas de redes sociales reiniciadas correctamente'
+          : 'Estadísticas de proyectos reiniciadas correctamente';
+        
+        setResetMessage(successMessage);
+        alert(successMessage);
+      } else {
+        console.error('Error resetting stats:', response.status);
+        alert('Error al reiniciar estadísticas. Inténtalo de nuevo.');
+      }
+    } catch (error) {
+      console.error('Error resetting stats:', error);
+      alert('Error al reiniciar estadísticas. Inténtalo de nuevo.');
+    } finally {
+      setResetLoading(false);
+      setResetAction(null);
+    }
   };
 
   if (isLoading || loadingStats) {
@@ -279,7 +341,28 @@ export default function AdminAccess() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold text-white">Clicks en Redes Sociales</h3>
-                <ExternalLink className="h-5 w-5 text-blue-400" />
+                <div className="flex items-center space-x-2">
+                  <ExternalLink className="h-5 w-5 text-blue-400" />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-blue-600/40 text-blue-400 hover:bg-blue-600/20"
+                    onClick={() => handleResetRequest('social')}
+                    disabled={resetLoading}
+                  >
+                    {resetLoading && resetAction === 'social' ? (
+                      <>
+                        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
+                        Reiniciando...
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="h-3 w-3 mr-1" />
+                        Reiniciar
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
@@ -316,7 +399,28 @@ export default function AdminAccess() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold text-white">Clicks en Proyectos</h3>
-                <MousePointer className="h-5 w-5 text-purple-400" />
+                <div className="flex items-center space-x-2">
+                  <MousePointer className="h-5 w-5 text-purple-400" />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-purple-600/40 text-purple-400 hover:bg-purple-600/20"
+                    onClick={() => handleResetRequest('projects')}
+                    disabled={resetLoading}
+                  >
+                    {resetLoading && resetAction === 'projects' ? (
+                      <>
+                        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
+                        Reiniciando...
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="h-3 w-3 mr-1" />
+                        Reiniciar
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
