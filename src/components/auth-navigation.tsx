@@ -64,13 +64,6 @@ export default function AuthNavigation() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center space-x-2">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
-      </div>
-    );
-  }
   // Only show something if user is authenticated
   // The login button is completely hidden from the public
   return (
