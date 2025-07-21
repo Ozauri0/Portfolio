@@ -259,6 +259,151 @@ router.get('/visitor-stats', async (req, res) => {
   }
 });
 
+// Obtener datos detallados de visitas para el gráfico
+router.get('/visitor-chart', async (req, res) => {
+  try {
+    const { timeRange = 'week' } = req.query;
+    
+    let startDate = new Date();
+    
+    // Configurar el rango de fechas según el parámetro
+    switch (timeRange) {
+      case 'day':
+        startDate.setDate(startDate.getDate() - 1);
+        break;
+      case 'week':
+        startDate.setDate(startDate.getDate() - 7);
+        break;
+      case 'month':
+        startDate.setMonth(startDate.getMonth() - 1);
+        break;
+      case 'year':
+        startDate.setFullYear(startDate.getFullYear() - 1);
+        break;
+      default:
+        startDate.setDate(startDate.getDate() - 7); // Por defecto una semana
+    }
+    
+    // Verificar si la tabla existe
+    const { error: tableCheckError } = await supabaseAdmin
+      .from('unique_visitors')
+      .select('id')
+      .limit(1);
+    
+    // Si hay un error porque la tabla no existe, devolver datos vacíos
+    if (tableCheckError && tableCheckError.code === '42P01') { // UNDEFINED_TABLE
+      console.log('La tabla unique_visitors no existe en la base de datos');
+      return res.json({
+        success: true,
+        data: {
+          daily: [],
+          hourly: Array.from({ length: 24 }, (_, i) => ({ hour: i, visits: 0 })),
+          totalInPeriod: 0
+        },
+        timeRange,
+        message: 'No hay datos disponibles. La tabla no existe.'
+      });
+    }
+    
+    // Obtener todos los visitantes en el rango de fechas
+    const { data: visitors, error } = await supabaseAdmin
+      .from('unique_visitors')
+      .select('*')
+      .gte('last_visit', startDate.toISOString())
+      .order('last_visit', { ascending: true });
+      
+    if (error) {
+      console.error('Error obteniendo datos de visitantes:', error);
+      return res.json({
+        success: true,
+        data: {
+          daily: [],
+          hourly: Array.from({ length: 24 }, (_, i) => ({ hour: i, visits: 0 })),
+          totalInPeriod: 0
+        },
+        timeRange,
+        message: 'Error al obtener datos: ' + error.message
+      });
+    }
+    
+    // Si no hay visitantes, devolver datos vacíos pero estructurados
+    if (!visitors || visitors.length === 0) {
+      return res.json({
+        success: true,
+        data: {
+          daily: [],
+          hourly: Array.from({ length: 24 }, (_, i) => ({ hour: i, visits: 0 })),
+          totalInPeriod: 0
+        },
+        timeRange,
+        message: 'No hay visitas en este período'
+      });
+    }
+    
+    // Agrupar visitas por día
+    const visitsByDate = {};
+    const visitsByHour = {};
+    
+    // Inicializar arrays para horas
+    for (let i = 0; i < 24; i++) {
+      visitsByHour[i] = 0;
+    }
+    
+    // Procesar los datos para agruparlos por día y hora
+    visitors.forEach(visitor => {
+      const visitDate = new Date(visitor.last_visit);
+      
+      // Formato de fecha YYYY-MM-DD
+      const dateKey = visitDate.toISOString().split('T')[0];
+      const hourKey = visitDate.getHours(); // Usar hora local en lugar de UTC
+      
+      // Agrupar por día
+      if (!visitsByDate[dateKey]) {
+        visitsByDate[dateKey] = 0;
+      }
+      visitsByDate[dateKey]++;
+      
+      // Agrupar por hora
+      visitsByHour[hourKey]++;
+    });
+    
+    // Convertir a arrays para el gráfico
+    const dailyData = Object.keys(visitsByDate).map(date => ({
+      date,
+      visits: visitsByDate[date]
+    }));
+    
+    const hourlyData = Object.keys(visitsByHour).map(hour => ({
+      hour: parseInt(hour),
+      visits: visitsByHour[hour]
+    }));
+    
+    res.json({
+      success: true,
+      data: {
+        daily: dailyData,
+        hourly: hourlyData,
+        totalInPeriod: visitors.length
+      },
+      timeRange
+    });
+    
+  } catch (error) {
+    console.error('Error obteniendo datos para el gráfico:', error);
+    // Devolver datos vacíos estructurados en caso de error
+    res.json({
+      success: false,
+      data: {
+        daily: [],
+        hourly: Array.from({ length: 24 }, (_, i) => ({ hour: i, visits: 0 })),
+        totalInPeriod: 0
+      },
+      timeRange: req.query.timeRange || 'week',
+      error: 'Error interno del servidor: ' + error.message
+    });
+  }
+});
+
 // Añadir estos endpoints para el reinicio de estadísticas
 
 // Endpoint para reiniciar estadísticas de redes sociales
