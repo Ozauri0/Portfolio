@@ -268,14 +268,26 @@ export default function AdminAccess() {
             <Shield className="h-6 w-6 md:h-8 md:w-8 text-green-500" />
             <h1 className="text-xl md:text-2xl font-bold text-white">Panel de Administración</h1>
           </div>
-          <Button 
-            variant="outline" 
-            className="border-red-600/40 text-red-400 hover:bg-red-600/20"
-            onClick={handleLogout}
-          >
-            <LogOut className="h-4 w-4 mr-2" />
-            Cerrar sesión
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button 
+              variant="outline" 
+              className="border-blue-600/40 text-blue-400 hover:bg-blue-600/20"
+              onClick={() => router.push('/')}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              <span className="hidden xs:inline">Volver al inicio</span>
+              <span className="xs:hidden">Inicio</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              className="border-red-600/40 text-red-400 hover:bg-red-600/20"
+              onClick={handleLogout}
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              <span className="hidden xs:inline">Cerrar sesión</span>
+              <span className="xs:hidden">Salir</span>
+            </Button>
+          </div>
         </div>
 
         {/* Stats Cards */}
