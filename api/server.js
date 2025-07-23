@@ -14,13 +14,15 @@ const PORT = process.env.PORT || 5000;
 
 // Rate limiting configuration
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit to 100 requests per time window
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 100, // límite de 100 peticiones por ventana de tiempo
   message: {
     error: 'Demasiadas peticiones desde esta IP, intenta de nuevo más tarde.'
   },
   standardHeaders: true,
   legacyHeaders: false,
+  // Añadir esta opción para que sea compatible con la configuración de trust proxy
+  trustProxy: ['loopback', 'linklocal', 'uniquelocal']
 });
 
 // Security middleware
@@ -41,6 +43,9 @@ app.use(cors({
   origin: [
     'http://localhost:3000',
     'http://localhost:3001',
+    /^http:\/\/192\.168\.\d+\.\d+:3000$/,  // Permite cualquier IP de red local 192.168.x.x
+    /^http:\/\/172\.\d+\.\d+\.\d+:3000$/,  // Permite IPs del rango 172.x.x.x
+    /^http:\/\/10\.\d+\.\d+\.\d+:3000$/,   // Permite IPs del rango 10.x.x.x
     process.env.FRONTEND_URL
   ].filter(Boolean),
   credentials: true,
@@ -56,7 +61,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Trust proxy for correct IP detection
-app.set('trust proxy', true);
+app.set('trust proxy', ['loopback', 'linklocal', 'uniquelocal']);
 
 // Logging middleware
 app.use((req, res, next) => {

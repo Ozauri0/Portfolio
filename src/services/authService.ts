@@ -20,7 +20,7 @@ class AuthService {
   constructor() {
     this.baseURL = process.env.NODE_ENV === 'production' 
       ? 'https://tu-dominio-api.com/api' 
-      : 'http://localhost:5000/api';
+      :  process.env.NEXT_PUBLIC_API_URL+"/api" || 'http://localhost:5000/api';
     
     // Cargar token desde localStorage al inicializar
     this.loadFromStorage();
