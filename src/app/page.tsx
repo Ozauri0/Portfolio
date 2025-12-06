@@ -205,6 +205,7 @@ export default function Home() {
             alt="LearnPro"
             fill
             className="object-cover"
+            priority
           />
         </div>
         <CardContent className="pt-6 flex-1 flex flex-col">
@@ -261,6 +262,7 @@ export default function Home() {
             alt="MyBudget Project"
             fill
             className="object-cover"
+            priority
           />
         </div>
         <CardContent className="pt-6 flex-1 flex flex-col">
@@ -308,6 +310,7 @@ export default function Home() {
             alt="Educa+"
             fill
             className="object-cover"
+            priority
           />
         </div>
         <CardContent className="pt-6 flex-1 flex flex-col">
