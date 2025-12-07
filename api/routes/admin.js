@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { supabase, supabaseAdmin } = require('../config/supabase');
+const User = require('../models/User');
+const LoginLog = require('../models/LoginLog');
+const UniqueVisitor = require('../models/UniqueVisitor');
+const AnalyticsClick = require('../models/AnalyticsClick');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
 // Middleware for all admin routes
@@ -28,55 +31,38 @@ router.get('/dashboard', async (req, res) => {
         total: 0
       }
     };    // Count total unique visitors
-    const { count: uniqueVisitorCount, error: visitorError } = await supabaseAdmin
-      .from('unique_visitors')
-      .select('*', { count: 'exact', head: true });
-
-    if (!visitorError) {
-      stats.totalUsers = uniqueVisitorCount || 0;
-    }
+    const uniqueVisitorCount = await UniqueVisitor.countDocuments();
+    stats.totalUsers = uniqueVisitorCount;
 
     // Count recent logins (last 24 hours)
     const oneDayAgo = new Date();
     oneDayAgo.setDate(oneDayAgo.getDate() - 1);
     
-    const { count: recentLoginCount, error: loginError } = await supabaseAdmin
-      .from('login_logs')
-      .select('*', { count: 'exact', head: true })
-      .gte('login_time', oneDayAgo.toISOString())
-      .eq('success', true);
+    const recentLoginCount = await LoginLog.countDocuments({
+      loginTime: { $gte: oneDayAgo },
+      success: true
+    });
+    stats.recentLogins = recentLoginCount;
 
-    if (!loginError) {
-      stats.recentLogins = recentLoginCount || 0;
-    }// Get social media clicks
-    const { data: socialClicks, error: socialError } = await supabaseAdmin
-      .from('analytics_clicks')
-      .select('*')
-      .in('type', ['social']);
+    // Get social media clicks
+    const socialClicks = await AnalyticsClick.find({ type: 'social' });
 
-    if (!socialError && socialClicks) {
-      socialClicks.forEach(click => {
-        if (click.target === 'github') stats.socialClicks.github += click.count || 0;
-        if (click.target === 'linkedin') stats.socialClicks.linkedin += click.count || 0;
-        if (click.target === 'email') stats.socialClicks.email += click.count || 0;
-      });
-      stats.socialClicks.total = stats.socialClicks.github + stats.socialClicks.linkedin + stats.socialClicks.email;
-    }
+    socialClicks.forEach(click => {
+      if (click.target === 'github') stats.socialClicks.github += click.count || 0;
+      if (click.target === 'linkedin') stats.socialClicks.linkedin += click.count || 0;
+      if (click.target === 'email') stats.socialClicks.email += click.count || 0;
+    });
+    stats.socialClicks.total = stats.socialClicks.github + stats.socialClicks.linkedin + stats.socialClicks.email;
 
     // Get project clicks
-    const { data: projectClicks, error: projectError } = await supabaseAdmin
-      .from('analytics_clicks')
-      .select('*')
-      .in('type', ['project']);
+    const projectClicks = await AnalyticsClick.find({ type: 'project' });
 
-    if (!projectError && projectClicks) {
-      projectClicks.forEach(click => {
-        if (click.target === 'learnpro') stats.projectClicks.learnpro += click.count || 0;
-        if (click.target === 'mybudget') stats.projectClicks.mybudget += click.count || 0;
-        if (click.target === 'educaplus') stats.projectClicks.educaplus += click.count || 0;
-      });
-      stats.projectClicks.total = stats.projectClicks.learnpro + stats.projectClicks.mybudget + stats.projectClicks.educaplus;
-    }
+    projectClicks.forEach(click => {
+      if (click.target === 'learnpro') stats.projectClicks.learnpro += click.count || 0;
+      if (click.target === 'mybudget') stats.projectClicks.mybudget += click.count || 0;
+      if (click.target === 'educaplus') stats.projectClicks.educaplus += click.count || 0;
+    });
+    stats.projectClicks.total = stats.projectClicks.learnpro + stats.projectClicks.mybudget + stats.projectClicks.educaplus;
 
     res.json({
       message: 'Bienvenido al panel de administración',
@@ -100,24 +86,22 @@ router.get('/dashboard', async (req, res) => {
 router.get('/users', async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
-    const offset = (page - 1) * limit;    
-    // This query might need adjustment according to your Supabase configuration
-    const { data: users, error } = await supabase
-      .from('profiles') // Asumiendo que tienes una tabla profiles
-      .select('*')
-      .range(offset, offset + limit - 1)
-      .order('created_at', { ascending: false });
+    const skip = (page - 1) * limit;
+    
+    const users = await User.find()
+      .select('-password') // Exclude password
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
 
-    if (error) {
-      throw error;
-    }
+    const total = await User.countDocuments();
 
     res.json({
       users: users || [],
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        total: users?.length || 0
+        total: total
       }
     });
 
@@ -145,31 +129,23 @@ router.get('/settings', (req, res) => {
 router.get('/logs', async (req, res) => {
   try {
     const { page = 1, limit = 20 } = req.query;
-    const offset = (page - 1) * limit;
+    const skip = (page - 1) * limit;
 
     // Get ALL login logs (not just for authenticated user) since this is admin panel
-    const { data: logs, error } = await supabaseAdmin
-      .from('login_logs')
-      .select('*')
-      .order('login_time', { ascending: false })
-      .range(offset, offset + limit - 1);
-
-    if (error) {
-      console.error('Error obteniendo logs:', error);
-      return res.status(500).json({
-        error: 'Error obteniendo logs de conexión'
-      });
-    }
+    const logs = await LoginLog.find()
+      .sort({ loginTime: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
 
     // Format the logs for better display with correct timezone
     const formattedLogs = logs.map(log => {
-      const loginDate = new Date(log.login_time);
+      const loginDate = new Date(log.loginTime);
       
       return {
-        id: log.id,
-        loginTime: log.login_time,
-        ipAddress: log.ip_address,
-        userAgent: log.user_agent || 'Desconocido',
+        id: log._id,
+        loginTime: log.loginTime,
+        ipAddress: log.ipAddress,
+        userAgent: log.userAgent || 'Desconocido',
         email: log.email,
         success: log.success,
         location: log.location || 'Desconocida',
@@ -208,39 +184,23 @@ router.get('/logs', async (req, res) => {
 router.get('/visitor-stats', async (req, res) => {
   try {
     // Get total unique visitors
-    const { count: totalVisitors, error: visitorError } = await supabaseAdmin
-      .from('unique_visitors')
-      .select('*', { count: 'exact', head: true });
-
-    if (visitorError) {
-      console.error('Error getting visitor count:', visitorError);
-    }
+    const totalVisitors = await UniqueVisitor.countDocuments();
 
     // Get visitors from last 24 hours
     const oneDayAgo = new Date();
     oneDayAgo.setDate(oneDayAgo.getDate() - 1);
     
-    const { count: recentVisitors, error: recentError } = await supabaseAdmin
-      .from('unique_visitors')
-      .select('*', { count: 'exact', head: true })
-      .gte('last_visit', oneDayAgo.toISOString());
-
-    if (recentError) {
-      console.error('Error getting recent visitors:', recentError);
-    }
+    const recentVisitors = await UniqueVisitor.countDocuments({
+      lastVisit: { $gte: oneDayAgo }
+    });
 
     // Get visitors from last 7 days
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
     
-    const { count: weeklyVisitors, error: weeklyError } = await supabaseAdmin
-      .from('unique_visitors')
-      .select('*', { count: 'exact', head: true })
-      .gte('last_visit', oneWeekAgo.toISOString());
-
-    if (weeklyError) {
-      console.error('Error getting weekly visitors:', weeklyError);
-    }
+    const weeklyVisitors = await UniqueVisitor.countDocuments({
+      lastVisit: { $gte: oneWeekAgo }
+    });
 
     res.json({
       success: true,
@@ -284,47 +244,10 @@ router.get('/visitor-chart', async (req, res) => {
         startDate.setDate(startDate.getDate() - 7); // Por defecto una semana
     }
     
-    // Verificar si la tabla existe
-    const { error: tableCheckError } = await supabaseAdmin
-      .from('unique_visitors')
-      .select('id')
-      .limit(1);
-    
-    // Si hay un error porque la tabla no existe, devolver datos vacíos
-    if (tableCheckError && tableCheckError.code === '42P01') { // UNDEFINED_TABLE
-      console.log('La tabla unique_visitors no existe en la base de datos');
-      return res.json({
-        success: true,
-        data: {
-          daily: [],
-          hourly: Array.from({ length: 24 }, (_, i) => ({ hour: i, visits: 0 })),
-          totalInPeriod: 0
-        },
-        timeRange,
-        message: 'No hay datos disponibles. La tabla no existe.'
-      });
-    }
-    
     // Obtener todos los visitantes en el rango de fechas
-    const { data: visitors, error } = await supabaseAdmin
-      .from('unique_visitors')
-      .select('*')
-      .gte('last_visit', startDate.toISOString())
-      .order('last_visit', { ascending: true });
-      
-    if (error) {
-      console.error('Error obteniendo datos de visitantes:', error);
-      return res.json({
-        success: true,
-        data: {
-          daily: [],
-          hourly: Array.from({ length: 24 }, (_, i) => ({ hour: i, visits: 0 })),
-          totalInPeriod: 0
-        },
-        timeRange,
-        message: 'Error al obtener datos: ' + error.message
-      });
-    }
+    const visitors = await UniqueVisitor.find({
+      lastVisit: { $gte: startDate }
+    }).sort({ lastVisit: 1 });
     
     // Si no hay visitantes, devolver datos vacíos pero estructurados
     if (!visitors || visitors.length === 0) {
@@ -351,7 +274,7 @@ router.get('/visitor-chart', async (req, res) => {
     
     // Procesar los datos para agruparlos por día y hora
     visitors.forEach(visitor => {
-      const visitDate = new Date(visitor.last_visit);
+      const visitDate = new Date(visitor.lastVisit);
       
       // Formato de fecha YYYY-MM-DD
       const dateKey = visitDate.toISOString().split('T')[0];
@@ -410,20 +333,13 @@ router.get('/visitor-chart', async (req, res) => {
 router.post('/reset-social', async (req, res) => {
   try {
     // Reiniciar estadísticas de clicks en redes sociales
-    const { error } = await supabaseAdmin
-      .from('analytics_clicks')
-      .update({ 
+    await AnalyticsClick.updateMany(
+      { type: 'social' },
+      { 
         count: 0,
-        updated_at: new Date().toISOString()
-      })
-      .eq('type', 'social');
-
-    if (error) {
-      console.error('Error reiniciando clicks sociales:', error);
-      return res.status(500).json({
-        error: 'Error reiniciando estadísticas'
-      });
-    }
+        updatedAt: new Date()
+      }
+    );
 
     res.json({
       message: 'Estadísticas de redes sociales reiniciadas correctamente'
@@ -441,20 +357,13 @@ router.post('/reset-social', async (req, res) => {
 router.post('/reset-projects', async (req, res) => {
   try {
     // Reiniciar estadísticas de clicks en proyectos
-    const { error } = await supabaseAdmin
-      .from('analytics_clicks')
-      .update({ 
+    await AnalyticsClick.updateMany(
+      { type: 'project' },
+      { 
         count: 0,
-        updated_at: new Date().toISOString()
-      })
-      .eq('type', 'project');
-
-    if (error) {
-      console.error('Error reiniciando clicks de proyectos:', error);
-      return res.status(500).json({
-        error: 'Error reiniciando estadísticas'
-      });
-    }
+        updatedAt: new Date()
+      }
+    );
 
     res.json({
       message: 'Estadísticas de proyectos reiniciadas correctamente'

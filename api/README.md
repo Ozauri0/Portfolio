@@ -1,144 +1,226 @@
-# Portfolio API
+# 🚀 Portfolio API - MongoDB + Express.js
 
-API backend para el portafolio con autenticación usando Supabase.
+> API backend para portfolio personal con autenticación JWT y MongoDB
 
-## 🚀 Características
+[![Node.js](https://img.shields.io/badge/Node.js-v16+-green.svg)](https://nodejs.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-v6+-green.svg)](https://www.mongodb.com/)
+[![Express](https://img.shields.io/badge/Express-v4-blue.svg)](https://expressjs.com/)
+[![JWT](https://img.shields.io/badge/JWT-Authentication-orange.svg)](https://jwt.io/)
 
-- Autenticación completa (registro, login, logout)
-- Integración con Supabase auto-hosteado
-- Panel de administración
-- Rate limiting y seguridad
-- Manejo de errores robusto
-- CORS configurado
+## 📋 Tabla de Contenidos
 
-## 📋 Prerrequisitos
+- [Características](#-características)
+- [Stack Tecnológico](#-stack-tecnológico)
+- [Inicio Rápido](#-inicio-rápido)
+- [Configuración](#️-configuración)
+- [Estructura de la API](#-estructura-de-la-api)
+- [Migración desde Supabase](#-migración-desde-supabase)
 
-- Node.js 16+ 
-- Acceso a instancia de Supabase
-- Variables de entorno configuradas
+## ✨ Características
 
-## ⚙️ Configuración
+- 🔐 **Autenticación JWT** - Sistema completo de login/logout
+- 👥 **Gestión de Usuarios** - Con roles (admin/user)
+- 📊 **Analytics** - Tracking de visitantes y clicks
+- 🛡️ **Seguridad** - Rate limiting, CORS, Helmet
+- 📝 **Logs** - Sistema de auditoría de logins
+- 🎨 **Panel Admin** - Dashboard con estadísticas
 
-1. **Instalar dependencias:**
+## 🛠️ Stack Tecnológico
+
+- **Runtime**: Node.js v16+
+- **Framework**: Express.js
+- **Base de Datos**: MongoDB con Mongoose
+- **Autenticación**: JWT (JSON Web Tokens)
+- **Seguridad**: bcryptjs, helmet, express-rate-limit
+- **Desarrollo**: nodemon
+
+## 🚀 Inicio Rápido
+
+### Prerequisitos
+
+- Node.js v16 o superior
+- MongoDB (local o Atlas)
+- npm o yarn
+
+### Instalación
+
 ```bash
+# 1. Clonar el repositorio
+git clone <tu-repo>
+
+# 2. Ir a la carpeta de la API
 cd api
+
+# 3. Instalar dependencias
 npm install
-```
 
-2. **Configurar variables de entorno:**
-Edita el archivo `.env` con tus datos reales:
+# 4. Crear usuario administrador (en carpeta de scripts)
+npm run create-admin
 
-```env
-SUPABASE_URL=https://supa.christianferrer.me
-SUPABASE_ANON_KEY=tu_clave_anonima_aqui
-SUPABASE_SERVICE_ROLE_KEY=tu_clave_service_role_aqui
-JWT_SECRET=tu_secreto_jwt_seguro_aqui
-PORT=5000
-NODE_ENV=development
-FRONTEND_URL=http://localhost:3000
-```
-
-3. **Configurar Supabase:**
-Asegúrate de que tu instancia de Supabase tenga:
-- Autenticación habilitada
-- Tabla `profiles` (opcional, para roles de admin)
-- Políticas RLS configuradas según necesites
-
-## 🏃‍♂️ Ejecución
-
-### Desarrollo
-```bash
+# 6. Iniciar servidor
 npm run dev
 ```
 
-### Producción
-```bash
-npm start
+El servidor estará disponible en `http://localhost:5000`
+
+## ⚙️ Configuración
+
+### Variables de Entorno
+
+Crea un archivo `.env` en la carpeta `api/`:
+
+```env
+# Servidor
+NODE_ENV=development
+PORT=5000
+
+# MongoDB
+MONGODB_URI=mongodb://localhost:27017/portfolio
+
+# JWT
+JWT_SECRET=tu_clave_secreta_super_segura
+JWT_EXPIRES_IN=24h
+
+# Frontend
+FRONTEND_URL=http://localhost:3000
 ```
 
-## 📡 Endpoints
+## 📡 Estructura de la API
 
-### Autenticación (`/api/auth`)
-- `POST /register` - Registrar usuario
-- `POST /login` - Iniciar sesión
-- `POST /logout` - Cerrar sesión
-- `GET /profile` - Obtener perfil del usuario
-- `GET /verify` - Verificar token
-- `POST /refresh` - Refrescar token
+### Endpoints Principales
 
-### Administración (`/api/admin`)
-- `GET /dashboard` - Dashboard del admin
-- `GET /users` - Listar usuarios
-- `GET /settings` - Configuración del sistema
-- `GET /logs` - Logs del sistema
+#### Autenticación (`/api/auth`)
 
-### Sistema
-- `GET /api/health` - Estado del servidor
-- `GET /` - Información de la API
+| Método | Endpoint | Descripción | Auth |
+|--------|----------|-------------|------|
+| POST | `/login` | Iniciar sesión | No |
+| POST | `/logout` | Cerrar sesión | Sí |
+| GET | `/profile` | Obtener perfil | Sí |
+| GET | `/verify` | Verificar token | Sí |
+| POST | `/refresh` | Refrescar token | Sí |
 
-## 🔒 Seguridad
+#### Analytics (`/api/analytics`)
 
-- Helmet para headers de seguridad
-- Rate limiting (100 requests/15min)
-- CORS configurado
-- Validación de entrada
-- Manejo seguro de errores
+| Método | Endpoint | Descripción | Auth |
+|--------|----------|-------------|------|
+| POST | `/track-click` | Registrar click | No |
+| POST | `/track-visitor` | Registrar visitante | No |
+| GET | `/stats` | Estadísticas públicas | No |
 
-## 🗂️ Estructura
+#### Admin (`/api/admin`)
+
+| Método | Endpoint | Descripción | Auth |
+|--------|----------|-------------|------|
+| GET | `/dashboard` | Panel admin | Admin |
+| GET | `/users` | Listar usuarios | Admin |
+| GET | `/logs` | Logs de login | Admin |
+| GET | `/visitor-stats` | Stats visitantes | Admin |
+| GET | `/visitor-chart` | Datos gráficos | Admin |
+| POST | `/reset-social` | Reiniciar stats social | Admin |
+| POST | `/reset-projects` | Reiniciar stats proyectos | Admin |
+
+### Ejemplo de Petición
+
+```bash
+# Login
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@example.com",
+    "password": "password123"
+  }'
+
+# Petición autenticada
+curl http://localhost:5000/api/auth/profile \
+  -H "Authorization: Bearer <tu_token>"
+```
+
+## 🔄 Migración desde Supabase
+
+Esta API fue migrada de Supabase a MongoDB + JWT.
+
+### ¿Qué cambió?
+
+| Antes (Supabase) | Ahora (MongoDB) |
+|------------------|-----------------|
+| PostgreSQL | MongoDB |
+| Supabase Auth | JWT Custom |
+| Gestión automática | Control total |
+
+**⚠️ El frontend NO requiere cambios** - La API mantiene la misma estructura de respuestas.
+
+## 📂 Estructura del Proyecto
 
 ```
 api/
 ├── config/
-│   └── supabase.js       # Configuración de Supabase
+│   └── database.js          # Conexión MongoDB
 ├── middleware/
-│   └── auth.js           # Middleware de autenticación
+│   └── auth.js             # Autenticación JWT
+├── models/
+│   ├── User.js             # Modelo Usuario
+│   ├── LoginLog.js         # Logs de login
+│   ├── UniqueVisitor.js    # Visitantes únicos
+│   └── AnalyticsClick.js   # Analytics clicks
 ├── routes/
-│   ├── auth.js           # Rutas de autenticación
-│   └── admin.js          # Rutas de administración
-├── .env                  # Variables de entorno
-├── .gitignore           # Archivos ignorados por git
-├── package.json         # Dependencias y scripts
-├── server.js           # Servidor principal
-└── README.md           # Este archivo
+│   ├── auth.js             # Rutas autenticación
+│   ├── admin.js            # Rutas admin
+│   └── analytics.js        # Rutas analytics
+├── scripts/
+│   └── createAdmin.js      # Crear usuario admin
+├── server.js               # Servidor principal
+├── .env.example            # Template variables
+├── package.json
+├── MIGRATION.md            # Guía migración
+└── CHANGELOG_MIGRATION.md  # Historial cambios
 ```
 
 ## 🧪 Testing
 
-Para probar los endpoints, puedes usar herramientas como:
-- Postman
-- Insomnia  
-- curl
-- Thunder Client (VS Code)
-
-### Ejemplo de uso con curl:
+### Health Check
 
 ```bash
-# Registrar usuario
-curl -X POST http://localhost:5000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"123456","fullName":"Test User"}'
-
-# Login
-curl -X POST http://localhost:5000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"123456"}'
+curl http://localhost:5000/api/health
 ```
 
-## 🛠️ Desarrollo
+### Crear Usuario Admin
 
-1. El servidor se reinicia automáticamente con `nodemon`
-2. Los logs se muestran en la consola
-3. Usa el endpoint `/api/health` para verificar el estado
+```bash
+npm run create-admin
+```
 
-## 📝 Notas importantes
+### Iniciar en Desarrollo
 
-- Asegúrate de cambiar `JWT_SECRET` en producción
-- Configura las políticas RLS en Supabase según tus necesidades
-- El sistema de roles de admin requiere una tabla `profiles` con campo `role`
-- Ajusta la configuración de CORS según tu dominio de producción
+```bash
+npm run dev
+```
 
-## 🐛 Solución de problemas
+## 🔒 Seguridad
 
-1. **Error de conexión a Supabase:** Verifica la URL y las claves API
-2. **CORS errors:** Verifica la configuración de `FRONTEND_URL`
-3. **Token inválido:** Asegúrate de enviar el header `Authorization: Bearer <token>`
+- ✅ Passwords hasheados con bcrypt (10 rounds)
+- ✅ JWT con expiración configurable
+- ✅ Rate limiting (100 req/15min)
+- ✅ CORS configurado
+- ✅ Helmet para headers de seguridad
+- ✅ Validación de inputs
+- ✅ Sistema de roles (admin/user)
+
+## 📊 Base de Datos
+
+### Colecciones
+
+- **users** - Usuarios del sistema
+- **loginlogs** - Registro de inicios de sesión
+- **uniquevisitors** - Visitantes únicos
+- **analyticsclicks** - Estadísticas de clicks
+
+Ver modelos en `models/` para estructura completa.
+
+
+## 📚 Scripts Disponibles
+
+```bash
+npm start          # Iniciar en producción
+npm run dev        # Iniciar en desarrollo (con nodemon)
+npm run create-admin  # Crear usuario administrador
+```

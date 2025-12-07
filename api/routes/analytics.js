@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { supabase, supabaseAdmin } = require('../config/supabase');
+const AnalyticsClick = require('../models/AnalyticsClick');
+const UniqueVisitor = require('../models/UniqueVisitor');
 
 // Track click on social media or project links
 router.post('/track-click', async (req, res) => {
@@ -36,46 +37,20 @@ router.post('/track-click', async (req, res) => {
         error: 'Objetivo de proyecto no válido'
       });
     }    // Check if record exists
-    const { data: existingRecord, error: selectError } = await supabaseAdmin
-      .from('analytics_clicks')
-      .select('*')
-      .eq('type', type)
-      .eq('target', target)
-      .single();
-
-    if (selectError && selectError.code !== 'PGRST116') {
-      // PGRST116 is "not found" error, which is expected for new records
-      throw selectError;
-    }
+    const existingRecord = await AnalyticsClick.findOne({ type, target });
 
     if (existingRecord) {
       // Update existing record
-      const { error: updateError } = await supabaseAdmin
-        .from('analytics_clicks')
-        .update({ 
-          count: existingRecord.count + 1,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', existingRecord.id);
-
-      if (updateError) {
-        throw updateError;
-      }
+      existingRecord.count += 1;
+      existingRecord.updatedAt = new Date();
+      await existingRecord.save();
     } else {
       // Create new record
-      const { error: insertError } = await supabaseAdmin
-        .from('analytics_clicks')
-        .insert({
-          type,
-          target,
-          count: 1,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        });
-
-      if (insertError) {
-        throw insertError;
-      }
+      await AnalyticsClick.create({
+        type,
+        target,
+        count: 1
+      });
     }
 
     res.json({
@@ -108,28 +83,24 @@ router.get('/stats', async (req, res) => {
         total: 0
       }
     };    // Get all analytics data
-    const { data: allClicks, error } = await supabaseAdmin
-      .from('analytics_clicks')
-      .select('*');
+    const allClicks = await AnalyticsClick.find();
 
-    if (!error && allClicks) {
-      allClicks.forEach(click => {
-        if (click.type === 'social') {
-          if (click.target === 'github') stats.socialClicks.github = click.count || 0;
-          if (click.target === 'linkedin') stats.socialClicks.linkedin = click.count || 0;
-          if (click.target === 'email') stats.socialClicks.email = click.count || 0;
-        }
-        
-        if (click.type === 'project') {
-          if (click.target === 'learnpro') stats.projectClicks.learnpro = click.count || 0;
-          if (click.target === 'mybudget') stats.projectClicks.mybudget = click.count || 0;
-          if (click.target === 'educaplus') stats.projectClicks.educaplus = click.count || 0;
-        }
-      });
+    allClicks.forEach(click => {
+      if (click.type === 'social') {
+        if (click.target === 'github') stats.socialClicks.github = click.count || 0;
+        if (click.target === 'linkedin') stats.socialClicks.linkedin = click.count || 0;
+        if (click.target === 'email') stats.socialClicks.email = click.count || 0;
+      }
+      
+      if (click.type === 'project') {
+        if (click.target === 'learnpro') stats.projectClicks.learnpro = click.count || 0;
+        if (click.target === 'mybudget') stats.projectClicks.mybudget = click.count || 0;
+        if (click.target === 'educaplus') stats.projectClicks.educaplus = click.count || 0;
+      }
+    });
 
-      stats.socialClicks.total = stats.socialClicks.github + stats.socialClicks.linkedin + stats.socialClicks.email;
-      stats.projectClicks.total = stats.projectClicks.learnpro + stats.projectClicks.mybudget + stats.projectClicks.educaplus;
-    }
+    stats.socialClicks.total = stats.socialClicks.github + stats.socialClicks.linkedin + stats.socialClicks.email;
+    stats.projectClicks.total = stats.projectClicks.learnpro + stats.projectClicks.mybudget + stats.projectClicks.educaplus;
 
     res.json(stats);
 
@@ -158,32 +129,17 @@ router.post('/track-visitor', async (req, res) => {
     const userAgent = req.headers['user-agent'] || 'Unknown';
 
     // Check if this IP has visited before
-    const { data: existingVisitor, error: selectError } = await supabaseAdmin
-      .from('unique_visitors')
-      .select('*')
-      .eq('ip_address', cleanIp)
-      .single();
-
-    if (selectError && selectError.code !== 'PGRST116') {
-      // PGRST116 is "not found" error, which is expected for new visitors
-      throw selectError;
-    }
+    const existingVisitor = await UniqueVisitor.findOne({ ipAddress: cleanIp });
 
     if (!existingVisitor) {
       // New unique visitor - insert record
-      const { error: insertError } = await supabaseAdmin
-        .from('unique_visitors')
-        .insert({
-          ip_address: cleanIp,
-          user_agent: userAgent,
-          first_visit: new Date().toISOString(),
-          last_visit: new Date().toISOString(),
-          visit_count: 1
-        });
-
-      if (insertError) {
-        throw insertError;
-      }
+      await UniqueVisitor.create({
+        ipAddress: cleanIp,
+        userAgent: userAgent,
+        firstVisit: new Date(),
+        lastVisit: new Date(),
+        visitCount: 1
+      });
 
       res.json({
         success: true,
@@ -192,24 +148,16 @@ router.post('/track-visitor', async (req, res) => {
       });
     } else {
       // Update existing visitor's last visit and count
-      const { error: updateError } = await supabaseAdmin
-        .from('unique_visitors')
-        .update({ 
-          last_visit: new Date().toISOString(),
-          visit_count: existingVisitor.visit_count + 1,
-          user_agent: userAgent // Update user agent in case it changed
-        })
-        .eq('id', existingVisitor.id);
-
-      if (updateError) {
-        throw updateError;
-      }
+      existingVisitor.lastVisit = new Date();
+      existingVisitor.visitCount += 1;
+      existingVisitor.userAgent = userAgent; // Update user agent in case it changed
+      await existingVisitor.save();
 
       res.json({
         success: true,
         message: 'Existing visitor updated',
         isNewVisitor: false,
-        visitCount: existingVisitor.visit_count + 1
+        visitCount: existingVisitor.visitCount
       });
     }
 

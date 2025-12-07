@@ -4,6 +4,9 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
+// Import database connection
+const connectDB = require('./config/database');
+
 // Import routes
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
@@ -12,18 +15,30 @@ const analyticsRoutes = require('./routes/analytics');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Rate limiting configuration
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // límite de 100 peticiones por ventana de tiempo
-  message: {
-    error: 'Demasiadas peticiones desde esta IP, intenta de nuevo más tarde.'
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-  // Añadir esta opción para que sea compatible con la configuración de trust proxy
-  trustProxy: ['loopback', 'linklocal', 'uniquelocal']
-});
+// Connect to MongoDB
+connectDB();
+
+// CORS - DEBE IR PRIMERO
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:3002',
+    /^http:\/\/192\.168\.\d+\.\d+:(3000|3001|3002)$/,  // Permite cualquier IP de red local 192.168.x.x
+    /^http:\/\/172\.\d+\.\d+\.\d+:(3000|3001|3002)$/,  // Permite IPs del rango 172.x.x.x
+    /^http:\/\/10\.\d+\.\d+\.\d+:(3000|3001|3002)$/,   // Permite IPs del rango 10.x.x.x
+    process.env.FRONTEND_URL
+  ].filter(Boolean),
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Authorization'],
+  optionsSuccessStatus: 200,
+  preflightContinue: false
+}));
+
+// Handle preflight requests
+app.options('*', cors());
 
 // Security middleware
 app.use(helmet({
@@ -38,20 +53,18 @@ app.use(helmet({
   },
 }));
 
-// CORS
-app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:3001',
-    /^http:\/\/192\.168\.\d+\.\d+:3000$/,  // Permite cualquier IP de red local 192.168.x.x
-    /^http:\/\/172\.\d+\.\d+\.\d+:3000$/,  // Permite IPs del rango 172.x.x.x
-    /^http:\/\/10\.\d+\.\d+\.\d+:3000$/,   // Permite IPs del rango 10.x.x.x
-    process.env.FRONTEND_URL
-  ].filter(Boolean),
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+// Rate limiting configuration
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 100, // límite de 100 peticiones por ventana de tiempo
+  message: {
+    error: 'Demasiadas peticiones desde esta IP, intenta de nuevo más tarde.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  // Añadir esta opción para que sea compatible con la configuración de trust proxy
+  trustProxy: ['loopback', 'linklocal', 'uniquelocal']
+});
 
 // Rate limiting
 app.use('/api/', limiter);
@@ -124,19 +137,23 @@ app.listen(PORT, () => {
 🚀 Servidor iniciado exitosamente
 📍 Puerto: ${PORT}
 🌍 Entorno: ${process.env.NODE_ENV || 'development'}
-🔗 Supabase URL: ${process.env.SUPABASE_URL}
+🗄️  Base de datos: MongoDB
 ⏰ Timestamp: ${new Date().toISOString()}
   `);
 });
 
 // Graceful shutdown handling
-process.on('SIGTERM', () => {
+const mongoose = require('mongoose');
+
+process.on('SIGTERM', async () => {
   console.log('SIGTERM recibido. Cerrando servidor gracefully...');
+  await mongoose.connection.close();
   process.exit(0);
 });
 
-process.on('SIGINT', () => {
+process.on('SIGINT', async () => {
   console.log('SIGINT recibido. Cerrando servidor gracefully...');
+  await mongoose.connection.close();
   process.exit(0);
 });
 

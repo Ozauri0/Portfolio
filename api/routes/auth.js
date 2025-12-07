@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { supabase, supabaseAdmin } = require('../config/supabase');
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+const LoginLog = require('../models/LoginLog');
 const { authenticateToken } = require('../middleware/auth');
 
 // User registration - DISABLED for exclusive personal use
@@ -30,62 +32,58 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Authenticate with Supabase
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
+    // Find user by email
+    const user = await User.findOne({ email });
 
-    if (error) {
+    if (!user) {
       return res.status(401).json({
         error: 'Credenciales inválidas'
       });
     }
 
-    // Get user profile data from profiles table
-    console.log('Buscando perfil para usuario ID:', data.user.id);
-    const { data: profile, error: profileError } = await supabaseAdmin
-      .from('profiles')
-      .select('full_name')
-      .eq('id', data.user.id)
-      .single();
+    // Verify password
+    const isPasswordValid = await user.comparePassword(password);
 
-    console.log('Perfil encontrado:', profile);
-    console.log('Error de perfil:', profileError);
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        error: 'Credenciales inválidas'
+      });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user._id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
+    );
 
     // Register login log
     try {
-      const { error: logError } = await supabaseAdmin
-        .from('login_logs')
-        .insert({
-          user_id: data.user.id,
-          email: data.user.email,
-          ip_address: clientIP,
-          user_agent: req.headers['user-agent'] || 'Unknown',
-          login_time: new Date().toISOString(),
-          success: true
-        });
+      await LoginLog.create({
+        userId: user._id,
+        email: user.email,
+        ipAddress: clientIP,
+        userAgent: req.headers['user-agent'] || 'Unknown',
+        loginTime: new Date(),
+        success: true
+      });
       
-      if (logError) {
-        console.warn('Error registrando log de login:', logError);
-        // No fails the login if logging fails
-      } else {
-        console.log('✅ Login registrado exitosamente para:', data.user.email, 'desde IP:', clientIP);
-      }
+      console.log('✅ Login registrado exitosamente para:', user.email, 'desde IP:', clientIP);
     } catch (logErr) {
       console.warn('Error en sistema de logs:', logErr);
+      // Don't fail the login if logging fails
     }
 
     res.json({
       message: 'Login exitoso',
       user: {
-        id: data.user.id,
-        email: data.user.email,
-        fullName: profile?.full_name || null
+        id: user._id,
+        email: user.email,
+        fullName: user.fullName
       },
       session: {
-        access_token: data.session.access_token,
-        expires_at: data.session.expires_at
+        access_token: token,
+        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
       }
     });
 
@@ -100,14 +98,9 @@ router.post('/login', async (req, res) => {
 // Logout
 router.post('/logout', authenticateToken, async (req, res) => {
   try {
-    const { error } = await supabase.auth.signOut();
-
-    if (error) {
-      return res.status(400).json({
-        error: error.message
-      });
-    }
-
+    // With JWT, logout is handled client-side by removing the token
+    // You could optionally implement a token blacklist here
+    
     res.json({
       message: 'Logout exitoso'
     });
@@ -123,19 +116,12 @@ router.post('/logout', authenticateToken, async (req, res) => {
 // Get authenticated user profile
 router.get('/profile', authenticateToken, async (req, res) => {
   try {
-    // Get user profile data from profiles table
-    const { data: profile, error: profileError } = await supabaseAdmin
-      .from('profiles')
-      .select('full_name')
-      .eq('id', req.user.id)
-      .single();
-
     res.json({
       user: {
-        id: req.user.id,
+        id: req.user._id,
         email: req.user.email,
-        fullName: profile?.full_name || null,
-        createdAt: req.user.created_at
+        fullName: req.user.fullName,
+        createdAt: req.user.createdAt
       }
     });
 
@@ -152,38 +138,26 @@ router.get('/verify', authenticateToken, (req, res) => {
   res.json({
     message: 'Token válido',
     user: {
-      id: req.user.id,
+      id: req.user._id,
       email: req.user.email
     }
   });
 });
 
 // Refresh token
-router.post('/refresh', async (req, res) => {
+router.post('/refresh', authenticateToken, async (req, res) => {
   try {
-    const { refresh_token } = req.body;
-
-    if (!refresh_token) {
-      return res.status(400).json({
-        error: 'Refresh token requerido'
-      });
-    }
-
-    const { data, error } = await supabase.auth.refreshSession({
-      refresh_token
-    });
-
-    if (error) {
-      return res.status(401).json({
-        error: 'Refresh token inválido'
-      });
-    }
+    // Generate new JWT token
+    const token = jwt.sign(
+      { userId: req.user._id, email: req.user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
+    );
 
     res.json({
       session: {
-        access_token: data.session.access_token,
-        expires_at: data.session.expires_at,
-        refresh_token: data.session.refresh_token
+        access_token: token,
+        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
       }
     });
 

@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { supabase, supabaseAdmin } = require('../config/supabase');
+const User = require('../models/User');
 
 // Middleware to verify JWT token
 const authenticateToken = async (req, res, next) => {
@@ -11,13 +11,17 @@ const authenticateToken = async (req, res, next) => {
       error: 'Token de acceso requerido' 
     });
   }
+
   try {
-    // Verify token with Supabase
-    const { data: { user }, error } = await supabase.auth.getUser(token);
+    // Verify JWT token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
-    if (error || !user) {
+    // Get user from database
+    const user = await User.findById(decoded.userId).select('-password');
+    
+    if (!user) {
       return res.status(403).json({ 
-        error: 'Token inválido o expirado' 
+        error: 'Usuario no encontrado' 
       });
     }
 
@@ -25,6 +29,13 @@ const authenticateToken = async (req, res, next) => {
     next();
   } catch (error) {
     console.error('Error en autenticación:', error);
+    
+    if (error.name === 'TokenExpiredError') {
+      return res.status(403).json({ 
+        error: 'Token expirado' 
+      });
+    }
+    
     return res.status(403).json({ 
       error: 'Token inválido' 
     });
@@ -38,30 +49,13 @@ const requireAdmin = async (req, res, next) => {
       return res.status(401).json({ 
         error: 'Usuario no autenticado' 
       });
-    }    
-    
-    // Check if user has admin role
-    // Use supabaseAdmin for administrative queries
-    console.log('Verificando admin para usuario ID:', req.user.id);
-    
-    const { data: profile, error } = await supabaseAdmin
-      .from('profiles')
-      .select('role')
-      .eq('id', req.user.id)
-      .single();
-
-    console.log('Perfil encontrado:', profile);
-    console.log('Error:', error);
-
-    if (error) {
-      console.log('Error obteniendo perfil:', error.message);
-      return res.status(403).json({ 
-        error: 'Error verificando permisos de usuario' 
-      });
     }
 
-    if (!profile || profile.role !== 'admin') {
-      console.log('Usuario no es admin. Rol actual:', profile?.role);
+    console.log('Verificando admin para usuario ID:', req.user._id);
+    console.log('Rol del usuario:', req.user.role);
+
+    if (req.user.role !== 'admin') {
+      console.log('Usuario no es admin. Rol actual:', req.user.role);
       return res.status(403).json({ 
         error: 'Acceso denegado. Se requieren permisos de administrador.' 
       });
