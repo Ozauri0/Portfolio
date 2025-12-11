@@ -581,11 +581,11 @@ export default function AdminAccess() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-gray-400">Backend:</p>
-                <p className="text-white">Express.js + Supabase</p>
+                <p className="text-white">Express.js</p>
               </div>
               <div>
                 <p className="text-gray-400">Base de Datos:</p>
-                <p className="text-white">PostgreSQL (Supabase)</p>
+                <p className="text-white">MongoDB</p>
               </div>
               <div>
                 <p className="text-gray-400">Frontend:</p>
@@ -593,7 +593,7 @@ export default function AdminAccess() {
               </div>
               <div>
                 <p className="text-gray-400">Autenticación:</p>
-                <p className="text-white">Supabase Auth</p>
+                <p className="text-white">JWT</p>
               </div>
             </div>
           </CardContent>
