@@ -25,9 +25,7 @@ router.get('/dashboard', async (req, res) => {
         total: 0
       },
       projectClicks: {
-        learnpro: 0,
-        mybudget: 0,
-        educaplus: 0,
+        // Will be populated dynamically
         total: 0
       }
     };    // Count total unique visitors
@@ -54,15 +52,16 @@ router.get('/dashboard', async (req, res) => {
     });
     stats.socialClicks.total = stats.socialClicks.github + stats.socialClicks.linkedin + stats.socialClicks.email;
 
-    // Get project clicks
+    // Get project clicks (dynamic - all projects)
     const projectClicks = await AnalyticsClick.find({ type: 'project' });
+    let projectTotal = 0;
 
     projectClicks.forEach(click => {
-      if (click.target === 'learnpro') stats.projectClicks.learnpro += click.count || 0;
-      if (click.target === 'mybudget') stats.projectClicks.mybudget += click.count || 0;
-      if (click.target === 'educaplus') stats.projectClicks.educaplus += click.count || 0;
+      const count = click.count || 0;
+      stats.projectClicks[click.target] = count;
+      projectTotal += count;
     });
-    stats.projectClicks.total = stats.projectClicks.learnpro + stats.projectClicks.mybudget + stats.projectClicks.educaplus;
+    stats.projectClicks.total = projectTotal;
 
     res.json({
       message: 'Bienvenido al panel de administración',

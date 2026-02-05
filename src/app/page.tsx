@@ -1,19 +1,18 @@
 'use client';
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
 import { ScrollToTopButton } from "@/components/ui/scroll-to-top-button"
 import NodeBackground from "@/components/node-background"
 import AuthNavigation from "@/components/auth-navigation"
 import useSecretAccess from "@/hooks/useSecretAccess"
+import ProjectCard from "@/components/ProjectCard"
+import projectsService, { Project } from "@/services/projectsService"
 import { 
   Github, 
   Linkedin, 
-  Mail, 
-  ExternalLink
+  Mail
 } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { translations } from "@/translations"
@@ -22,44 +21,31 @@ import ContactForm from "@/components/contact-form"
 import SkillsSection from "@/components/skills-section"
 import analyticsService from "@/services/analyticsService"
 
-import { 
-  SiAngular, 
-  SiReact, 
-  SiIonic, 
-  SiCapacitor, 
-  SiAndroidstudio, 
-  SiDjango, 
-  SiFlask, 
-  SiFastapi, 
-  SiNodedotjs, 
-  SiPython, 
-  SiJavascript, 
-  SiTypescript, 
-  SiGit, 
-  SiMysql, 
-  SiDocker, 
-  SiLinux,
-  SiHtml5,
-  SiCss3,
-  SiMongodb,
-  SiSqlite,
-  SiNextdotjs,
-  SiTails,
-  SiTailwindcss,
-  SiC
-} from 'react-icons/si';
-
 export default function Home() {
   const { language } = useLanguage();
   const t = translations[language];
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loadingProjects, setLoadingProjects] = useState(true);
   
   // Secret access hook (Ctrl + Shift + L)
   useSecretAccess();
   
-  // Track visitor on page load
+  // Track visitor on page load and load projects
   useEffect(() => {
     analyticsService.trackVisitor();
+    loadProjects();
   }, []);
+
+  const loadProjects = async () => {
+    try {
+      const data = await projectsService.getProjects();
+      setProjects(data);
+    } catch (error) {
+      console.error('Error loading projects:', error);
+    } finally {
+      setLoadingProjects(false);
+    }
+  };
   
   // References for scrolling
   const heroRef = useRef<HTMLDivElement>(null);
@@ -94,9 +80,7 @@ export default function Home() {
     analyticsService.trackSocialClick(platform);
   };
 
-  const handleProjectClick = (project: 'learnpro' | 'mybudget' | 'educaplus') => {
-    analyticsService.trackProjectClick(project);
-  };return (
+  return (
     <div className="relative min-h-screen bg-black text-white">
       <NodeBackground />
       
@@ -194,178 +178,33 @@ export default function Home() {
         <SkillsSection />
 
         {/* Projects Section */}
-<section ref={projectsRef} className="py-20 px-4 bg-zinc-900">
-  <div className="container mx-auto max-w-6xl">
-    <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center text-white">{t.projects.title}</h2>    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {/* Project 1: LearnPro */}
-      <Card className="bg-black border-zinc-800 overflow-hidden hover:border-blue-500/30 transition-all duration-300 flex flex-col">
-        <div className="relative h-48">
-          <Image
-            src={`/learnpro.webp`}
-            alt="LearnPro"
-            fill
-            className="object-cover"
-            priority
-          />
-        </div>
-        <CardContent className="pt-6 flex-1 flex flex-col">
-          <div className="flex-1">
-            <h3 className="text-xl font-bold mb-2 text-white">{t.projects.project1.title}</h3>
-            <p className="text-gray-400 mb-4">
-              {t.projects.project1.description}
-            </p>
-            <div className="flex flex-wrap gap-2 mb-4">
-              <Badge variant="secondary" className="bg-zinc-800 text-white">
-                <SiNextdotjs className="text-[#00000] h-4 w-4" />
-                Next.js
-              </Badge>
-              <Badge variant="secondary" className="bg-zinc-800 text-white">
-                <SiTailwindcss className="text-[#06B6D4] h-4 w-4" />
-                TailwindCSS
-              </Badge>
-              <Badge variant="secondary" className="bg-zinc-800 text-white">
-                <SiReact className="text-[#61DAFB] h-4 w-4" />
-                React
-              </Badge>
-              <Badge variant="secondary" className="bg-zinc-800 text-white">
-                <SiTypescript className="text-[#3178C6] h-4 w-4" />
-                TypeScript
-              </Badge>
-              <Badge variant="secondary" className="bg-zinc-800 text-white">
-                <SiNodedotjs className="text-[#339933] h-4 w-4" />
-                Node.js + Express
-              </Badge>
-              <Badge variant="secondary" className="bg-zinc-800 text-white">
-                <SiMongodb className="text-[#47A248] h-4 w-4" />
-                MongoDB
-              </Badge>
-            </div>
-          </div>          <div className="mt-auto flex gap-2">
-            <a href="https://github.com/Ozauri0/app-empresariales" target="_blank" rel="noopener noreferrer" className="flex-1" onClick={() => handleProjectClick('learnpro')}>
-              <Button size="sm" variant="outline" className="gap-1 text-white w-full">
-                <Github className="h-4 w-4"/> {t.projects.code}
-              </Button>
-            </a>
-            <a href="https://lp.christianferrer.me" target="_blank" rel="noopener noreferrer" className="flex-1" onClick={() => handleProjectClick('learnpro')}>
-              <Button size="sm" className="gap-1 bg-white text-black hover:bg-gray-200 w-full">
-                <ExternalLink className="h-4 w-4" /> {t.projects.liveDemo}
-              </Button>
-            </a>
+        <section ref={projectsRef} className="py-20 px-4 bg-zinc-900">
+          <div className="container mx-auto max-w-6xl">
+            <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center text-white">{t.projects.title}</h2>
             
-          </div>
-        </CardContent>
-      </Card>      {/* Project 2: MyBudget */}
-      <Card className="bg-black border-zinc-800 overflow-hidden hover:border-green-500/30 transition-all duration-300 flex flex-col">
-        <div className="relative h-48">
-          <Image
-            src={`/MyBudget.webp`}
-            alt="MyBudget Project"
-            fill
-            className="object-cover"
-            priority
-          />
-        </div>
-        <CardContent className="pt-6 flex-1 flex flex-col">
-          <div className="flex-1">
-            <h3 className="text-xl font-bold mb-2 text-white">{t.projects.project2.title}</h3>
-            <p className="text-gray-400 mb-4">
-              {t.projects.project2.description}
-            </p>
-            <div className="flex flex-wrap gap-2 mb-4">
-              <Badge variant="secondary" className="bg-zinc-800 text-white">
-                <SiIonic className="text-[#3880FF] h-4 w-4" />
-                Ionic
-              </Badge>
-              <Badge variant="secondary" className="bg-zinc-800 text-white">
-                <SiSqlite className="text-[#003B57] h-4 w-4" />
-                SQLite
-              </Badge>
-              <Badge variant="secondary" className="bg-zinc-800 text-white">
-                <SiAngular className="text-[#DD0031] h-4 w-4" />
-                Angular
-              </Badge>
-              <Badge variant="secondary" className="bg-zinc-800 text-white">
-                <SiCapacitor className="text-[#119EFF] h-4 w-4" />
-                Capacitor
-              </Badge>
-            </div>
-          </div>          <div className="mt-auto flex gap-2">
-            <a href="https://github.com/Ozauri0/MyBudget" target="_blank" rel="noopener noreferrer" className="flex-1" onClick={() => handleProjectClick('mybudget')}>
-              <Button size="sm" variant="outline" className="gap-1 text-white w-full">
-                <Github className="h-4 w-4"/> {t.projects.code}
-              </Button>
-            </a>
-            <a href="https://play.google.com/store/apps/details?id=com.mybudget.app&pcampaignid=web_share" target="_blank" rel="noopener noreferrer" className="flex-1" onClick={() => handleProjectClick('mybudget')}>
-              <Button size="sm" className="gap-1 bg-white text-black hover:bg-gray-200 w-full">
-                <ExternalLink className="h-4 w-4" /> {t.projects.download}
-              </Button>
-            </a>
-          </div>
-        </CardContent>
-      </Card>      {/* Project 3: Educa+*/}
-      <Card className="bg-black border-zinc-800 overflow-hidden hover:border-purple-500/30 transition-all duration-300 flex flex-col">
-        <div className="relative h-48">
-          <Image
-            src={`/educa+.webp`}
-            alt="Educa+"
-            fill
-            className="object-cover"
-            priority
-          />
-        </div>
-        <CardContent className="pt-6 flex-1 flex flex-col">
-          <div className="flex-1">
-            <h3 className="text-xl font-bold mb-2 text-white">{t.projects.project3.title}</h3>
-            <p className="text-gray-400 mb-4">
-              {t.projects.project3.description}
-            </p>
-            <div className="flex flex-wrap gap-2 mb-4">
-              <Badge variant="secondary" className="bg-zinc-800 text-white">
-                <SiIonic className="text-[#3880FF] h-4 w-4" />
-                Ionic
-              </Badge>
-              <Badge variant="secondary" className="bg-zinc-800 text-white">
-                <SiAngular className="text-[#DD0031] h-4 w-4" />
-                Angular
-              </Badge>
-              <Badge variant="secondary" className="bg-zinc-800 text-white">
-                <SiCapacitor className="text-[#119EFF] h-4 w-4" />
-                Capacitor
-              </Badge>
-              <Badge variant="secondary" className="bg-zinc-800 text-white">
-                <SiNodedotjs className="text-[#339933] h-4 w-4" />
-                Node.js + Express
-              </Badge>
-              <Badge variant="secondary" className="bg-zinc-800 text-white">
-                <SiMysql className="text-[#00758F] h-4 w-4" />
-                MySQL
-              </Badge>
-            </div>
-          </div>          <div className="mt-auto flex gap-2">
-            <a href="https://github.com/Ozauri0/educaplus" target="_blank" rel="noopener noreferrer" className="flex-1" onClick={() => handleProjectClick('educaplus')}>
-              <Button size="sm" variant="outline" className="gap-1 text-white w-full">
-                <Github className="h-4 w-4"/> {t.projects.code}
-              </Button>
-            </a>
-            {/*}
-            <a href="#" target="_blank" rel="noopener noreferrer" className="flex-1">
-              <Button size="sm" className="gap-1 bg-white text-black hover:bg-gray-200 w-full">
-                <ExternalLink className="h-4 w-4" /> {t.projects.documentation}
-              </Button>
-            </a>
-            */}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+            {loadingProjects ? (
+              <div className="flex justify-center items-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+              </div>
+            ) : projects.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-gray-400">No hay proyectos disponibles</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {projects.map((project) => (
+                  <ProjectCard key={project._id} project={project} />
+                ))}
+              </div>
+            )}
 
-    <div className="flex justify-center mt-12">
-      <a href="https://github.com/Ozauri0/" target="_blank" rel="noopener noreferrer">
-      <Button variant="outline" className="text-white">{t.projects.viewAll}</Button>
-      </a>
-    </div>
-  </div>
-</section>
+            <div className="flex justify-center mt-12">
+              <a href="https://github.com/Ozauri0/" target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" className="text-white">{t.projects.viewAll}</Button>
+              </a>
+            </div>
+          </div>
+        </section>
 
         {/* Contact Section */}
         <section ref={contactRef} className="py-20 px-4 bg-black">

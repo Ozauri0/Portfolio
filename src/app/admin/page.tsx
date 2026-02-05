@@ -4,10 +4,11 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Shield, Users, Activity, Database, ArrowLeft, ExternalLink, MousePointer, Clock, MapPin, Monitor, LogOut, RefreshCw } from 'lucide-react';
+import { Shield, Users, Activity, Database, ArrowLeft, ExternalLink, MousePointer, Clock, MapPin, Monitor, LogOut, RefreshCw, FolderKanban, BarChart3 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import authService from '@/services/authService';
 import VisitorChart from '@/components/admin/VisitorChart';
+import ProjectsManager from '@/components/admin/ProjectsManager';
 
 interface LoginLog {
   id: string;
@@ -31,9 +32,7 @@ interface AdminStats {
     total: number;
   };
   projectClicks: {
-    learnpro: number;
-    mybudget: number;
-    educaplus: number;
+    [key: string]: number;
     total: number;
   };
 }
@@ -53,6 +52,7 @@ export default function AdminAccess() {
   const [resetLoading, setResetLoading] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
   const [resetMessage, setResetMessage] = useState('');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'projects'>('dashboard');
   const router = useRouter();
   
 
@@ -290,6 +290,31 @@ export default function AdminAccess() {
           </div>
         </div>
 
+        {/* Tab Navigation */}
+        <div className="flex gap-2 mb-6 border-b border-zinc-800 pb-4">
+          <Button
+            variant={activeTab === 'dashboard' ? 'default' : 'ghost'}
+            onClick={() => setActiveTab('dashboard')}
+            className={activeTab === 'dashboard' ? '' : 'text-gray-400 hover:text-white'}
+          >
+            <BarChart3 className="h-4 w-4 mr-2" />
+            Dashboard
+          </Button>
+          <Button
+            variant={activeTab === 'projects' ? 'default' : 'ghost'}
+            onClick={() => setActiveTab('projects')}
+            className={activeTab === 'projects' ? '' : 'text-gray-400 hover:text-white'}
+          >
+            <FolderKanban className="h-4 w-4 mr-2" />
+            Proyectos
+          </Button>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === 'projects' ? (
+          <ProjectsManager />
+        ) : (
+          <>
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
           <Card className="bg-zinc-900 border-zinc-800">
@@ -429,24 +454,18 @@ export default function AdminAccess() {
                 </div>
               </div>
               <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-300">LearnPro</span>
-                  <span className="text-white font-semibold">
-                    {adminStats?.projectClicks?.learnpro || 0}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-300">MyBudget</span>
-                  <span className="text-white font-semibold">
-                    {adminStats?.projectClicks?.mybudget || 0}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-300">Educa+</span>
-                  <span className="text-white font-semibold">
-                    {adminStats?.projectClicks?.educaplus || 0}
-                  </span>
-                </div>
+                {adminStats?.projectClicks && Object.entries(adminStats.projectClicks)
+                  .filter(([key]) => key !== 'total')
+                  .map(([projectName, clicks]) => (
+                    <div key={projectName} className="flex justify-between items-center">
+                      <span className="text-gray-300 capitalize">{projectName}</span>
+                      <span className="text-white font-semibold">{clicks}</span>
+                    </div>
+                  ))
+                }
+                {(!adminStats?.projectClicks || Object.keys(adminStats.projectClicks).length <= 1) && (
+                  <p className="text-gray-400 text-sm">No hay datos de clicks aún</p>
+                )}
                 <hr className="border-gray-700" />
                 <div className="flex justify-between items-center font-bold">
                   <span className="text-purple-400">Total</span>
@@ -581,23 +600,22 @@ export default function AdminAccess() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-gray-400">Backend:</p>
-                <p className="text-white">Express.js + Supabase</p>
+                <p className="text-white">Express.js
+                </p>
               </div>
               <div>
                 <p className="text-gray-400">Base de Datos:</p>
-                <p className="text-white">PostgreSQL (Supabase)</p>
+                <p className="text-white">MongoDB</p>
               </div>
               <div>
                 <p className="text-gray-400">Frontend:</p>
                 <p className="text-white">Next.js + TypeScript</p>
               </div>
-              <div>
-                <p className="text-gray-400">Autenticación:</p>
-                <p className="text-white">Supabase Auth</p>
-              </div>
             </div>
           </CardContent>
         </Card>
+          </>
+        )}
       </div>
     </div>
   );
