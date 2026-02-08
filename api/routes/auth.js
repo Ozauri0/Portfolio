@@ -1,9 +1,38 @@
 const express = require('express');
 const router = express.Router();
-const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const LoginLog = require('../models/LoginLog');
 const { authenticateToken } = require('../middleware/auth');
+const {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+  revokeRefreshToken,
+  revokeAllUserTokens
+} = require('../utils/tokenManager');
+
+// Helper function to get client IP
+function getClientIP(req) {
+  return req.headers['x-forwarded-for'] || 
+         req.headers['x-real-ip'] || 
+         req.connection.remoteAddress || 
+         req.socket.remoteAddress ||
+         (req.connection.socket ? req.connection.socket.remoteAddress : null) ||
+         '127.0.0.1';
+}
+
+// Helper function to set refresh token cookie
+function setRefreshTokenCookie(res, token) {
+  const isProduction = process.env.NODE_ENV === 'production';
+  
+  res.cookie('refreshToken', token, {
+    httpOnly: true, // No accessible via JavaScript (prevents XSS)
+    secure: isProduction, // Only HTTPS in production
+    sameSite: isProduction ? 'strict' : 'lax', // CSRF protection
+    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    path: '/api/auth' // Only send cookie to auth routes
+  });
+}
 
 // User registration - DISABLED for exclusive personal use
 router.post('/register', async (req, res) => {
@@ -16,14 +45,8 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    
-    // Get client IP address
-    const clientIP = req.headers['x-forwarded-for'] || 
-                     req.headers['x-real-ip'] || 
-                     req.connection.remoteAddress || 
-                     req.socket.remoteAddress ||
-                     (req.connection.socket ? req.connection.socket.remoteAddress : null) ||
-                     '127.0.0.1';
+    const clientIP = getClientIP(req);
+    const userAgent = req.headers['user-agent'] || 'Unknown';
 
     // Basic validation
     if (!email || !password) {
@@ -36,6 +59,19 @@ router.post('/login', async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
+      // Register failed login attempt
+      try {
+        await LoginLog.create({
+          email: email,
+          ipAddress: clientIP,
+          userAgent: userAgent,
+          loginTime: new Date(),
+          success: false
+        });
+      } catch (logErr) {
+        console.warn('Error logging failed attempt:', logErr);
+      }
+
       return res.status(401).json({
         error: 'Credenciales inválidas'
       });
@@ -45,33 +81,46 @@ router.post('/login', async (req, res) => {
     const isPasswordValid = await user.comparePassword(password);
 
     if (!isPasswordValid) {
+      // Register failed login attempt
+      try {
+        await LoginLog.create({
+          userId: user._id,
+          email: user.email,
+          ipAddress: clientIP,
+          userAgent: userAgent,
+          loginTime: new Date(),
+          success: false
+        });
+      } catch (logErr) {
+        console.warn('Error logging failed attempt:', logErr);
+      }
+
       return res.status(401).json({
         error: 'Credenciales inválidas'
       });
     }
 
-    // Generate JWT token
-    const token = jwt.sign(
-      { userId: user._id, email: user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
-    );
+    // Generate tokens
+    const accessToken = generateAccessToken(user);
+    const refreshToken = await generateRefreshToken(user, clientIP, userAgent);
 
-    // Register login log
+    // Set refresh token in HttpOnly cookie
+    setRefreshTokenCookie(res, refreshToken);
+
+    // Register successful login
     try {
       await LoginLog.create({
         userId: user._id,
         email: user.email,
         ipAddress: clientIP,
-        userAgent: req.headers['user-agent'] || 'Unknown',
+        userAgent: userAgent,
         loginTime: new Date(),
         success: true
       });
       
-      console.log('✅ Login registrado exitosamente para:', user.email, 'desde IP:', clientIP);
+      console.log('✅ Login exitoso:', user.email, 'desde IP:', clientIP);
     } catch (logErr) {
       console.warn('Error en sistema de logs:', logErr);
-      // Don't fail the login if logging fails
     }
 
     res.json({
@@ -79,12 +128,11 @@ router.post('/login', async (req, res) => {
       user: {
         id: user._id,
         email: user.email,
-        fullName: user.fullName
+        fullName: user.fullName,
+        role: user.role
       },
-      session: {
-        access_token: token,
-        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
-      }
+      accessToken,
+      expiresIn: '15m'
     });
 
   } catch (error) {
@@ -95,18 +143,111 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Logout
-router.post('/logout', authenticateToken, async (req, res) => {
+// Refresh access token
+router.post('/refresh', async (req, res) => {
   try {
-    // With JWT, logout is handled client-side by removing the token
-    // You could optionally implement a token blacklist here
-    
+    const refreshToken = req.cookies?.refreshToken;
+
+    if (!refreshToken) {
+      return res.status(401).json({
+        error: 'No se encontró token de actualización',
+        code: 'NO_REFRESH_TOKEN'
+      });
+    }
+
+    const clientIP = getClientIP(req);
+    const userAgent = req.headers['user-agent'] || 'Unknown';
+
+    // Verify and get user (also extends token expiration)
+    const user = await verifyRefreshToken(refreshToken, clientIP, userAgent);
+
+    if (!user) {
+      // Token invalid or revoked
+      res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/api/auth'
+      });
+
+      return res.status(401).json({
+        error: 'Token de actualización inválido o expirado',
+        code: 'INVALID_REFRESH_TOKEN'
+      });
+    }
+
+    // Generate new access token
+    const accessToken = generateAccessToken(user);
+
+    res.json({
+      accessToken,
+      expiresIn: '15m',
+      user: {
+        id: user._id,
+        email: user.email,
+        fullName: user.fullName,
+        role: user.role
+      }
+    });
+
+  } catch (error) {
+    console.error('Error en refresh token:', error);
+    res.status(500).json({
+      error: 'Error interno del servidor'
+    });
+  }
+});
+
+// Logout (revoke current refresh token)
+router.post('/logout', async (req, res) => {
+  try {
+    const refreshToken = req.cookies?.refreshToken;
+
+    if (refreshToken) {
+      await revokeRefreshToken(refreshToken);
+    }
+
+    // Clear refresh token cookie
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/api/auth'
+    });
+
     res.json({
       message: 'Logout exitoso'
     });
 
   } catch (error) {
     console.error('Error en logout:', error);
+    res.status(500).json({
+      error: 'Error interno del servidor'
+    });
+  }
+});
+
+// Logout from all devices (revoke all user's refresh tokens)
+router.post('/logout-all', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    await revokeAllUserTokens(userId);
+
+    // Clear current refresh token cookie
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/api/auth'
+    });
+
+    res.json({
+      message: 'Sesión cerrada en todos los dispositivos'
+    });
+
+  } catch (error) {
+    console.error('Error en logout-all:', error);
     res.status(500).json({
       error: 'Error interno del servidor'
     });
@@ -139,34 +280,10 @@ router.get('/verify', authenticateToken, (req, res) => {
     message: 'Token válido',
     user: {
       id: req.user._id,
-      email: req.user.email
+      email: req.user.email,
+      role: req.user.role
     }
   });
-});
-
-// Refresh token
-router.post('/refresh', authenticateToken, async (req, res) => {
-  try {
-    // Generate new JWT token
-    const token = jwt.sign(
-      { userId: req.user._id, email: req.user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
-    );
-
-    res.json({
-      session: {
-        access_token: token,
-        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-      }
-    });
-
-  } catch (error) {
-    console.error('Error refrescando token:', error);
-    res.status(500).json({
-      error: 'Error interno del servidor'
-    });
-  }
 });
 
 module.exports = router;

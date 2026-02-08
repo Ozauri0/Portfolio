@@ -67,7 +67,7 @@ router.get('/dashboard', async (req, res) => {
       message: 'Bienvenido al panel de administración',
       stats,
       user: {
-        id: req.user.id,
+        id: req.user._id,
         email: req.user.email,
         role: 'admin'
       }

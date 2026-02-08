@@ -7,6 +7,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { translations } from '@/translations';
 import { User, LogOut, Shield } from 'lucide-react';
 import Link from 'next/link';
+import authService from '@/services/authService';
 
 export default function AuthNavigation() {
   const { language } = useLanguage();
@@ -24,7 +25,7 @@ export default function AuthNavigation() {
 
   const checkAdminStatus = async () => {
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = authService.getToken();
       if (!token) {
         console.log('No token found');
         setIsAdmin(false);
@@ -37,7 +38,8 @@ export default function AuthNavigation() {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
-        }
+        },
+        credentials: 'include'
       });
       
       console.log('Admin check response status:', response.status);

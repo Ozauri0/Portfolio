@@ -74,7 +74,12 @@ export default function AdminAccess() {
       setAdminStats(adminData.stats);
       // Cargar automáticamente los últimos 5 logs
       await fetchRecentLogs();
-    } catch (error) {
+    } catch (error: any) {
+      // Si la sesión expiró, redirigir a login
+      if (error?.message === 'SESSION_EXPIRED' || error?.code === 'SESSION_EXPIRED') {
+        router.push('/login');
+        return;
+      }
       setIsAdmin(false);
       setError('No tienes permisos de administrador');
     } finally {
@@ -85,14 +90,15 @@ export default function AdminAccess() {
   const fetchRecentLogs = async () => {
     setLoadingRecentLogs(true);
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = authService.getToken();
       if (!token) return;
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/logs?limit=5`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
-        }
+        },
+        credentials: 'include'
       });
 
       if (response.ok) {
@@ -111,14 +117,15 @@ export default function AdminAccess() {
   const fetchAllLogs = async () => {
     setLoadingLogs(true);
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = authService.getToken();
       if (!token) return;
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/logs?limit=50`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
-        }
+        },
+        credentials: 'include'
       });
 
       if (response.ok) {
@@ -173,7 +180,7 @@ export default function AdminAccess() {
   const handleConfirmReset = async (type: 'social' | 'projects') => {
     setResetLoading(true);
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = authService.getToken();
       if (!token) return;
 
       // Usar exactamente las rutas que ya funcionan en tu backend pero con la variable de entorno
@@ -186,7 +193,8 @@ export default function AdminAccess() {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
-        }
+        },
+        credentials: 'include'
       });
 
       if (response.ok) {

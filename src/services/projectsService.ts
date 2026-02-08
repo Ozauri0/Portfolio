@@ -3,6 +3,8 @@
  * Servicio para gestionar proyectos desde el frontend
  */
 
+import authService from './authService';
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export interface ProjectLinks {
@@ -56,7 +58,7 @@ export interface UpdateProjectData extends Partial<CreateProjectData> {}
 
 class ProjectsService {
   private getAuthHeaders(): HeadersInit {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+    const token = authService.getToken();
     return {
       'Content-Type': 'application/json',
       ...(token && { 'Authorization': `Bearer ${token}` })

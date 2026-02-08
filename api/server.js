@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 // Import database connection
@@ -69,6 +70,9 @@ const limiter = rateLimit({
 
 // Rate limiting
 app.use('/api/', limiter);
+
+// Cookie parser
+app.use(cookieParser());
 
 // Body parser
 app.use(express.json({ limit: '10mb' }));

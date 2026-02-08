@@ -1,19 +1,20 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-// Middleware to verify JWT token
+// Middleware to verify JWT access token
 const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
   if (!token) {
     return res.status(401).json({ 
-      error: 'Token de acceso requerido' 
+      error: 'Token de acceso requerido',
+      code: 'NO_TOKEN'
     });
   }
 
   try {
-    // Verify JWT token
+    // Verify JWT access token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
     // Get user from database
@@ -21,7 +22,8 @@ const authenticateToken = async (req, res, next) => {
     
     if (!user) {
       return res.status(403).json({ 
-        error: 'Usuario no encontrado' 
+        error: 'Usuario no encontrado',
+        code: 'USER_NOT_FOUND'
       });
     }
 
@@ -31,13 +33,22 @@ const authenticateToken = async (req, res, next) => {
     console.error('Error en autenticación:', error);
     
     if (error.name === 'TokenExpiredError') {
-      return res.status(403).json({ 
-        error: 'Token expirado' 
+      return res.status(401).json({ 
+        error: 'Token expirado',
+        code: 'TOKEN_EXPIRED'
       });
     }
     
-    return res.status(403).json({ 
-      error: 'Token inválido' 
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ 
+        error: 'Token inválido',
+        code: 'INVALID_TOKEN'
+      });
+    }
+    
+    return res.status(401).json({ 
+      error: 'Error de autenticación',
+      code: 'AUTH_ERROR'
     });
   }
 };

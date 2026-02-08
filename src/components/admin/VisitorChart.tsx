@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import authService from '@/services/authService';
 import { 
   Chart as ChartJS, 
   CategoryScale, 
@@ -66,7 +67,7 @@ const VisitorChart: React.FC<VisitorChartProps> = ({ className }) => {
     setLoading(true);
     setError(null);
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = authService.getToken();
       if (!token) {
         setError('No se encontró el token de autenticación');
         setLoading(false);
@@ -81,7 +82,8 @@ const VisitorChart: React.FC<VisitorChartProps> = ({ className }) => {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
-          }
+          },
+          credentials: 'include'
         }
       );
 
