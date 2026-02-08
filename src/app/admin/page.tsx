@@ -608,8 +608,12 @@ export default function AdminAccess() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-gray-400">Backend:</p>
+<<<<<<< HEAD
                 <p className="text-white">Express.js
                 </p>
+=======
+                <p className="text-white">Express.js</p>
+>>>>>>> 2edc06f5a1ae997ed9ab5e3764a6cb5ac2b75dc6
               </div>
               <div>
                 <p className="text-gray-400">Base de Datos:</p>
@@ -619,6 +623,13 @@ export default function AdminAccess() {
                 <p className="text-gray-400">Frontend:</p>
                 <p className="text-white">Next.js + TypeScript</p>
               </div>
+<<<<<<< HEAD
+=======
+              <div>
+                <p className="text-gray-400">Autenticación:</p>
+                <p className="text-white">JWT</p>
+              </div>
+>>>>>>> 2edc06f5a1ae997ed9ab5e3764a6cb5ac2b75dc6
             </div>
           </CardContent>
         </Card>
