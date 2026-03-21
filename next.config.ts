@@ -23,6 +23,15 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   output: "standalone",
+
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'i.imgur.com',
+      },
+    ],
+  },
   
   // Generar hashes únicos para archivos estáticos (cache busting)
   generateBuildId: async () => {
