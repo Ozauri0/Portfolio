@@ -27,7 +27,7 @@ app.use(cors({
     'http://localhost:3001',
     'http://localhost:3002',
     /^http:\/\/192\.168\.\d+\.\d+:(3000|3001|3002)$/,  // Permite cualquier IP de red local 192.168.x.x
-    /^http:\/\/172\.\d+\.\d+\.\d+:(3000|3001|3002)$/,  // Permite IPs del rango 172.x.x.x
+    /^http:\/\/172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}:(3000|3001|3002)$/, // Solo rango privado 172.16-172.31 (VUL-006)
     /^http:\/\/10\.\d+\.\d+\.\d+:(3000|3001|3002)$/,   // Permite IPs del rango 10.x.x.x
     process.env.FRONTEND_URL
   ].filter(Boolean),
@@ -74,16 +74,20 @@ app.use('/api/', limiter);
 // Cookie parser
 app.use(cookieParser());
 
-// Body parser
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Body parser — límites reducidos por ruta (VUL-007)
+app.use('/api/auth', express.json({ limit: '1kb' }));
+app.use('/api/auth', express.urlencoded({ extended: true, limit: '1kb' }));
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // Trust proxy for correct IP detection
 app.set('trust proxy', ['loopback', 'linklocal', 'uniquelocal']);
 
-// Logging middleware
+// Logging middleware (sin PII en producción - VUL-015)
 app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.path} from ${req.ip}`);
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  }
   next();
 });
 

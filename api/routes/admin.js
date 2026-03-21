@@ -86,21 +86,23 @@ router.get('/dashboard', async (req, res) => {
 router.get('/users', async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
-    const skip = (page - 1) * limit;
+    const parsedPage = Math.max(1, parseInt(page) || 1);
+    const parsedLimit = Math.min(100, Math.max(1, parseInt(limit) || 10)); // VUL-016 máximo 100
+    const skip = (parsedPage - 1) * parsedLimit;
     
     const users = await User.find()
       .select('-password') // Exclude password
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(parseInt(limit));
+      .limit(parsedLimit);
 
     const total = await User.countDocuments();
 
     res.json({
       users: users || [],
       pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
+        page: parsedPage,
+        limit: parsedLimit,
         total: total
       }
     });
@@ -113,14 +115,13 @@ router.get('/users', async (req, res) => {
   }
 });
 
-// System configuration
+// System configuration (VUL-004 - sin variables de entorno sensibles)
 router.get('/settings', (req, res) => {
   res.json({
     settings: {
       siteName: 'Portfolio Admin',
       version: '1.0.0',
-      environment: process.env.NODE_ENV,
-      supabaseUrl: process.env.SUPABASE_URL
+      environment: process.env.NODE_ENV === 'production' ? 'production' : 'development'
     }
   });
 });
@@ -129,13 +130,15 @@ router.get('/settings', (req, res) => {
 router.get('/logs', async (req, res) => {
   try {
     const { page = 1, limit = 20 } = req.query;
-    const skip = (page - 1) * limit;
+    const parsedPage = Math.max(1, parseInt(page) || 1);
+    const parsedLimit = Math.min(100, Math.max(1, parseInt(limit) || 20)); // VUL-016
+    const skip = (parsedPage - 1) * parsedLimit;
 
     // Get ALL login logs (not just for authenticated user) since this is admin panel
     const logs = await LoginLog.find()
       .sort({ loginTime: -1 })
       .skip(skip)
-      .limit(parseInt(limit));
+      .limit(parsedLimit);
 
     // Format the logs for better display with correct timezone
     const formattedLogs = logs.map(log => {
@@ -165,10 +168,10 @@ router.get('/logs', async (req, res) => {
     res.json({
       logs: formattedLogs,
       pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
+        page: parsedPage,
+        limit: parsedLimit,
         total: logs.length,
-        hasMore: logs.length === parseInt(limit)
+        hasMore: logs.length === parsedLimit
       }
     });
 

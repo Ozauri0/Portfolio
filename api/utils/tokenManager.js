@@ -61,39 +61,46 @@ function verifyAccessToken(token) {
 }
 
 /**
- * Verify Refresh Token and return the user
+ * Verify Refresh Token, rotate it and return the user + new token
  */
-async function verifyRefreshToken(token) {
+async function verifyRefreshToken(token, ipAddress, userAgent) {
   const User = require('../models/User');
-  
-  const refreshToken = await RefreshToken.findOne({ 
+
+  const refreshToken = await RefreshToken.findOne({
     token,
     revoked: false
   });
-  
+
   if (!refreshToken) {
     throw new Error('Invalid refresh token');
   }
-  
+
   if (refreshToken.expiresAt < new Date()) {
+    // Expired — revoke it and bail
+    refreshToken.revoked = true;
+    refreshToken.revokedAt = new Date();
+    await refreshToken.save();
     throw new Error('Refresh token expired');
   }
-  
+
   // Get the user from database
   const user = await User.findById(refreshToken.userId).select('-password');
-  
+
   if (!user) {
+    // Suspicious — revoke all tokens for this orphan userId
+    await revokeAllUserTokens(refreshToken.userId);
     throw new Error('User not found');
   }
-  
-  // Update last used timestamp and extend expiration
-  refreshToken.lastUsedAt = new Date();
-  refreshToken.expiresAt = new Date(Date.now() + REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
+
+  // ROTATION: revoke the used token immediately
+  refreshToken.revoked = true;
+  refreshToken.revokedAt = new Date();
   await refreshToken.save();
-  
-  console.log('✅ Refresh token válido para usuario:', user.email);
-  
-  return user;
+
+  // Issue a new refresh token
+  const newRefreshToken = await generateRefreshToken(user, ipAddress, userAgent);
+
+  return { user, newRefreshToken };
 }
 
 /**

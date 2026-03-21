@@ -1,18 +1,12 @@
-import emailjs from '@emailjs/browser';
+// Servicio de email — proxy hacia el Route Handler server-side (VUL-020)
+// Las claves de EmailJS ya NO se exponen en el bundle del cliente
 
-// Initialize EmailJS with public key
+/** @deprecated Usar sendEmail() directamente. initEmailJS ya no es necesario. */
 export const initEmailJS = (): void => {
-  const emailjsPublicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
-  
-  if (!emailjsPublicKey) {
-    console.error('La clave pública de EmailJS no está configurada.');
-    return;
-  }
-  
-  emailjs.init(emailjsPublicKey);
+  // No-op: EmailJS ahora se llama desde el servidor
 };
 
-// Send email
+// Enviar email a través del route handler /api/contact
 export const sendEmail = async (data: {
   name: string;
   email: string;
@@ -20,28 +14,21 @@ export const sendEmail = async (data: {
   message: string;
 }): Promise<{ success: boolean; message?: string }> => {
   try {
-    const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
-    const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
-    
-    if (!serviceId || !templateId) {
-      throw new Error('Faltan las configuraciones de EmailJS.');
+    const response = await fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+
+    const json = await response.json();
+
+    if (!response.ok) {
+      return { success: false, message: json.error || 'Error al enviar el mensaje.' };
     }
 
-    const result = await emailjs.send(
-      serviceId,
-      templateId,
-      {
-        from_name: data.name,
-        reply_to: data.email,
-        subject: data.subject || "Mensaje desde Portfolio",
-        message: data.message
-      }
-    );
-    
-    return { success: true, message: result.text };
-  } catch (error: any) {
+    return { success: true, message: json.message };
+  } catch (error) {
     console.error('Error al enviar email:', error);
-    console.error('Detalles del error:', JSON.stringify(error, null, 2));
-    return { success: false, message: error.text || 'Error desconocido' };
+    return { success: false, message: 'Error de conexión.' };
   }
 };

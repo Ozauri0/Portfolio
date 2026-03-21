@@ -1,9 +1,12 @@
 const express = require('express');
 const router = express.Router();
+const rateLimit = require('express-rate-limit');
+const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const LoginLog = require('../models/LoginLog');
 const { authenticateToken } = require('../middleware/auth');
 const {
+
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
@@ -11,14 +14,22 @@ const {
   revokeAllUserTokens
 } = require('../utils/tokenManager');
 
-// Helper function to get client IP
+// Rate limiter estricto solo para login (VUL-001)
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  skipSuccessfulRequests: true,
+  message: { error: 'Demasiados intentos de login. Intenta en 15 minutos.' }
+});
+
+// Helper function to get client IP (VUL-002)
 function getClientIP(req) {
-  return req.headers['x-forwarded-for'] || 
-         req.headers['x-real-ip'] || 
-         req.connection.remoteAddress || 
-         req.socket.remoteAddress ||
-         (req.connection.socket ? req.connection.socket.remoteAddress : null) ||
-         '127.0.0.1';
+  const forwarded = req.headers['x-forwarded-for'];
+  if (forwarded) {
+    const firstIP = forwarded.split(',')[0].trim();
+    if (/^(\d{1,3}\.){3}\d{1,3}$/.test(firstIP)) return firstIP;
+  }
+  return req.ip || req.socket?.remoteAddress || '0.0.0.0';
 }
 
 // Helper function to set refresh token cookie
@@ -41,24 +52,26 @@ router.post('/register', async (req, res) => {
   });
 });
 
-// User login
-router.post('/login', async (req, res) => {
+// User login (VUL-001 rate limit + VUL-012 validación)
+router.post('/login', loginLimiter, [
+  body('email').isEmail().normalizeEmail().withMessage('Email no válido'),
+  body('password').isLength({ min: 1, max: 72 }).withMessage('Contraseña inválida')
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ error: 'Datos de entrada inválidos' });
+  }
+
   try {
     const { email, password } = req.body;
     const clientIP = getClientIP(req);
     const userAgent = req.headers['user-agent'] || 'Unknown';
 
-    // Basic validation
-    if (!email || !password) {
-      return res.status(400).json({
-        error: 'Email y contraseña son requeridos'
-      });
-    }
-
     // Find user by email
     const user = await User.findOne({ email });
 
     if (!user) {
+
       // Register failed login attempt
       try {
         await LoginLog.create({
@@ -74,6 +87,14 @@ router.post('/login', async (req, res) => {
 
       return res.status(401).json({
         error: 'Credenciales inválidas'
+      });
+    }
+
+    // VUL-001: Verificar bloqueo de cuenta
+    if (user.lockUntil && user.lockUntil > new Date()) {
+      return res.status(423).json({
+        error: 'Cuenta bloqueada temporalmente. Intenta nuevamente más tarde.',
+        code: 'ACCOUNT_LOCKED'
       });
     }
 
@@ -95,10 +116,22 @@ router.post('/login', async (req, res) => {
         console.warn('Error logging failed attempt:', logErr);
       }
 
+      // Incrementar intentos fallidos y bloquear si supera límite (VUL-001)
+      user.failedLoginAttempts = (user.failedLoginAttempts || 0) + 1;
+      if (user.failedLoginAttempts >= 5) {
+        user.lockUntil = new Date(Date.now() + 15 * 60 * 1000);
+      }
+      await user.save();
+
       return res.status(401).json({
         error: 'Credenciales inválidas'
       });
     }
+
+    // Resetear intentos fallidos en login exitoso (VUL-001)
+    user.failedLoginAttempts = 0;
+    user.lockUntil = null;
+    await user.save();
 
     // Generate tokens
     const accessToken = generateAccessToken(user);
@@ -117,8 +150,7 @@ router.post('/login', async (req, res) => {
         loginTime: new Date(),
         success: true
       });
-      
-      console.log('✅ Login exitoso:', user.email, 'desde IP:', clientIP);
+
     } catch (logErr) {
       console.warn('Error en sistema de logs:', logErr);
     }
@@ -158,23 +190,11 @@ router.post('/refresh', async (req, res) => {
     const clientIP = getClientIP(req);
     const userAgent = req.headers['user-agent'] || 'Unknown';
 
-    // Verify and get user (also extends token expiration)
-    const user = await verifyRefreshToken(refreshToken, clientIP, userAgent);
+    // Verify and rotate refresh token (VUL-003)
+    const { user, newRefreshToken } = await verifyRefreshToken(refreshToken, clientIP, userAgent);
 
-    if (!user) {
-      // Token invalid or revoked
-      res.clearCookie('refreshToken', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        path: '/api/auth'
-      });
-
-      return res.status(401).json({
-        error: 'Token de actualización inválido o expirado',
-        code: 'INVALID_REFRESH_TOKEN'
-      });
-    }
+    // Set the rotated refresh token in cookie
+    setRefreshTokenCookie(res, newRefreshToken);
 
     // Generate new access token
     const accessToken = generateAccessToken(user);
@@ -191,9 +211,17 @@ router.post('/refresh', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error en refresh token:', error);
-    res.status(500).json({
-      error: 'Error interno del servidor'
+    // Limpiar cookie si el token es inválido o expirado
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/api/auth'
+    });
+    console.error('Error en refresh token:', error.message);
+    return res.status(401).json({
+      error: 'Token de actualización inválido o expirado',
+      code: 'INVALID_REFRESH_TOKEN'
     });
   }
 });

@@ -1,7 +1,14 @@
 const express = require('express');
 const router = express.Router();
+const crypto = require('crypto');
 const AnalyticsClick = require('../models/AnalyticsClick');
 const UniqueVisitor = require('../models/UniqueVisitor');
+
+// Helper: anonimizar IP con HMAC (VUL-013 - privacidad GDPR)
+function anonymizeIP(ip) {
+  const salt = process.env.IP_HASH_SALT || 'default_salt_change_in_env';
+  return crypto.createHmac('sha256', salt).update(ip).digest('hex');
+}
 
 // Track click on social media or project links
 router.post('/track-click', async (req, res) => {
@@ -125,16 +132,19 @@ router.post('/track-visitor', async (req, res) => {
     // Clean IP address (remove ::ffff: prefix if present)
     const cleanIp = ipAddress.replace(/^::ffff:/, '');
 
+    // Anonimizar IP antes de guardar (VUL-013)
+    const hashedIp = anonymizeIP(cleanIp);
+
     // Get user agent for additional context
     const userAgent = req.headers['user-agent'] || 'Unknown';
 
     // Check if this IP has visited before
-    const existingVisitor = await UniqueVisitor.findOne({ ipAddress: cleanIp });
+    const existingVisitor = await UniqueVisitor.findOne({ ipAddress: hashedIp });
 
     if (!existingVisitor) {
       // New unique visitor - insert record
       await UniqueVisitor.create({
-        ipAddress: cleanIp,
+        ipAddress: hashedIp,
         userAgent: userAgent,
         firstVisit: new Date(),
         lastVisit: new Date(),
@@ -150,7 +160,7 @@ router.post('/track-visitor', async (req, res) => {
       // Update existing visitor's last visit and count
       existingVisitor.lastVisit = new Date();
       existingVisitor.visitCount += 1;
-      existingVisitor.userAgent = userAgent; // Update user agent in case it changed
+      existingVisitor.userAgent = userAgent;
       await existingVisitor.save();
 
       res.json({

@@ -1,15 +1,34 @@
 import type { NextConfig } from "next";
 
+// Headers de seguridad HTTP comunes
+const securityHeaders = [
+  { key: 'X-Frame-Options', value: 'DENY' },
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+  {
+    key: 'Content-Security-Policy',
+    value: [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: https:",
+      // Permite fetch al backend (dev local) y a EmailJS
+      `connect-src 'self' ${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'} https://api.emailjs.com`,
+      "font-src 'self' data:",
+      "frame-ancestors 'none'",
+    ].join('; '),
+  },
+];
+
 const nextConfig: NextConfig = {
   output: "standalone",
   
   // Generar hashes únicos para archivos estáticos (cache busting)
   generateBuildId: async () => {
-    // Usa timestamp + random para garantizar builds únicos
     return `build-${Date.now()}-${Math.random().toString(36).substring(7)}`;
   },
   
-  // Configuración de headers para control de caché
   async headers() {
     return [
       {
@@ -23,13 +42,14 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // Páginas HTML - sin caché para siempre obtener la última versión
+        // Todas las páginas HTML — sin caché + headers de seguridad (VUL-009)
         source: '/:path*',
         headers: [
           {
             key: 'Cache-Control',
             value: 'no-cache, no-store, must-revalidate',
           },
+          ...securityHeaders,
         ],
       },
     ];
@@ -37,3 +57,4 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+

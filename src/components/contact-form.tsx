@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle, AlertCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/translations";
-import { initEmailJS, sendEmail } from "@/utils/email/emailService";
+import { sendEmail } from "@/utils/email/emailService";
 import { canSendEmail, recordEmailSent, getTimeRemaining } from "@/utils/email/spamProtection";
 
 export default function ContactForm() {
@@ -28,12 +28,7 @@ export default function ContactForm() {
   const [spamError, setSpamError] = useState<boolean>(false);
   const waitTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Inicializar EmailJS
-  useEffect(() => {
-    initEmailJS();
-  }, []);
-
-  // Efecto para inicializar y limpiar el temporizador
+  // Efecto para inicializar el temporizador si ya hay una espera activa
   useEffect(() => {
     // Comprueba si hay un tiempo de espera activo al cargar
     if (!canSendEmail()) {

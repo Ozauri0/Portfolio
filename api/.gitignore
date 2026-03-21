@@ -11,6 +11,9 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
+# Scripts de administración (VUL-017 - no exponer en repositorio)
+scripts/
+
 # Logs
 logs
 *.log

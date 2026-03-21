@@ -3,6 +3,16 @@ const router = express.Router();
 const Project = require('../models/Project');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
+// Helper: validar que sea URL absoluta y segura (VUL-014)
+function isValidImageUrl(url) {
+  try {
+    const parsed = new URL(url);
+    return ['http:', 'https:'].includes(parsed.protocol);
+  } catch {
+    return false;
+  }
+}
+
 // ==========================================
 // PUBLIC ROUTES (No auth required)
 // ==========================================
@@ -95,6 +105,11 @@ router.post('/admin', authenticateToken, requireAdmin, async (req, res) => {
       return res.status(400).json({ 
         error: 'Faltan campos requeridos: slug, title (en/es), description (en/es), image' 
       });
+    }
+
+    // Validar URL de imagen (VUL-014)
+    if (!isValidImageUrl(image)) {
+      return res.status(400).json({ error: 'La URL de la imagen debe ser una URL https:// válida' });
     }
 
     // Check if slug already exists

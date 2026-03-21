@@ -62,17 +62,12 @@ const requireAdmin = async (req, res, next) => {
       });
     }
 
-    console.log('Verificando admin para usuario ID:', req.user._id);
-    console.log('Rol del usuario:', req.user.role);
-
     if (req.user.role !== 'admin') {
-      console.log('Usuario no es admin. Rol actual:', req.user.role);
       return res.status(403).json({ 
         error: 'Acceso denegado. Se requieren permisos de administrador.' 
       });
     }
 
-    console.log('✅ Usuario verificado como admin');
     next();
   } catch (error) {
     console.error('Error verificando permisos de admin:', error);
