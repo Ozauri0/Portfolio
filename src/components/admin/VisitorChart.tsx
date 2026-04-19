@@ -1,26 +1,23 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import authService from '@/services/authService';
-import { 
-  Chart as ChartJS, 
-  CategoryScale, 
-  LinearScale, 
-  PointElement, 
-  LineElement, 
-  Title, 
-  Tooltip, 
-  Legend, 
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
   BarElement,
-  TimeScale,
-  ChartOptions
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+  ChartOptions,
 } from 'chart.js';
 import { Line, Bar } from 'react-chartjs-2';
-import { Calendar, ChevronDown, Clock, RefreshCw } from 'lucide-react';
+import { TrendingUp, Clock, RefreshCw, BarChart2 } from 'lucide-react';
 
-// Registrar los componentes necesarios de Chart.js
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -30,401 +27,269 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  TimeScale
+  Filler
 );
 
-interface VisitorChartProps {
-  className?: string;
-}
-
-interface DailyData {
-  date: string;
-  visits: number;
-}
-
-interface HourlyData {
-  hour: number;
-  visits: number;
-}
-
-interface ChartData {
-  daily: DailyData[];
-  hourly: HourlyData[];
-  totalInPeriod: number;
-}
-
+interface DailyData  { date: string; visits: number }
+interface HourlyData { hour: number; visits: number }
+interface ChartData  { daily: DailyData[]; hourly: HourlyData[]; totalInPeriod: number }
 type TimeRange = 'day' | 'week' | 'month' | 'year';
+type ChartType  = 'daily' | 'hourly';
 
-const VisitorChart: React.FC<VisitorChartProps> = ({ className }) => {
+const TIME_OPTIONS: { value: TimeRange; label: string }[] = [
+  { value: 'day',   label: 'Hoy'  },
+  { value: 'week',  label: '7 d'  },
+  { value: 'month', label: '30 d' },
+  { value: 'year',  label: '1 año'},
+];
+
+const VisitorChart: React.FC<{ className?: string }> = ({ className }) => {
   const [timeRange, setTimeRange] = useState<TimeRange>('week');
+  const [chartType, setChartType] = useState<ChartType>('daily');
   const [chartData, setChartData] = useState<ChartData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [chartType, setChartType] = useState<'daily' | 'hourly'>('daily');
+  const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState<string | null>(null);
 
   const fetchChartData = async () => {
     setLoading(true);
     setError(null);
     try {
       const token = authService.getToken();
-      if (!token) {
-        setError('No se encontró el token de autenticación');
-        setLoading(false);
-        return;
-      }
+      if (!token) { setError('Sin autenticación'); setLoading(false); return; }
 
-      console.log('Fetching chart data from:', `${process.env.NEXT_PUBLIC_API_URL}/api/admin/visitor-chart?timeRange=${timeRange}`);
-      
-      const response = await fetch(
+      const res  = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/admin/visitor-chart?timeRange=${timeRange}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          credentials: 'include'
-        }
+        { headers: { Authorization: `Bearer ${token}` }, credentials: 'include' }
       );
+      const json = await res.json();
 
-      console.log('API Response status:', response.status);
-      
-      const result = await response.json();
-      console.log('API Response data:', result);
-      
-      if (result.success) {
-        setChartData(result.data || {
+      if (json.success) {
+        setChartData(json.data ?? {
           daily: [],
           hourly: Array.from({ length: 24 }, (_, i) => ({ hour: i, visits: 0 })),
-          totalInPeriod: 0
+          totalInPeriod: 0,
         });
-        
-        if (result.message) {
-          setError(result.message);
-        }
       } else {
-        setError(result.error || 'Error desconocido al cargar datos');
-        // Establecer datos vacíos en caso de error
-        setChartData({
-          daily: [],
-          hourly: Array.from({ length: 24 }, (_, i) => ({ hour: i, visits: 0 })),
-          totalInPeriod: 0
-        });
+        setError(json.error || 'Error al cargar datos');
+        setChartData({ daily: [], hourly: Array.from({ length: 24 }, (_, i) => ({ hour: i, visits: 0 })), totalInPeriod: 0 });
       }
-    } catch (err) {
-      console.error('Error fetching chart data:', err);
-      setError('Error al cargar los datos del gráfico');
-      // Establecer datos vacíos en caso de error
-      setChartData({
-        daily: [],
-        hourly: Array.from({ length: 24 }, (_, i) => ({ hour: i, visits: 0 })),
-        totalInPeriod: 0
-      });
+    } catch {
+      setError('Error de red');
+      setChartData({ daily: [], hourly: Array.from({ length: 24 }, (_, i) => ({ hour: i, visits: 0 })), totalInPeriod: 0 });
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    console.log('VisitorChart se está renderizando con timeRange:', timeRange);
-    fetchChartData();
-  }, [timeRange]);
+  useEffect(() => { fetchChartData(); }, [timeRange]);
 
-  const formatDateLabel = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-CL', {
-      day: '2-digit',
-      month: '2-digit',
-      year: timeRange === 'year' ? '2-digit' : undefined
-    });
+  /* ── Gradientes dinámicos ─────────────────────────────── */
+  const getLineGradient = (ctx: CanvasRenderingContext2D, area: { top: number; bottom: number }) => {
+    const g = ctx.createLinearGradient(0, area.top, 0, area.bottom);
+    g.addColorStop(0,   'rgba(99, 102, 241, 0.35)');
+    g.addColorStop(0.6, 'rgba(99, 102, 241, 0.08)');
+    g.addColorStop(1,   'rgba(99, 102, 241, 0)');
+    return g;
   };
 
-  const formatHourLabel = (hour: number) => {
-    return `${hour}:00`;
+  const getBarGradient = (ctx: CanvasRenderingContext2D, area: { top: number; bottom: number }) => {
+    const g = ctx.createLinearGradient(0, area.top, 0, area.bottom);
+    g.addColorStop(0, 'rgba(139, 92, 246, 0.85)');
+    g.addColorStop(1, 'rgba(99, 102, 241, 0.4)');
+    return g;
   };
 
-  // Opciones para el gráfico diario
-  const dailyChartOptions: ChartOptions<'line'> = {
+  /* ── Opciones compartidas ─────────────────────────────── */
+  const sharedScales = {
+    x: {
+      grid:   { color: 'rgba(255,255,255,0.04)' },
+      border: { display: false },
+      ticks:  { color: '#71717a', font: { size: 11 as const }, maxRotation: 0 },
+    },
+    y: {
+      grid:        { color: 'rgba(255,255,255,0.04)' },
+      border:      { display: false },
+      ticks:       { color: '#71717a', font: { size: 11 as const }, precision: 0 },
+      beginAtZero: true,
+    },
+  };
+
+  const sharedTooltip = {
+    backgroundColor: '#18181b',
+    titleColor:      '#e4e4e7',
+    bodyColor:       '#a1a1aa',
+    borderColor:     '#3f3f46',
+    borderWidth:     1,
+    padding:         10,
+    cornerRadius:    8,
+    displayColors:   false,
+  };
+
+  const lineOptions: ChartOptions<'line'> = {
     responsive: true,
     maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
     plugins: {
-      legend: {
-        position: 'top' as const,
-        labels: {
-          color: '#ffffff',
-        },
-      },
-      title: {
-        display: true,
-        text: 'Visitas por día',
-        color: '#ffffff',
-        font: {
-          size: 16,
-        },
-      },
-      tooltip: {
-        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-        titleColor: '#ffffff',
-        bodyColor: '#ffffff',
-        borderColor: 'rgba(255, 255, 255, 0.2)',
-        borderWidth: 1,
-      },
+      legend: { display: false },
+      title:  { display: false },
+      tooltip: { ...sharedTooltip, callbacks: { label: (ctx) => `  ${ctx.parsed.y} visitas` } },
     },
-    scales: {
-      x: {
-        grid: {
-          color: 'rgba(255, 255, 255, 0.1)',
-        },
-        ticks: {
-          color: '#ffffff',
-        },
-      },
-      y: {
-        grid: {
-          color: 'rgba(255, 255, 255, 0.1)',
-        },
-        ticks: {
-          color: '#ffffff',
-          precision: 0,
-        },
-        beginAtZero: true,
-      },
+    scales: sharedScales,
+    elements: {
+      line:  { tension: 0.4, borderWidth: 2, borderColor: '#6366f1' },
+      point: { radius: 0, hoverRadius: 5, hoverBackgroundColor: '#6366f1', hoverBorderColor: '#fff', hoverBorderWidth: 2 },
     },
   };
 
-  // Opciones para el gráfico por hora
-  const hourlyChartOptions: ChartOptions<'bar'> = {
+  const barOptions: ChartOptions<'bar'> = {
     responsive: true,
     maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
     plugins: {
-      legend: {
-        position: 'top' as const,
-        labels: {
-          color: '#ffffff',
-        },
-      },
-      title: {
-        display: true,
-        text: 'Visitas por hora',
-        color: '#ffffff',
-        font: {
-          size: 16,
-        },
-      },
-      tooltip: {
-        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-        titleColor: '#ffffff',
-        bodyColor: '#ffffff',
-        borderColor: 'rgba(255, 255, 255, 0.2)',
-        borderWidth: 1,
-      },
+      legend: { display: false },
+      title:  { display: false },
+      tooltip: { ...sharedTooltip, callbacks: { label: (ctx) => `  ${ctx.parsed.y} visitas` } },
     },
-    scales: {
-      x: {
-        grid: {
-          color: 'rgba(255, 255, 255, 0.1)',
-        },
-        ticks: {
-          color: '#ffffff',
-        },
-      },
-      y: {
-        grid: {
-          color: 'rgba(255, 255, 255, 0.1)',
-        },
-        ticks: {
-          color: '#ffffff',
-          precision: 0,
-        },
-        beginAtZero: true,
-      },
+    scales: sharedScales,
+    elements: { bar: { borderRadius: 4, borderSkipped: false } },
+  };
+
+  /* ── Datasets ─────────────────────────────────────────── */
+  const lineDataset = {
+    label: 'Visitas',
+    data:  chartData?.daily.map(d => d.visits) ?? [],
+    borderColor: '#6366f1',
+    backgroundColor: (ctx: any) => {
+      const c = ctx.chart;
+      if (!c.chartArea) return 'transparent';
+      return getLineGradient(c.ctx, c.chartArea);
     },
+    fill: true,
   };
 
-  // Preparar datos para el gráfico diario
-  const dailyChartData = {
-    labels: chartData?.daily.map(item => formatDateLabel(item.date)) || [],
-    datasets: [
-      {
-        label: 'Visitas',
-        data: chartData?.daily.map(item => item.visits) || [],
-        borderColor: 'rgba(75, 192, 192, 1)',
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        tension: 0.3,
-        fill: true,
-      },
-    ],
+  const barDataset = {
+    label: 'Visitas',
+    data:  chartData?.hourly.map(d => d.visits) ?? [],
+    backgroundColor: (ctx: any) => {
+      const c = ctx.chart;
+      if (!c.chartArea) return 'rgba(139,92,246,0.6)';
+      return getBarGradient(c.ctx, c.chartArea);
+    },
+    borderColor: 'transparent',
   };
 
-  // Preparar datos para el gráfico por hora
-  const hourlyChartData = {
-    labels: chartData?.hourly.map(item => formatHourLabel(item.hour)) || [],
-    datasets: [
-      {
-        label: 'Visitas',
-        data: chartData?.hourly.map(item => item.visits) || [],
-        backgroundColor: 'rgba(153, 102, 255, 0.6)',
-        borderColor: 'rgba(153, 102, 255, 1)',
-        borderWidth: 1,
-      },
-    ],
+  const lineData = {
+    labels: chartData?.daily.map(d =>
+      new Date(d.date).toLocaleDateString('es-CL', {
+        day: '2-digit', month: '2-digit',
+        ...(timeRange === 'year' ? { year: '2-digit' } : {}),
+      })
+    ) ?? [],
+    datasets: [lineDataset],
   };
 
-  const timeRangeOptions = [
-    { value: 'day', label: 'Último día' },
-    { value: 'week', label: 'Última semana' },
-    { value: 'month', label: 'Último mes' },
-    { value: 'year', label: 'Último año' },
-  ];
-
-  const handleTimeRangeChange = (range: TimeRange) => {
-    setTimeRange(range);
-    setShowDropdown(false);
+  const barData = {
+    labels:   chartData?.hourly.map(d => `${d.hour}h`) ?? [],
+    datasets: [barDataset],
   };
 
-  const getTimeRangeLabel = () => {
-    return timeRangeOptions.find(option => option.value === timeRange)?.label || 'Última semana';
-  };
+  const hasData =
+    (chartType === 'daily'  && (chartData?.daily.some(d => d.visits > 0) ?? false)) ||
+    (chartType === 'hourly' && (chartData?.hourly.some(d => d.visits > 0) ?? false));
 
   return (
-    <Card className={`bg-zinc-900 border-zinc-800 ${className || ''}`}>
-      <CardContent className="p-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
-          <div className="flex items-center space-x-3">
-            <Calendar className="h-6 w-6 text-blue-400" />
-            <h3 className="text-xl font-bold text-white">Estadísticas de Visitas</h3>
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
-            {/* Botón Diario */}
-            <Button
-              variant={chartType === 'daily' ? 'default' : 'outline'}
-              size="sm"
-              className={chartType === 'daily' ? 'bg-blue-600 text-white' : 'border-zinc-700 text-zinc-300'}
-              onClick={() => setChartType('daily')}
-            >
-              <Calendar className="h-4 w-4 mr-1" />
-              Diario
-            </Button>
-            
-            {/* Botón Por hora */}
-            <Button
-              variant={chartType === 'hourly' ? 'default' : 'outline'}
-              size="sm"
-              className={chartType === 'hourly' ? 'bg-purple-600 text-white' : 'border-zinc-700 text-zinc-300'}
-              onClick={() => setChartType('hourly')}
-            >
-              <Clock className="h-4 w-4 mr-1" />
-              Por hora
-            </Button>
-            
-            {/* Selector de rango de tiempo */}
-            <div className="relative">
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-blue-600/40 text-blue-400 hover:bg-blue-600/20 flex items-center"
-                onClick={() => setShowDropdown(!showDropdown)}
-              >
-                {getTimeRangeLabel()}
-                <ChevronDown className="h-4 w-4 ml-2" />
-              </Button>
-              
-              {showDropdown && (
-                <div className="absolute right-0 mt-1 w-48 bg-zinc-800 border border-zinc-700 rounded-md shadow-lg z-10">
-                  {timeRangeOptions.map(option => (
-                    <button
-                      key={option.value}
-                      className="w-full text-left px-4 py-2 text-sm text-white hover:bg-zinc-700"
-                      onClick={() => handleTimeRangeChange(option.value as TimeRange)}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              )}
+    <div className={`bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden ${className ?? ''}`}>
+      {/* Header */}
+      <div className="px-6 pt-5 pb-4 border-b border-zinc-800/60">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          {/* Título + total */}
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-indigo-600/15 border border-indigo-500/25 flex items-center justify-center flex-shrink-0">
+              <TrendingUp className="h-4 w-4 text-indigo-400" />
             </div>
-            
-            {/* Botón de recargar */}
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-green-600/40 text-green-400 hover:bg-green-600/20"
+            <div>
+              <h3 className="text-sm font-semibold text-white leading-tight">Estadísticas de visitas</h3>
+              <p className="text-xs text-zinc-500 leading-tight">
+                {loading ? '—' : `${chartData?.totalInPeriod ?? 0} visitas en el período`}
+              </p>
+            </div>
+          </div>
+
+          {/* Controles */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Tipo de gráfico */}
+            <div className="flex items-center bg-zinc-900 border border-zinc-800 rounded-lg p-0.5">
+              <button
+                onClick={() => setChartType('daily')}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                  chartType === 'daily' ? 'bg-indigo-600 text-white shadow' : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                <TrendingUp className="h-3 w-3" /> Diario
+              </button>
+              <button
+                onClick={() => setChartType('hourly')}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                  chartType === 'hourly' ? 'bg-violet-600 text-white shadow' : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                <Clock className="h-3 w-3" /> Por hora
+              </button>
+            </div>
+
+            {/* Rango de tiempo */}
+            <div className="flex items-center bg-zinc-900 border border-zinc-800 rounded-lg p-0.5">
+              {TIME_OPTIONS.map(opt => (
+                <button
+                  key={opt.value}
+                  onClick={() => setTimeRange(opt.value)}
+                  className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                    timeRange === opt.value ? 'bg-zinc-700 text-white shadow' : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Refresh */}
+            <button
               onClick={fetchChartData}
               disabled={loading}
+              className="w-7 h-7 flex items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white hover:border-zinc-600 transition-all disabled:opacity-40"
             >
-              {loading ? (
-                <>
-                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-green-400 mr-1"></div>
-                  Cargando...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="h-4 w-4 mr-1" />
-                  Actualizar
-                </>
-              )}
-            </Button>
+              <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+            </button>
           </div>
         </div>
+      </div>
 
-        {/* Mostrar error si existe */}
+      {/* Chart area */}
+      <div className="px-6 py-5">
         {error && (
-          <div className="bg-red-900/30 border border-red-700 text-red-300 p-3 rounded-md mb-4">
-            {error}
-          </div>
+          <p className="text-xs text-red-400 mb-3 bg-red-950/30 border border-red-900/40 rounded-lg px-3 py-2">{error}</p>
         )}
-
-        {/* Estadística de total de visitas */}
-        {chartData && (
-          <div className="mb-4 bg-zinc-800 p-3 rounded-md">
-            <p className="text-white">
-              <span className="text-gray-400">Total de visitas en este período: </span>
-              <span className="font-bold text-blue-400">{chartData.totalInPeriod}</span>
-            </p>
-          </div>
-        )}
-        
-        {/* Contenedor del gráfico */}
-        <div className="w-full h-60 sm:h-70 md:h-80 mt-4">
+        <div className="w-full h-64">
           {loading ? (
-            <div className="flex items-center justify-center h-full">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-              <span className="ml-3 text-gray-400">Cargando datos...</span>
+            <div className="h-full flex flex-col items-center justify-center gap-3">
+              <div className="w-8 h-8 rounded-full border-2 border-zinc-700 border-t-indigo-500 animate-spin" />
+              <span className="text-xs text-zinc-600">Cargando datos…</span>
             </div>
+          ) : !hasData ? (
+            <div className="h-full flex flex-col items-center justify-center gap-2">
+              <BarChart2 className="h-10 w-10 text-zinc-800" />
+              <p className="text-sm text-zinc-600 font-medium">Sin datos en este período</p>
+              <p className="text-xs text-zinc-700">Cambia el rango o espera más visitas</p>
+            </div>
+          ) : chartType === 'daily' ? (
+            <Line options={lineOptions} data={lineData} />
           ) : (
-            <>
-              {chartData ? (
-                chartData.daily.length > 0 || chartData.hourly.some(item => item.visits > 0) ? (
-                  chartType === 'daily' ? (
-                    <Line options={dailyChartOptions} data={dailyChartData} />
-                  ) : (
-                    <Bar options={hourlyChartOptions} data={hourlyChartData} />
-                  )
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-full">
-                    <p className="text-gray-400 text-xl mb-4">No hay datos de visitas para mostrar</p>
-                    <p className="text-gray-500 text-sm max-w-md text-center">
-                      El gráfico mostrará datos una vez que los visitantes comiencen a navegar por tu sitio web. 
-                      Puedes probar cambiando el rango de tiempo o revisa que la tabla unique_visitors exista en la base de datos.
-                    </p>
-                  </div>
-                )
-              ) : (
-                <div className="flex items-center justify-center h-full">
-                  <p className="text-gray-500">No hay datos disponibles</p>
-                </div>
-              )}
-              {error && (
-                <div className="mt-4 p-3 bg-red-900/30 border border-red-700 rounded-md">
-                  <p className="text-red-300 text-sm">{error}</p>
-                </div>
-              )}
-            </>
+            <Bar options={barOptions} data={barData} />
           )}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
-export default VisitorChart;
+export default VisitorChart;
