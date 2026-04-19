@@ -54,7 +54,7 @@ router.post('/register', async (req, res) => {
 
 // User login (VUL-001 rate limit + VUL-012 validación)
 router.post('/login', loginLimiter, [
-  body('email').isEmail().normalizeEmail().withMessage('Email no válido'),
+  body('email').isEmail().normalizeEmail({ gmail_remove_dots: false, gmail_remove_subaddress: false, gmail_convert_googlemail: false }).withMessage('Email no válido'),
   body('password').isLength({ min: 1, max: 72 }).withMessage('Contraseña inválida')
 ], async (req, res) => {
   const errors = validationResult(req);
