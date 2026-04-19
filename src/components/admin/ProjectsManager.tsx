@@ -263,34 +263,54 @@ export default function ProjectsManager() {
         </div>
       )}
 
-      {/* Form */}
+      {/* Form Modal */}
       {showForm && (
-        <Card className="bg-zinc-900 border-zinc-800 shadow-xl">
-          <CardContent className="pt-0">
-            <form onSubmit={handleSubmit}>
-              {/* Form header */}
-              <div className="flex justify-between items-center py-5 border-b border-zinc-800 mb-6">
-                <div>
-                  <h3 className="text-lg font-semibold text-white">
-                    {editingProject ? 'Editar proyecto' : 'Nuevo proyecto'}
-                  </h3>
-                  <p className="text-xs text-zinc-500 mt-0.5">
-                    {editingProject ? `Modificando: ${editingProject.title.es}` : 'Completa los campos para agregar un proyecto'}
-                  </p>
+        <>
+          {/* Backdrop + click-outside */}
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 bg-black/70"
+            onClick={resetForm}
+          >
+          {/* Modal panel — stopPropagation para no cerrar al hacer click dentro */}
+          <div
+            className="w-full max-w-5xl max-h-[92vh] bg-zinc-950 border border-zinc-800 rounded-2xl shadow-2xl flex flex-col will-change-transform"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <form onSubmit={handleSubmit} className="flex flex-col h-full min-h-0">
+
+              {/* Modal header */}
+              <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-zinc-800">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center flex-shrink-0">
+                    {editingProject ? <Pencil className="h-4 w-4 text-blue-400" /> : <Plus className="h-4 w-4 text-blue-400" />}
+                  </div>
+                  <div>
+                    <h3 className="text-base font-semibold text-white leading-tight">
+                      {editingProject ? 'Editar proyecto' : 'Nuevo proyecto'}
+                    </h3>
+                    <p className="text-xs text-zinc-500">
+                      {editingProject ? editingProject.title.es : 'Completa los campos'}
+                    </p>
+                  </div>
                 </div>
-                <Button type="button" variant="ghost" size="icon" onClick={resetForm} className="text-zinc-400 hover:text-white">
-                  <X className="h-5 w-5" />
+                <Button type="button" variant="ghost" size="icon" onClick={resetForm} className="text-zinc-500 hover:text-white hover:bg-zinc-800 flex-shrink-0">
+                  <X className="h-4 w-4" />
                 </Button>
               </div>
 
-              <div className="space-y-8">
+              {/* Scrollable body — 2 columns */}
+              <div className="flex-1 overflow-y-auto overscroll-contain dark-scrollbar">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-zinc-800">
 
-                {/* ── Sección: Identificación ── */}
-                <section className="space-y-4">
+                {/* ── Columna izquierda ── */}
+                <div className="px-6 py-6 space-y-6">
+
+                {/* ── Identificación ── */}
+                <section className="space-y-3">
                   <h4 className="text-xs font-semibold uppercase tracking-widest text-zinc-500">Identificación</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
-                      <Label htmlFor="slug" className="text-zinc-300 text-sm">Slug <span className="text-zinc-500">(identificador único)</span></Label>
+                      <Label htmlFor="slug" className="text-zinc-300 text-sm">Slug</Label>
                       <Input
                         id="slug"
                         value={formData.slug}
@@ -313,153 +333,153 @@ export default function ProjectsManager() {
                   </div>
                 </section>
 
-                {/* ── Sección: Contenido ── */}
-                <section className="space-y-4">
-                  <h4 className="text-xs font-semibold uppercase tracking-widest text-zinc-500">Contenido</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="titleEn" className="text-zinc-300 text-sm">Título <span className="text-zinc-500">EN</span></Label>
-                      <Input
-                        id="titleEn"
-                        value={formData.title.en}
-                        onChange={(e) => setFormData({ ...formData, title: { ...formData.title, en: e.target.value } })}
-                        placeholder="Project Title"
-                        className="bg-zinc-800/80 border-zinc-700 text-white placeholder:text-zinc-600 focus:border-blue-500"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="titleEs" className="text-zinc-300 text-sm">Título <span className="text-zinc-500">ES</span></Label>
-                      <Input
-                        id="titleEs"
-                        value={formData.title.es}
-                        onChange={(e) => setFormData({ ...formData, title: { ...formData.title, es: e.target.value } })}
-                        placeholder="Título del Proyecto"
-                        className="bg-zinc-800/80 border-zinc-700 text-white placeholder:text-zinc-600 focus:border-blue-500"
-                        required
-                      />
-                    </div>
+                {/* ── Títulos ── */}
+                <section className="space-y-3">
+                  <h4 className="text-xs font-semibold uppercase tracking-widest text-zinc-500">Títulos</h4>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="titleEn" className="text-zinc-300 text-sm">EN</Label>
+                    <Input
+                      id="titleEn"
+                      value={formData.title.en}
+                      onChange={(e) => setFormData({ ...formData, title: { ...formData.title, en: e.target.value } })}
+                      placeholder="Project Title"
+                      className="bg-zinc-800/80 border-zinc-700 text-white placeholder:text-zinc-600 focus:border-blue-500"
+                      required
+                    />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="descEn" className="text-zinc-300 text-sm">Descripción <span className="text-zinc-500">EN</span></Label>
-                      <textarea
-                        id="descEn"
-                        value={formData.description.en}
-                        onChange={(e) => setFormData({ ...formData, description: { ...formData.description, en: e.target.value } })}
-                        placeholder="Project description..."
-                        className="w-full h-24 px-3 py-2 bg-zinc-800/80 border border-zinc-700 rounded-md text-white placeholder:text-zinc-600 resize-none focus:outline-none focus:border-blue-500 text-sm"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="descEs" className="text-zinc-300 text-sm">Descripción <span className="text-zinc-500">ES</span></Label>
-                      <textarea
-                        id="descEs"
-                        value={formData.description.es}
-                        onChange={(e) => setFormData({ ...formData, description: { ...formData.description, es: e.target.value } })}
-                        placeholder="Descripción del proyecto..."
-                        className="w-full h-24 px-3 py-2 bg-zinc-800/80 border border-zinc-700 rounded-md text-white placeholder:text-zinc-600 resize-none focus:outline-none focus:border-blue-500 text-sm"
-                        required
-                      />
-                    </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="titleEs" className="text-zinc-300 text-sm">ES</Label>
+                    <Input
+                      id="titleEs"
+                      value={formData.title.es}
+                      onChange={(e) => setFormData({ ...formData, title: { ...formData.title, es: e.target.value } })}
+                      placeholder="Título del Proyecto"
+                      className="bg-zinc-800/80 border-zinc-700 text-white placeholder:text-zinc-600 focus:border-blue-500"
+                      required
+                    />
                   </div>
                 </section>
 
-                {/* ── Sección: Imagen ── */}
+                {/* ── Descripciones ── */}
+                <section className="space-y-3">
+                  <h4 className="text-xs font-semibold uppercase tracking-widest text-zinc-500">Descripción</h4>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="descEn" className="text-zinc-300 text-sm">EN</Label>
+                    <textarea
+                      id="descEn"
+                      value={formData.description.en}
+                      onChange={(e) => setFormData({ ...formData, description: { ...formData.description, en: e.target.value } })}
+                      placeholder="Project description..."
+                      className="w-full h-24 px-3 py-2 bg-zinc-800/80 border border-zinc-700 rounded-md text-white placeholder:text-zinc-600 resize-none focus:outline-none focus:border-blue-500 text-sm"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="descEs" className="text-zinc-300 text-sm">ES</Label>
+                    <textarea
+                      id="descEs"
+                      value={formData.description.es}
+                      onChange={(e) => setFormData({ ...formData, description: { ...formData.description, es: e.target.value } })}
+                      placeholder="Descripción del proyecto..."
+                      className="w-full h-24 px-3 py-2 bg-zinc-800/80 border border-zinc-700 rounded-md text-white placeholder:text-zinc-600 resize-none focus:outline-none focus:border-blue-500 text-sm"
+                      required
+                    />
+                  </div>
+                </section>
+
+                {/* ── Imagen ── */}
                 <section className="space-y-3">
                   <h4 className="text-xs font-semibold uppercase tracking-widest text-zinc-500">Imagen</h4>
-                  <div className="flex gap-4 items-start">
-                    {/* Preview */}
-                    <div className={`w-32 h-20 rounded-lg overflow-hidden flex-shrink-0 border-2 ${formData.image ? 'border-zinc-700' : 'border-dashed border-zinc-700'} bg-zinc-800 flex items-center justify-center`}>
-                      {formData.image ? (
-                        <img
-                          src={formData.image.startsWith('/') ? `${process.env.NEXT_PUBLIC_FRONTEND_URL || ''}${formData.image}` : formData.image}
-                          alt="preview"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <Upload className="h-6 w-6 text-zinc-600" />
-                      )}
-                    </div>
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-center gap-3">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="text-white border-zinc-600 hover:bg-zinc-800 gap-2"
-                          disabled={uploadingImage}
-                          onClick={() => fileInputRef.current?.click()}
-                        >
-                          <Upload className="h-3.5 w-3.5" />
-                          {uploadingImage ? 'Subiendo...' : 'Subir archivo'}
-                        </Button>
-                        <input
-                          ref={fileInputRef}
-                          type="file"
-                          accept=".jpg,.jpeg,.png,.webp"
-                          className="hidden"
-                          onChange={handleImageUpload}
-                          disabled={uploadingImage}
-                        />
-                        <span className="text-xs text-zinc-500">JPG, PNG o WebP · máx 5 MB</span>
-                      </div>
-                      <Input
-                        value={formData.image}
-                        onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                        placeholder="/mi-proyecto.webp o https://..."
-                        className="bg-zinc-800/80 border-zinc-700 text-white placeholder:text-zinc-600 focus:border-blue-500 text-sm"
-                        required
+                  <div className="rounded-xl overflow-hidden border border-zinc-800 bg-zinc-900 aspect-video flex items-center justify-center">
+                    {formData.image ? (
+                      <img
+                        src={formData.image.startsWith('/') ? `${process.env.NEXT_PUBLIC_FRONTEND_URL || ''}${formData.image}` : formData.image}
+                        alt="preview"
+                        className="w-full h-full object-cover"
                       />
-                    </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-2 text-zinc-600">
+                        <Upload className="h-8 w-8" />
+                        <span className="text-xs">Sin imagen</span>
+                      </div>
+                    )}
                   </div>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="text-white border-zinc-600 hover:bg-zinc-800 gap-2"
+                      disabled={uploadingImage}
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Upload className="h-3.5 w-3.5" />
+                      {uploadingImage ? 'Subiendo...' : 'Subir archivo'}
+                    </Button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".jpg,.jpeg,.png,.webp"
+                      className="hidden"
+                      onChange={handleImageUpload}
+                      disabled={uploadingImage}
+                    />
+                    <span className="text-xs text-zinc-500">JPG, PNG o WebP · máx 5 MB</span>
+                  </div>
+                  <Input
+                    value={formData.image}
+                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                    placeholder="/mi-proyecto.webp o https://..."
+                    className="bg-zinc-800/80 border-zinc-700 text-white placeholder:text-zinc-600 focus:border-blue-500 text-sm"
+                    required
+                  />
                 </section>
 
-                {/* ── Sección: Enlaces ── */}
-                <section className="space-y-4">
-                  <h4 className="text-xs font-semibold uppercase tracking-widest text-zinc-500">Enlaces</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="github" className="text-zinc-400 text-sm flex items-center gap-1.5">
-                        <Github className="h-3.5 w-3.5" /> GitHub
-                      </Label>
-                      <Input
-                        id="github"
-                        value={formData.links.github}
-                        onChange={(e) => setFormData({ ...formData, links: { ...formData.links, github: e.target.value } })}
-                        placeholder="https://github.com/..."
-                        className="bg-zinc-800/80 border-zinc-700 text-white placeholder:text-zinc-600 focus:border-blue-500 text-sm"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="demo" className="text-zinc-400 text-sm flex items-center gap-1.5">
-                        <ExternalLink className="h-3.5 w-3.5" /> Demo / Docs
-                      </Label>
-                      <Input
-                        id="demo"
-                        value={formData.links.demo}
-                        onChange={(e) => setFormData({ ...formData, links: { ...formData.links, demo: e.target.value } })}
-                        placeholder="https://..."
-                        className="bg-zinc-800/80 border-zinc-700 text-white placeholder:text-zinc-600 focus:border-blue-500 text-sm"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="download" className="text-zinc-400 text-sm flex items-center gap-1.5">
-                        <ChevronDown className="h-3.5 w-3.5" /> Descarga
-                      </Label>
-                      <Input
-                        id="download"
-                        value={formData.links.download}
-                        onChange={(e) => setFormData({ ...formData, links: { ...formData.links, download: e.target.value } })}
-                        placeholder="https://play.google.com/..."
-                        className="bg-zinc-800/80 border-zinc-700 text-white placeholder:text-zinc-600 focus:border-blue-500 text-sm"
-                      />
-                    </div>
-                  </div>
+                </div>{/* fin columna izquierda */}
 
-                  {/* Demo Type */}
-                  <div className="space-y-2">
+                {/* ── Columna derecha ── */}
+                <div className="px-6 py-6 space-y-6">
+
+                {/* ── Enlaces ── */}
+                <section className="space-y-3">
+                  <h4 className="text-xs font-semibold uppercase tracking-widest text-zinc-500">Enlaces</h4>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="github" className="text-zinc-400 text-sm flex items-center gap-1.5">
+                      <Github className="h-3.5 w-3.5" /> GitHub
+                    </Label>
+                    <Input
+                      id="github"
+                      value={formData.links.github}
+                      onChange={(e) => setFormData({ ...formData, links: { ...formData.links, github: e.target.value } })}
+                      placeholder="https://github.com/..."
+                      className="bg-zinc-800/80 border-zinc-700 text-white placeholder:text-zinc-600 focus:border-blue-500 text-sm"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="demo" className="text-zinc-400 text-sm flex items-center gap-1.5">
+                      <ExternalLink className="h-3.5 w-3.5" /> Demo / Docs
+                    </Label>
+                    <Input
+                      id="demo"
+                      value={formData.links.demo}
+                      onChange={(e) => setFormData({ ...formData, links: { ...formData.links, demo: e.target.value } })}
+                      placeholder="https://..."
+                      className="bg-zinc-800/80 border-zinc-700 text-white placeholder:text-zinc-600 focus:border-blue-500 text-sm"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="download" className="text-zinc-400 text-sm flex items-center gap-1.5">
+                      <ChevronDown className="h-3.5 w-3.5" /> Descarga
+                    </Label>
+                    <Input
+                      id="download"
+                      value={formData.links.download}
+                      onChange={(e) => setFormData({ ...formData, links: { ...formData.links, download: e.target.value } })}
+                      placeholder="https://play.google.com/..."
+                      className="bg-zinc-800/80 border-zinc-700 text-white placeholder:text-zinc-600 focus:border-blue-500 text-sm"
+                    />
+                  </div>
+                  <div className="space-y-2 pt-1">
                     <Label className="text-zinc-400 text-sm">Botón secundario</Label>
                     <div className="flex flex-wrap gap-2">
                       {[
@@ -485,129 +505,130 @@ export default function ProjectsManager() {
                   </div>
                 </section>
 
-                {/* ── Sección: Apariencia ── */}
-                <section className="space-y-4">
-                  <h4 className="text-xs font-semibold uppercase tracking-widest text-zinc-500">Apariencia</h4>
-
-                  {/* Hover Color */}
-                  <div className="space-y-2">
-                    <Label className="text-zinc-300 text-sm">Color de acento</Label>
-                    <div className="flex flex-wrap gap-2">
-                      {Object.keys(hoverColors).map((color) => {
-                        const colorHex: Record<string, string> = {
-                          blue: '#3b82f6', green: '#22c55e', purple: '#a855f7', red: '#ef4444',
-                          orange: '#f97316', yellow: '#eab308', pink: '#ec4899', cyan: '#06b6d4', indigo: '#6366f1'
-                        };
-                        const isActive = formData.hoverColor === color;
-                        return (
-                          <button
-                            key={color}
-                            type="button"
-                            onClick={() => setFormData({ ...formData, hoverColor: color })}
-                            title={color}
-                            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs border transition-all ${
-                              isActive
-                                ? 'border-white/40 bg-white/10 text-white'
-                                : 'border-zinc-700 bg-zinc-800 text-zinc-400 hover:border-zinc-500'
-                            }`}
-                          >
-                            <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: colorHex[color] ?? colorHex.blue }} />
-                            <span className="capitalize">{color}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Technologies */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <Label className="text-zinc-300 text-sm">Tecnologías <span className="text-zinc-500">({formData.technologies.length})</span></Label>
-                      <button
-                        type="button"
-                        onClick={() => setShowTechSelector(!showTechSelector)}
-                        className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
-                      >
-                        {showTechSelector ? 'Cerrar selector' : '+ Agregar'}
-                      </button>
-                    </div>
-
-                    {/* Selected */}
-                    <div className="flex flex-wrap gap-1.5 min-h-[2rem]">
-                      {formData.technologies.map((techKey) => {
-                        const tech = techIconsMap[techKey];
-                        if (!tech) return null;
-                        const Icon = tech.icon;
-                        return (
-                          <Badge
-                            key={techKey}
-                            variant="secondary"
-                            className="bg-zinc-800 text-zinc-200 cursor-pointer hover:bg-zinc-700 border border-zinc-700 gap-1 pr-1.5"
-                            onClick={() => toggleTech(techKey)}
-                          >
-                            <Icon className="h-3.5 w-3.5" style={{ color: tech.color }} />
-                            {tech.name}
-                            <X className="h-3 w-3 text-zinc-500 hover:text-white" />
-                          </Badge>
-                        );
-                      })}
-                      {formData.technologies.length === 0 && (
-                        <span className="text-zinc-600 text-xs italic">Sin tecnologías — usa el selector</span>
-                      )}
-                    </div>
-
-                    {/* Selector */}
-                    {showTechSelector && (
-                      <div className="bg-zinc-800/80 border border-zinc-700 rounded-lg p-3 max-h-72 overflow-y-auto">
-                        {Object.entries(techCategories).map(([category, techs]) => (
-                          <div key={category} className="mb-1">
-                            <button
-                              type="button"
-                              onClick={() => toggleCategory(category)}
-                              className="flex items-center justify-between w-full text-left text-zinc-300 text-sm font-medium py-1.5 px-1 hover:text-white rounded"
-                            >
-                              {category}
-                              {expandedCategories.includes(category)
-                                ? <ChevronUp className="h-3.5 w-3.5 text-zinc-500" />
-                                : <ChevronDown className="h-3.5 w-3.5 text-zinc-500" />}
-                            </button>
-                            {expandedCategories.includes(category) && (
-                              <div className="flex flex-wrap gap-1.5 pl-2 pb-2 pt-1">
-                                {techs.map((techKey) => {
-                                  const tech = techIconsMap[techKey];
-                                  if (!tech) return null;
-                                  const Icon = tech.icon;
-                                  const isSelected = formData.technologies.includes(techKey);
-                                  return (
-                                    <Badge
-                                      key={techKey}
-                                      variant="secondary"
-                                      className={`cursor-pointer transition-all border ${
-                                        isSelected
-                                          ? 'bg-blue-600/20 text-blue-300 border-blue-500/50'
-                                          : 'bg-zinc-700/50 text-zinc-300 border-zinc-600 hover:bg-zinc-700'
-                                      }`}
-                                      onClick={() => toggleTech(techKey)}
-                                    >
-                                      <Icon className="h-3.5 w-3.5 mr-1" style={{ color: isSelected ? undefined : tech.color }} />
-                                      {tech.name}
-                                    </Badge>
-                                  );
-                                })}
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                {/* ── Color de acento ── */}
+                <section className="space-y-3">
+                  <h4 className="text-xs font-semibold uppercase tracking-widest text-zinc-500">Color de acento</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.keys(hoverColors).map((color) => {
+                      const colorHex: Record<string, string> = {
+                        blue: '#3b82f6', green: '#22c55e', purple: '#a855f7', red: '#ef4444',
+                        orange: '#f97316', yellow: '#eab308', pink: '#ec4899', cyan: '#06b6d4', indigo: '#6366f1'
+                      };
+                      const isActive = formData.hoverColor === color;
+                      return (
+                        <button
+                          key={color}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, hoverColor: color })}
+                          title={color}
+                          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs border transition-all ${
+                            isActive
+                              ? 'border-white/40 bg-white/10 text-white'
+                              : 'border-zinc-700 bg-zinc-800 text-zinc-400 hover:border-zinc-500'
+                          }`}
+                        >
+                          <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: colorHex[color] ?? colorHex.blue }} />
+                          <span className="capitalize">{color}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </section>
 
-                {/* ── Footer: Visibilidad + Acciones ── */}
-                <div className="flex items-center justify-between pt-4 border-t border-zinc-800">
+                {/* ── Tecnologías ── */}
+                <section className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-semibold uppercase tracking-widest text-zinc-500">Tecnologías <span className="normal-case text-zinc-600">({formData.technologies.length})</span></h4>
+                    <button
+                      type="button"
+                      onClick={() => setShowTechSelector(!showTechSelector)}
+                      className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                    >
+                      {showTechSelector ? 'Cerrar' : '+ Agregar'}
+                    </button>
+                  </div>
+
+                  {/* Selected badges */}
+                  <div className="flex flex-wrap gap-1.5 min-h-[2rem]">
+                    {formData.technologies.map((techKey) => {
+                      const tech = techIconsMap[techKey];
+                      if (!tech) return null;
+                      const Icon = tech.icon;
+                      return (
+                        <Badge
+                          key={techKey}
+                          variant="secondary"
+                          className="bg-zinc-800 text-zinc-200 cursor-pointer hover:bg-zinc-700 border border-zinc-700 gap-1 pr-1.5"
+                          onClick={() => toggleTech(techKey)}
+                        >
+                          <Icon className="h-3.5 w-3.5" style={{ color: tech.color }} />
+                          {tech.name}
+                          <X className="h-3 w-3 text-zinc-500 hover:text-white" />
+                        </Badge>
+                      );
+                    })}
+                    {formData.technologies.length === 0 && (
+                      <span className="text-zinc-600 text-xs italic">Sin tecnologías — usa el selector</span>
+                    )}
+                  </div>
+
+                  {/* Selector */}
+                  {showTechSelector && (
+                    <div className="bg-zinc-800/80 border border-zinc-700 rounded-lg p-3 max-h-64 overflow-y-auto dark-scrollbar">
+                      {Object.entries(techCategories).map(([category, techs]) => (
+                        <div key={category} className="mb-1">
+                          <button
+                            type="button"
+                            onClick={() => toggleCategory(category)}
+                            className="flex items-center justify-between w-full text-left text-zinc-300 text-sm font-medium py-1.5 px-1 hover:text-white rounded"
+                          >
+                            {category}
+                            {expandedCategories.includes(category)
+                              ? <ChevronUp className="h-3.5 w-3.5 text-zinc-500" />
+                              : <ChevronDown className="h-3.5 w-3.5 text-zinc-500" />}
+                          </button>
+                          {expandedCategories.includes(category) && (
+                            <div className="flex flex-wrap gap-1.5 pl-2 pb-2 pt-1">
+                              {techs.map((techKey) => {
+                                const tech = techIconsMap[techKey];
+                                if (!tech) return null;
+                                const Icon = tech.icon;
+                                const isSelected = formData.technologies.includes(techKey);
+                                return (
+                                  <Badge
+                                    key={techKey}
+                                    variant="secondary"
+                                    className={`cursor-pointer transition-all border ${
+                                      isSelected
+                                        ? 'bg-blue-600/20 text-blue-300 border-blue-500/50'
+                                        : 'bg-zinc-700/50 text-zinc-300 border-zinc-600 hover:bg-zinc-700'
+                                    }`}
+                                    onClick={() => toggleTech(techKey)}
+                                  >
+                                    <Icon className="h-3.5 w-3.5 mr-1" style={{ color: isSelected ? undefined : tech.color }} />
+                                    {tech.name}
+                                  </Badge>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </section>
+
+                </div>{/* fin columna derecha */}
+
+              </div>{/* fin grid 2 columnas */}
+              </div>{/* fin scrollable body */}
+
+              {/* Drawer footer */}
+              <div className="flex-shrink-0 px-6 py-4 border-t border-zinc-800 bg-zinc-950">
+                <div className="flex items-center justify-between">
                   <label htmlFor="visible" className="flex items-center gap-2.5 cursor-pointer group">
-                    <div className={`relative w-10 h-5 rounded-full transition-colors ${formData.visible ? 'bg-blue-600' : 'bg-zinc-700'}`}>
-                      <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${formData.visible ? 'translate-x-5' : 'translate-x-0'}`} />
+                    <div className={`relative w-9 h-5 rounded-full transition-colors ${formData.visible ? 'bg-blue-600' : 'bg-zinc-700'}`}>
+                      <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${formData.visible ? 'translate-x-4' : 'translate-x-0'}`} />
                     </div>
                     <input
                       type="checkbox"
@@ -616,26 +637,27 @@ export default function ProjectsManager() {
                       onChange={(e) => setFormData({ ...formData, visible: e.target.checked })}
                       className="sr-only"
                     />
-                    <span className="text-sm text-zinc-300 group-hover:text-white transition-colors">
-                      {formData.visible ? 'Visible en el portfolio' : 'Oculto en el portfolio'}
+                    <span className="text-sm text-zinc-400 group-hover:text-white transition-colors select-none">
+                      {formData.visible ? 'Visible' : 'Oculto'}
                     </span>
                   </label>
 
                   <div className="flex gap-2">
-                    <Button type="button" variant="ghost" onClick={resetForm} className="text-zinc-400 hover:text-white">
+                    <Button type="button" variant="ghost" onClick={resetForm} className="text-zinc-400 hover:text-white px-4">
                       Cancelar
                     </Button>
-                    <Button type="submit" disabled={saving} className="gap-2 bg-blue-600 hover:bg-blue-700 min-w-[120px]">
+                    <Button type="submit" disabled={saving} className="gap-2 bg-blue-600 hover:bg-blue-700 min-w-[130px]">
                       <Save className="h-4 w-4" />
                       {saving ? 'Guardando...' : (editingProject ? 'Actualizar' : 'Crear proyecto')}
                     </Button>
                   </div>
                 </div>
-
               </div>
+
             </form>
-          </CardContent>
-        </Card>
+          </div>
+          </div>
+        </>
       )}
 
       {/* Projects List */}
