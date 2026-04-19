@@ -292,4 +292,4 @@ const VisitorChart: React.FC<{ className?: string }> = ({ className }) => {
   );
 };
 
-export default VisitorChart;
+export default VisitorChart;
