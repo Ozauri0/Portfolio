@@ -13,8 +13,7 @@ const securityHeaders = [
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: https: http:",
-      // Con rewrites, todas las llamadas API son same-origin (/api/...)
-      `connect-src 'self' https://api.emailjs.com`,
+      `connect-src 'self' https://api.christianferrer.me https://api.emailjs.com`,
       "font-src 'self' data:",
       "frame-ancestors 'none'",
     ].join('; '),
@@ -29,6 +28,10 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'i.imgur.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'api.christianferrer.me',
       },
     ],
   },

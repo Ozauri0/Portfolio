@@ -61,18 +61,23 @@ export default function ProjectCard({ project }: ProjectCardProps) {
   const demoLink = getDemoLink();
   const hoverColorClass = hoverColors[project.hoverColor] || hoverColors.blue;
 
+  // Resolve image URL: local uploads like /filename.jpg → API_URL/public/filename.jpg
+  const imageUrl = project.image.startsWith('/')
+    ? `${process.env.NEXT_PUBLIC_API_URL || ''}/public${project.image}`
+    : project.image;
+
   return (
     <Card 
       className={`bg-black border-zinc-800 overflow-hidden ${hoverColorClass} transition-all duration-300 flex flex-col`}
     >
       <div className="relative h-48">
         <Image
-          src={project.image}
+          src={imageUrl}
           alt={project.title[language]}
           fill
           className="object-cover"
           priority
-          unoptimized={project.image.startsWith('http://')}
+          unoptimized={imageUrl.startsWith('http://')}
         />
       </div>
       <CardContent className="pt-6 flex-1 flex flex-col">

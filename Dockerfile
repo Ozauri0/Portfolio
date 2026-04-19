@@ -15,15 +15,8 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # NEXT_PUBLIC_* se hornean en el bundle en tiempo de build.
-# Se pasa como build arg para que next.config.ts pueda leer NEXT_PUBLIC_API_URL
-# y construir correctamente los remotePatterns de next/image.
 ARG NEXT_PUBLIC_API_URL=http://localhost:5000
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
-
-# URL interna para que Next.js proxee /api/* y /public/* al contenedor
-# de la API. Se compila en los rewrites durante next build.
-ARG INTERNAL_API_URL=http://localhost:5000
-ENV INTERNAL_API_URL=$INTERNAL_API_URL
 
 # Construcción de la aplicación
 RUN npm run build

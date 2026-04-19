@@ -393,7 +393,7 @@ export default function ProjectsManager() {
                   <div className="rounded-xl overflow-hidden border border-zinc-800 bg-zinc-900 aspect-video flex items-center justify-center">
                     {formData.image ? (
                       <img
-                        src={formData.image.startsWith('/') ? `${process.env.NEXT_PUBLIC_FRONTEND_URL || ''}${formData.image}` : formData.image}
+                        src={formData.image.startsWith('/') ? `${process.env.NEXT_PUBLIC_API_URL || ''}/public${formData.image}` : formData.image}
                         alt="preview"
                         className="w-full h-full object-cover"
                       />
