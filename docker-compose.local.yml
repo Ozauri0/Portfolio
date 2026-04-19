@@ -5,6 +5,7 @@ services:
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_API_URL: http://localhost:5000
+        INTERNAL_API_URL: http://portfolio-api-local:5000
     ports:
       - "3002:3002"
     container_name: portfolio-christian-local
