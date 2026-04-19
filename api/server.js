@@ -3,6 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
+const path = require('path');
 require('dotenv').config();
 
 // Import database connection
@@ -96,6 +97,16 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/projects', projectsRoutes);
+
+// Servir imágenes subidas estáticamente desde /public/
+// Las imágenes se almacenan en PUBLIC_DIR (volumen compartido en Docker)
+// Cross-Origin-Resource-Policy: cross-origin permite que el frontend (puerto distinto)
+// cargue las imágenes. Helmet por defecto pone 'same-origin' y las bloquea.
+const PUBLIC_DIR = process.env.PUBLIC_DIR || path.join(__dirname, '..', 'public');
+app.use('/public', (req, res, next) => {
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  next();
+}, express.static(PUBLIC_DIR));
 
 // Server health route
 app.get('/api/health', (req, res) => {

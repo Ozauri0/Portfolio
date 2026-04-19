@@ -14,6 +14,12 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# NEXT_PUBLIC_* se hornean en el bundle en tiempo de build.
+# Se pasa como build arg para que next.config.ts pueda leer NEXT_PUBLIC_API_URL
+# y construir correctamente los remotePatterns de next/image.
+ARG NEXT_PUBLIC_API_URL=http://localhost:5000
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
 # Construcción de la aplicación
 RUN npm run build
 
@@ -28,7 +34,9 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 # Copia el resultado de la construcción
-COPY --from=builder /app/public ./public
+# --chown asegura que el usuario nextjs (UID 1001) sea dueño del directorio
+# Esto es crítico para que el volumen compartido con la API sea accesible
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 

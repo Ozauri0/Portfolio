@@ -297,7 +297,10 @@ class ProjectsService {
     }
 
     const data = await response.json();
-    return data.path as string;
+    // La API devuelve una ruta relativa (e.g. /public/filename.jpg).
+    // Construimos la URL absoluta apuntando al servidor de la API,
+    // que es quien tiene el archivo y lo sirve estáticamente.
+    return `${API_URL}${data.path as string}`;
   }
 }
 

@@ -74,7 +74,7 @@ router.post('/admin/upload-image', authenticateToken, requireAdmin, (req, res, n
     if (!req.file) {
       return res.status(400).json({ error: 'No se recibió ningún archivo' });
     }
-    res.json({ path: `/${req.file.filename}` });
+    res.json({ path: `/public/${req.file.filename}` });
   });
 });
 
