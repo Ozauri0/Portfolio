@@ -21,9 +21,7 @@ class AuthService {
   private pendingRequests: Array<() => void> = []; // Cola de peticiones esperando refresh
 
   constructor() {
-    this.baseURL = process.env.NODE_ENV === 'production' 
-      ? 'https://tu-dominio-api.com/api' 
-      :  process.env.NEXT_PUBLIC_API_URL+"/api" || 'http://localhost:5000/api';
+    this.baseURL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000') + '/api';
     
     // Cargar datos desde sessionStorage al inicializar
     this.loadFromStorage();
