@@ -72,7 +72,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
           fill
           className="object-cover"
           priority
-          unoptimized={project.image.startsWith('http://') || project.image.includes('/public/')}
+          unoptimized={project.image.startsWith('http://')}
         />
       </div>
       <CardContent className="pt-6 flex-1 flex flex-col">
