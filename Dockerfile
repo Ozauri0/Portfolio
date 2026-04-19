@@ -20,12 +20,6 @@ COPY . .
 ARG NEXT_PUBLIC_API_URL=http://localhost:5000
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
-# URL interna (server-side) para que Next.js proxee /api/* y /public/*
-# al contenedor de la API via rewrite. Usa el nombre del contenedor para
-# evitar conflictos de DNS en redes Docker compartidas.
-ARG INTERNAL_API_URL=http://localhost:5000
-ENV INTERNAL_API_URL=$INTERNAL_API_URL
-
 # Construcción de la aplicación
 RUN npm run build
 
@@ -34,6 +28,11 @@ FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
+
+# URL interna (server-side) para que Next.js proxee /api/* y /public/*
+# al contenedor de la API via rewrite. Se puede sobreescribir con
+# environment en docker-compose sin necesidad de rebuild.
+ENV INTERNAL_API_URL=http://localhost:5000
 
 # Crea un usuario no-root para ejecutar la aplicación
 RUN addgroup --system --gid 1001 nodejs
