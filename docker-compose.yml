@@ -12,6 +12,8 @@ services:
     restart: always
     env_file:
       - .env
+    environment:
+      - INTERNAL_API_URL=http://portfolio-api:5000
     volumes:
       - portfolio-public:/app/public
     depends_on:

@@ -38,23 +38,6 @@ const nextConfig: NextConfig = {
     return `build-${Date.now()}-${Math.random().toString(36).substring(7)}`;
   },
 
-  // Proxear /api/ y /public/ al contenedor de la API internamente.
-  // Esto evita exponer el puerto 5000 al exterior: el browser solo habla con
-  // el dominio del frontend y Next.js redirige las peticiones internamente.
-  async rewrites() {
-    const internalApiUrl = process.env.INTERNAL_API_URL || 'http://api:5000';
-    return [
-      {
-        source: '/api/:path*',
-        destination: `${internalApiUrl}/api/:path*`,
-      },
-      {
-        source: '/public/:path*',
-        destination: `${internalApiUrl}/public/:path*`,
-      },
-    ];
-  },
-
   async headers() {
     return [
       {
