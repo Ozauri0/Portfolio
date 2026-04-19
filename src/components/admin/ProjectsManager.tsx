@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,7 +18,8 @@ import {
   ChevronDown,
   ChevronUp,
   ExternalLink,
-  Github
+  Github,
+  Upload
 } from 'lucide-react';
 import projectsService, { Project, CreateProjectData } from '@/services/projectsService';
 import { techIconsMap, techCategories, hoverColors } from '@/lib/techIcons';
@@ -64,6 +65,10 @@ export default function ProjectsManager() {
   // Tech selector state
   const [showTechSelector, setShowTechSelector] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
+
+  // Image upload state
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     loadProjects();
@@ -178,6 +183,22 @@ export default function ProjectsManager() {
         ? prev.technologies.filter(t => t !== techKey)
         : [...prev.technologies, techKey]
     }));
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingImage(true);
+    setError('');
+    try {
+      const imagePath = await projectsService.uploadImage(file);
+      setFormData(prev => ({ ...prev, image: imagePath }));
+    } catch (err: any) {
+      setError(err.message || 'Error al subir la imagen');
+    } finally {
+      setUploadingImage(false);
+      e.target.value = '';
+    }
   };
 
   const toggleCategory = (category: string) => {
@@ -330,16 +351,52 @@ export default function ProjectsManager() {
 
               {/* Image */}
               <div>
-                <Label htmlFor="image" className="text-white">Imagen (ruta)</Label>
-                <Input
-                  id="image"
-                  value={formData.image}
-                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                  placeholder="/mi-proyecto.webp"
-                  className="bg-zinc-800 border-zinc-700 text-white"
-                  required
-                />
-                <p className="text-xs text-gray-400 mt-1">Coloca la imagen en /public y usa la ruta relativa (ej: /imagen.webp)</p>
+                <Label className="text-white">Imagen</Label>
+                <div className="flex gap-3 mt-1">
+                  {/* Preview */}
+                  {formData.image && (
+                    <div className="w-24 h-16 rounded overflow-hidden flex-shrink-0 border border-zinc-700">
+                      <img
+                        src={formData.image.startsWith('/') ? `${process.env.NEXT_PUBLIC_FRONTEND_URL || ''}${formData.image}` : formData.image}
+                        alt="preview"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <div className="flex-1 space-y-2">
+                    {/* File upload button */}
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="text-white"
+                        disabled={uploadingImage}
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        <Upload className="h-4 w-4 mr-1" />
+                        {uploadingImage ? 'Subiendo...' : 'Subir imagen'}
+                      </Button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept=".jpg,.jpeg,.png,.webp"
+                        className="hidden"
+                        onChange={handleImageUpload}
+                        disabled={uploadingImage}
+                      />
+                      <span className="text-xs text-gray-400">JPG, PNG o WebP · máx 5 MB</span>
+                    </div>
+                    {/* Manual path fallback */}
+                    <Input
+                      value={formData.image}
+                      onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                      placeholder="/mi-proyecto.webp o https://..."
+                      className="bg-zinc-800 border-zinc-700 text-white text-sm"
+                      required
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* Links */}

@@ -1,10 +1,51 @@
 const express = require('express');
 const router = express.Router();
+const path = require('path');
+const fs = require('fs');
+const multer = require('multer');
 const Project = require('../models/Project');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
-// Helper: validar que sea URL absoluta y segura (VUL-014)
+// Directorio público de Next.js (sirve imágenes estáticas)
+const PUBLIC_DIR = path.join(__dirname, '..', '..', 'public');
+
+// Configuración de multer: guarda en /public con nombre sanitizado
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    if (!fs.existsSync(PUBLIC_DIR)) {
+      fs.mkdirSync(PUBLIC_DIR, { recursive: true });
+    }
+    cb(null, PUBLIC_DIR);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    const base = path.basename(file.originalname, ext)
+      .replace(/[^a-zA-Z0-9._-]/g, '-')
+      .substring(0, 60);
+    const unique = `${Date.now()}-${base}${ext}`;
+    cb(null, unique);
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+  fileFilter: (req, file, cb) => {
+    const allowed = ['.jpg', '.jpeg', '.png', '.webp'];
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (allowed.includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Solo se permiten imágenes .jpg, .jpeg, .png o .webp'));
+    }
+  }
+});
+
+// Helper: validar URL absoluta segura O ruta relativa local (VUL-014)
 function isValidImageUrl(url) {
+  if (typeof url === 'string' && /^\/[\w\-. ]+\.(jpg|jpeg|png|webp)$/i.test(url)) {
+    return true; // ruta local como /imagen.webp
+  }
   try {
     const parsed = new URL(url);
     return ['http:', 'https:'].includes(parsed.protocol);
@@ -12,6 +53,29 @@ function isValidImageUrl(url) {
     return false;
   }
 }
+
+// ==========================================
+// IMAGE UPLOAD (Admin only)
+// ==========================================
+
+// Upload project image - Admin only
+router.post('/admin/upload-image', authenticateToken, requireAdmin, (req, res, next) => {
+  upload.single('image')(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'La imagen no puede superar los 5 MB' });
+      }
+      return res.status(400).json({ error: err.message });
+    }
+    if (err) {
+      return res.status(400).json({ error: err.message });
+    }
+    if (!req.file) {
+      return res.status(400).json({ error: 'No se recibió ningún archivo' });
+    }
+    res.json({ path: `/${req.file.filename}` });
+  });
+});
 
 // ==========================================
 // PUBLIC ROUTES (No auth required)

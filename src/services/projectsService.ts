@@ -272,6 +272,33 @@ class ProjectsService {
       throw error;
     }
   }
+
+  /**
+   * Upload project image (Admin)
+   * Returns the relative path to the uploaded image, e.g. /my-image.webp
+   */
+  async uploadImage(file: File): Promise<string> {
+    const token = authService.getToken();
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const response = await fetch(`${API_URL}/api/projects/admin/upload-image`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        ...(token && { 'Authorization': `Bearer ${token}` })
+      },
+      body: formData
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.error || 'Error al subir la imagen');
+    }
+
+    const data = await response.json();
+    return data.path as string;
+  }
 }
 
 const projectsService = new ProjectsService();
