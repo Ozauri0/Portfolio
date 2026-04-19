@@ -9,8 +9,30 @@ services:
     restart: always
     env_file:
       - .env
+    volumes:
+      - portfolio-public:/app/public  # <--- Shared volume with API for uploaded images
     networks:
       - red-internet      # <--- Connect to the external network for internet access
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    # ports:              <--- No se exponen puertos, accesible solo via nginx
+    #   - "5000:5000"
+    container_name: portfolio-api
+    restart: always
+    env_file:
+      - ./api/.env
+    environment:
+      - PUBLIC_DIR=/app/public  # <--- Path where multer stores uploaded images
+    volumes:
+      - portfolio-public:/app/public  # <--- Shared volume with frontend
+    networks:
+      - red-internet
+
+volumes:
+  portfolio-public:  # <--- Named volume shared between frontend and API
 
 networks:
   red-internet:

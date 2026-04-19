@@ -7,7 +7,8 @@ const Project = require('../models/Project');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
 // Directorio público de Next.js (sirve imágenes estáticas)
-const PUBLIC_DIR = path.join(__dirname, '..', '..', 'public');
+// En Docker se usa la variable de entorno PUBLIC_DIR, en local resuelve a ../../public
+const PUBLIC_DIR = process.env.PUBLIC_DIR || path.join(__dirname, '..', '..', 'public');
 
 // Configuración de multer: guarda en /public con nombre sanitizado
 const storage = multer.diskStorage({
