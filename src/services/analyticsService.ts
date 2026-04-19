@@ -27,7 +27,7 @@ class AnalyticsService {
   }
 
   // Track click on project links
-  async trackProjectClick(target: 'learnpro' | 'mybudget' | 'educaplus') {
+  async trackProjectClick(target: string) {
     try {
       const response = await fetch(`${API_URL}/api/analytics/track-click`, {
         method: 'POST',
