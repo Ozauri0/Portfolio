@@ -1,4 +1,4 @@
-// Función para comprobar si se puede enviar un correo (límite anti-spam)
+// Function to check if an email can be sent (anti-spam limit)
 export const canSendEmail = (): boolean => {
     try {
       const lastSentTime = localStorage.getItem('lastEmailSent');
@@ -10,26 +10,22 @@ export const canSendEmail = (): boolean => {
       const lastTime = parseInt(lastSentTime, 10);
       const currentTime = Date.now();
       const fiveMinutesInMs = 5 * 60 * 1000; // 5 minutos en milisegundos
-      
-      // Si han pasado más de 5 minutos desde el último envío, permitir
-      return currentTime - lastTime >= fiveMinutesInMs;
-    } catch (error) {
-      // Si hay algún error accediendo a localStorage, permitir por defecto
+        // If more than 5 minutes have passed since the last sending, allow
+      return currentTime - lastTime >= fiveMinutesInMs;    } catch (error) {
+      // If there's any error accessing localStorage, allow by default
       console.error('Error accediendo a localStorage:', error);
       return true;
     }
-  };
-  
-  // Función para registrar el envío de un correo
+  };  
+  // Function to record email sending
   export const recordEmailSent = (): void => {
     try {
       localStorage.setItem('lastEmailSent', Date.now().toString());
     } catch (error) {
       console.error('Error guardando en localStorage:', error);
     }
-  };
-  
-  // Función para obtener el tiempo restante en formato legible
+  };  
+  // Function to get remaining time in readable format
   export const getTimeRemaining = (): string => {
     try {
       const lastSentTime = localStorage.getItem('lastEmailSent');

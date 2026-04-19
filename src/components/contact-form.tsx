@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle, AlertCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/translations";
-import { initEmailJS, sendEmail } from "@/utils/email/emailService";
+import { sendEmail } from "@/utils/email/emailService";
 import { canSendEmail, recordEmailSent, getTimeRemaining } from "@/utils/email/spamProtection";
 
 export default function ContactForm() {
@@ -28,12 +28,7 @@ export default function ContactForm() {
   const [spamError, setSpamError] = useState<boolean>(false);
   const waitTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Inicializar EmailJS
-  useEffect(() => {
-    initEmailJS();
-  }, []);
-
-  // Efecto para inicializar y limpiar el temporizador
+  // Efecto para inicializar el temporizador si ya hay una espera activa
   useEffect(() => {
     // Comprueba si hay un tiempo de espera activo al cargar
     if (!canSendEmail()) {
@@ -46,8 +41,7 @@ export default function ContactForm() {
       }
     };
   }, []);
-
-  // Función para actualizar el temporizador de espera
+  // Function to update wait timer
   const updateWaitTimer = () => {
     // Limpiar temporizador existente si hay alguno
     if (waitTimerRef.current) {
@@ -73,8 +67,7 @@ export default function ContactForm() {
       }
     }, 1000);
   };
-
-  // Manejo de cambios en el formulario
+  // Handle form changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -82,31 +75,25 @@ export default function ContactForm() {
       [name]: value
     }));
   };
-
-  // Envío del formulario
+  // Form submission
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Validación básica
+    e.preventDefault();    
+    // Basic validation
     if (!formData.name || !formData.email || !formData.message) {
       return;
-    }
-    
-    // Verificar límite anti-spam
+    }    
+    // Check anti-spam limit
     if (!canSendEmail()) {
       setFormStatus('error');
       setSpamError(true);
       updateWaitTimer();
       setTimeout(() => setFormStatus('idle'), 5000);
       return;
-    }
-    
-    setFormStatus('loading');
+    }    setFormStatus('loading');
     
     const result = await sendEmail(formData);
-    
-    if (result.success) {
-      // Registrar el envío exitoso
+      if (result.success) {
+      // Record successful sending
       recordEmailSent();
       setFormStatus('success');
       
@@ -119,10 +106,9 @@ export default function ContactForm() {
       });
     } else {
       setFormStatus('error');
-      setSpamError(false);
-    }
+      setSpamError(false);    }
     
-    // Resetear después de 5 segundos
+    // Reset after 5 seconds
     setTimeout(() => setFormStatus('idle'), 5000);
   };
 
