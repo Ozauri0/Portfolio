@@ -31,6 +31,7 @@ services:
       - ./api/.env
     environment:
       - PUBLIC_DIR=/app/public
+      - MONGODB_URI=mongodb://mongo:27017/portfolio
     volumes:
       - portfolio-public:/app/public
     depends_on:
