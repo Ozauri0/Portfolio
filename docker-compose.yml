@@ -5,14 +5,13 @@ services:
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://christianferrer.me}
+        INTERNAL_API_URL: http://portfolio-api:5000
     # ports:              <--- No se exponen puertos, accesible solo via nginx
     #   - "3002:3002"
     container_name: portfolio-christian
     restart: always
     env_file:
       - .env
-    environment:
-      - INTERNAL_API_URL=http://portfolio-api:5000
     volumes:
       - portfolio-public:/app/public
     depends_on:
