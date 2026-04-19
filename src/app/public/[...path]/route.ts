@@ -1,28 +1,38 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-const API_URL = process.env.INTERNAL_API_URL || 'http://portfolio-api:5000';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 
 export async function GET(request: NextRequest) {
+  const apiUrl = process.env.INTERNAL_API_URL || 'http://portfolio-api:5000';
   const { pathname, search } = request.nextUrl;
-  const url = `${API_URL}${pathname}${search}`;
+  const url = `${apiUrl}${pathname}${search}`;
 
-  const headers = new Headers(request.headers);
-  headers.delete('host');
-  headers.delete('connection');
+  const headers: Record<string, string> = {};
+  request.headers.forEach((value, key) => {
+    const lower = key.toLowerCase();
+    if (lower !== 'host' && lower !== 'connection' && lower !== 'transfer-encoding') {
+      headers[key] = value;
+    }
+  });
 
   try {
-    const response = await fetch(url, { headers });
+    const response = await fetch(url, { headers, cache: 'no-store' });
+    const data = await response.arrayBuffer();
 
-    const responseHeaders = new Headers(response.headers);
-    responseHeaders.delete('transfer-encoding');
-    responseHeaders.delete('connection');
+    const responseHeaders = new Headers();
+    response.headers.forEach((value, key) => {
+      const lower = key.toLowerCase();
+      if (lower !== 'transfer-encoding' && lower !== 'connection' && lower !== 'content-length') {
+        responseHeaders.set(key, value);
+      }
+    });
 
-    return new Response(response.body, {
+    return new NextResponse(data, {
       status: response.status,
-      statusText: response.statusText,
       headers: responseHeaders,
     });
   } catch {
-    return new Response('File not found', { status: 404 });
+    return new NextResponse('File not found', { status: 404 });
   }
 }

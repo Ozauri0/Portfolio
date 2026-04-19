@@ -1,43 +1,50 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-const API_URL = process.env.INTERNAL_API_URL || 'http://portfolio-api:5000';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 
 async function proxyRequest(request: NextRequest) {
+  const apiUrl = process.env.INTERNAL_API_URL || 'http://portfolio-api:5000';
   const { pathname, search } = request.nextUrl;
-  const url = `${API_URL}${pathname}${search}`;
+  const url = `${apiUrl}${pathname}${search}`;
 
-  const headers = new Headers(request.headers);
-  headers.delete('host');
-  headers.delete('connection');
+  const headers: Record<string, string> = {};
+  request.headers.forEach((value, key) => {
+    const lower = key.toLowerCase();
+    if (lower !== 'host' && lower !== 'connection' && lower !== 'transfer-encoding') {
+      headers[key] = value;
+    }
+  });
 
-  const init: RequestInit = {
+  const fetchOptions: RequestInit & { duplex?: string } = {
     method: request.method,
     headers,
+    cache: 'no-store',
   };
 
   if (!['GET', 'HEAD'].includes(request.method)) {
-    init.body = request.body;
-    // @ts-expect-error duplex is required for streaming request bodies
-    init.duplex = 'half';
+    fetchOptions.body = await request.arrayBuffer();
   }
 
   try {
-    const response = await fetch(url, init);
+    const response = await fetch(url, fetchOptions);
+    const data = await response.arrayBuffer();
 
-    const responseHeaders = new Headers(response.headers);
-    responseHeaders.delete('transfer-encoding');
-    responseHeaders.delete('connection');
+    const responseHeaders = new Headers();
+    response.headers.forEach((value, key) => {
+      const lower = key.toLowerCase();
+      if (lower !== 'transfer-encoding' && lower !== 'connection' && lower !== 'content-length') {
+        responseHeaders.set(key, value);
+      }
+    });
 
-    return new Response(response.body, {
+    return new NextResponse(data, {
       status: response.status,
-      statusText: response.statusText,
       headers: responseHeaders,
     });
-  } catch {
-    return new Response(JSON.stringify({ error: 'API unavailable' }), {
-      status: 502,
-      headers: { 'Content-Type': 'application/json' },
-    });
+  } catch (err) {
+    console.error('[API Proxy Error]', url, err);
+    return NextResponse.json({ error: 'API unavailable' }, { status: 502 });
   }
 }
 
