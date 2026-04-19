@@ -33,6 +33,8 @@ services:
     environment:
       - PUBLIC_DIR=/app/public
       - MONGODB_URI=mongodb://mongo:27017/portfolio
+      - NODE_ENV=production
+      - FRONTEND_URL=https://christianferrer.me
     volumes:
       - portfolio-public:/app/public
     depends_on:
