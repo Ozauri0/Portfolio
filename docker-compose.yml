@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://christianferrer.me}
+        NEXT_PUBLIC_API_URL: ""
         INTERNAL_API_URL: http://portfolio-api:5000
     # ports:              <--- No se exponen puertos, accesible solo via nginx
     #   - "3002:3002"

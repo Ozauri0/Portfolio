@@ -10,33 +10,16 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: https: http:",
-      // Permite fetch al backend (dev local) y a EmailJS
-      `connect-src 'self' ${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'} https://api.emailjs.com`,
+      // Con rewrites, todas las llamadas API son same-origin (/api/...)
+      `connect-src 'self' https://api.emailjs.com`,
       "font-src 'self' data:",
       "frame-ancestors 'none'",
     ].join('; '),
   },
 ];
-
-// Construir remotePatterns dinámicamente desde NEXT_PUBLIC_API_URL
-// para que next/image pueda optimizar imágenes servidas por la API
-function buildApiRemotePattern() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-  try {
-    const parsed = new URL(apiUrl);
-    return {
-      protocol: parsed.protocol.replace(':', '') as 'http' | 'https',
-      hostname: parsed.hostname,
-      ...(parsed.port ? { port: parsed.port } : {}),
-      pathname: '/public/**',
-    };
-  } catch {
-    return { protocol: 'http' as const, hostname: 'localhost', port: '5000', pathname: '/public/**' };
-  }
-}
 
 const nextConfig: NextConfig = {
   output: "standalone",
@@ -47,8 +30,6 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'i.imgur.com',
       },
-      // Imágenes subidas y servidas por la API (dev y producción)
-      buildApiRemotePattern(),
     ],
   },
   
