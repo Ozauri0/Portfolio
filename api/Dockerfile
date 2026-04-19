@@ -13,8 +13,8 @@ RUN npm ci --only=production
 # Copiar código fuente
 COPY . .
 
-# Crear directorio público con permisos correctos
-RUN mkdir -p /app/public && chown apiuser:nodejs /app/public
+# Crear directorio público con permisos correctos para escritura
+RUN mkdir -p /app/public && chown apiuser:nodejs /app/public && chmod g+w /app/public
 
 USER apiuser
 

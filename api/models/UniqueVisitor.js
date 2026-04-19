@@ -25,7 +25,7 @@ const uniqueVisitorSchema = new mongoose.Schema({
 });
 
 // Index for faster queries
-uniqueVisitorSchema.index({ ipAddress: 1 });
+// ipAddress ya tiene índice por unique:true
 uniqueVisitorSchema.index({ lastVisit: -1 });
 
 module.exports = mongoose.model('UniqueVisitor', uniqueVisitorSchema);

@@ -1,0 +1,43 @@
+services:
+  portfolio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3002"
+    container_name: portfolio-christian-local
+    restart: unless-stopped
+    env_file:
+      - .env.local
+    volumes:
+      - portfolio-public-local:/app/public
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    container_name: portfolio-api-local
+    restart: unless-stopped
+    env_file:
+      - ./api/.env.local
+    environment:
+      - PUBLIC_DIR=/app/public
+    volumes:
+      - portfolio-public-local:/app/public
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:7
+    container_name: portfolio-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - portfolio-mongo-data-local:/data/db
+
+volumes:
+  portfolio-public-local:
+  portfolio-mongo-data-local:

@@ -3,16 +3,16 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    # ports:              <--- We don't use ports anymore for security reasons, the app is only accessible through nginx
+    # ports:              <--- No se exponen puertos, accesible solo via nginx
     #   - "3002:3002"
-    container_name: portfolio-christian  # <--- Container name for easier management
+    container_name: portfolio-christian
     restart: always
     env_file:
       - .env
     volumes:
-      - portfolio-public:/app/public  # <--- Shared volume with API for uploaded images
+      - portfolio-public:/app/public
     networks:
-      - red-internet      # <--- Connect to the external network for internet access
+      - red-internet
 
   api:
     build:
@@ -25,14 +25,27 @@ services:
     env_file:
       - ./api/.env
     environment:
-      - PUBLIC_DIR=/app/public  # <--- Path where multer stores uploaded images
+      - PUBLIC_DIR=/app/public
     volumes:
-      - portfolio-public:/app/public  # <--- Shared volume with frontend
+      - portfolio-public:/app/public
+    depends_on:
+      - mongo
+    networks:
+      - red-internet
+
+  mongo:
+    image: mongo:7
+    container_name: portfolio-mongo
+    restart: always
+    volumes:
+      - portfolio-mongo-data:/data/db
+    # No se exponen puertos, solo accesible internamente
     networks:
       - red-internet
 
 volumes:
-  portfolio-public:  # <--- Named volume shared between frontend and API
+  portfolio-public:
+  portfolio-mongo-data:
 
 networks:
   red-internet:
