@@ -41,7 +41,8 @@ Dependabot (`.github/dependabot.yml`) opens weekly update PRs for both packages 
 ## Client IP / reverse proxy
 
 Rate limits and login logs use the client IP taken from the entries that *our* proxies append to `X-Forwarded-For` (never the first, client-controlled one).
-Set `TRUSTED_PROXY_HOPS` in the frontend `.env` to the number of trusted proxies in front of the app (default `1` = nginx; use `2` for Cloudflare + nginx).
+Set `TRUSTED_PROXY_HOPS` (in **both** `.env` and `api/.env`) to the number of trusted proxies in front of the app (default `1` = nginx; use `2` for Cloudflare + nginx, with nginx using `proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;`).
+To verify: log in to the admin panel and check that "Últimas Conexiones" shows your public IP (not a Cloudflare or private one).
 The `/api/*` proxy rewrites `X-Forwarded-For` and drops `X-Real-IP` before forwarding to the API.
 
 ## Docker deployment

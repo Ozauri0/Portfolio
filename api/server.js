@@ -75,6 +75,11 @@ app.use(helmet({
   },
 }));
 
+// Proxies de confianza. Con TRUSTED_PROXY_HOPS (p. ej. 2 = nginx + Cloudflare) req.ip es la IP
+// real del visitante; sin él se confía en loopback/redes privadas (nginx directo, sin CDN).
+const trustedHops = parseInt(process.env.TRUSTED_PROXY_HOPS, 10);
+const trustProxySetting = trustedHops > 0 ? trustedHops : ['loopback', 'linklocal', 'uniquelocal'];
+
 // Rate limiting configuration
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
@@ -85,7 +90,7 @@ const limiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   // Añadir esta opción para que sea compatible con la configuración de trust proxy
-  trustProxy: ['loopback', 'linklocal', 'uniquelocal']
+  trustProxy: trustProxySetting
 });
 
 // Rate limiting
@@ -101,7 +106,7 @@ app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // Trust proxy for correct IP detection
-app.set('trust proxy', ['loopback', 'linklocal', 'uniquelocal']);
+app.set('trust proxy', trustProxySetting);
 
 // Logging middleware (sin PII en producción - VUL-015)
 app.use((req, res, next) => {
