@@ -10,6 +10,7 @@ import { Project } from '@/services/projectsService';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { translations } from '@/translations';
 import analyticsService from '@/services/analyticsService';
+import { safeHref } from '@/lib/utils';
 
 interface ProjectCardProps {
   project: Project;
@@ -53,16 +54,17 @@ export default function ProjectCard({ project }: ProjectCardProps) {
   // Get the demo link
   const getDemoLink = () => {
     if (project.demoType === 'download' && project.links.download) {
-      return project.links.download;
+      return safeHref(project.links.download);
     }
-    return project.links.demo || null;
+    return safeHref(project.links.demo);
   };
 
   const demoLink = getDemoLink();
+  const githubLink = safeHref(project.links.github);
   const hoverColorClass = hoverColors[project.hoverColor] || hoverColors.blue;
 
   // Resolve image URL: local uploads like /filename.jpg → API_URL/public/filename.jpg
-  const imageUrl = project.image.startsWith('/')
+  const imageUrl = project.image.startsWith('/') && !project.image.startsWith('/public/')
     ? `${process.env.NEXT_PUBLIC_API_URL || ''}/public${project.image}`
     : project.image;
 
@@ -125,10 +127,10 @@ export default function ProjectCard({ project }: ProjectCardProps) {
 
         {/* Action buttons */}
         <div className="mt-auto flex gap-2">
-          {project.links.github && (
+          {githubLink && (
             <Button asChild size="sm" variant="outline" className={`gap-1 text-white ${demoLink ? 'flex-1' : 'w-full'}`}>
               <a 
-              href={project.links.github} 
+              href={githubLink} 
               target="_blank" 
               rel="noopener noreferrer" 
               onClick={handleProjectClick}>
@@ -138,7 +140,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
           )}
           
           {demoLink && (
-            <Button asChild size="sm" className={`gap-1 bg-white text-black hover:bg-gray-200 ${project.links.github ? 'flex-1' : 'w-full'}`}>
+            <Button asChild size="sm" className={`gap-1 bg-white text-black hover:bg-gray-200 ${githubLink ? 'flex-1' : 'w-full'}`}>
               <a 
               href={demoLink} 
               target="_blank" 

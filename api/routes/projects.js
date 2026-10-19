@@ -42,17 +42,93 @@ const upload = multer({
   }
 });
 
-// Helper: validar URL absoluta segura O ruta relativa local (VUL-014)
-function isValidImageUrl(url) {
-  if (typeof url === 'string' && /^\/[\w\-. ]+\.(jpg|jpeg|png|webp)$/i.test(url)) {
-    return true; // ruta local como /imagen.webp
-  }
+const HOVER_COLORS = ['blue', 'green', 'purple', 'red', 'orange', 'yellow', 'pink', 'cyan', 'indigo'];
+const DEMO_TYPES = ['demo', 'download', 'documentation'];
+
+// Helper: URL absoluta https (sin credenciales) usada para enlaces e imágenes (VUL-014)
+function isHttpsUrl(url) {
+  if (typeof url !== 'string' || url.length > 500) return false;
   try {
     const parsed = new URL(url);
-    return ['http:', 'https:'].includes(parsed.protocol);
+    return parsed.protocol === 'https:' && !parsed.username && !parsed.password;
   } catch {
     return false;
   }
+}
+
+// Helper: URL https válida O ruta local (/imagen.webp o /public/imagen.webp) (VUL-014)
+function isValidImageUrl(url) {
+  if (typeof url === 'string' && /^\/(public\/)?[\w\-. +]+\.(jpg|jpeg|png|webp)$/i.test(url)) {
+    return true;
+  }
+  return isHttpsUrl(url);
+}
+
+const isText = (v, max) => typeof v === 'string' && v.trim().length > 0 && v.length <= max;
+
+// Valida el cuerpo de un proyecto. Devuelve un mensaje de error o null.
+// partial=true (PUT) solo valida los campos presentes.
+function validateProjectBody(body, { partial = false } = {}) {
+  const { slug, order, visible, title, description, image, links, demoType, technologies, hoverColor } = body || {};
+  const present = (v) => v !== undefined;
+
+  if (!partial || present(slug)) {
+    if (typeof slug !== 'string' || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/i.test(slug) || slug.length > 60) {
+      return 'El slug debe ser texto (letras, números y guiones, máx. 60)';
+    }
+  }
+  if (!partial || present(title)) {
+    if (!title || !isText(title.en, 120) || !isText(title.es, 120)) {
+      return 'El título (en/es) debe ser texto de hasta 120 caracteres';
+    }
+  }
+  if (!partial || present(description)) {
+    if (!description || !isText(description.en, 2000) || !isText(description.es, 2000)) {
+      return 'La descripción (en/es) debe ser texto de hasta 2000 caracteres';
+    }
+  }
+  if (!partial || present(image)) {
+    if (!isValidImageUrl(image)) {
+      return 'La imagen debe ser una URL https:// válida o una ruta local de imagen';
+    }
+  }
+  if (present(order) && !(Number.isInteger(order) && order >= -100000 && order <= 100000)) {
+    return 'El orden debe ser un número entero';
+  }
+  if (present(visible) && typeof visible !== 'boolean') {
+    return 'visible debe ser booleano';
+  }
+  if (present(links) && links !== null) {
+    if (typeof links !== 'object' || Array.isArray(links)) return 'links debe ser un objeto';
+    for (const key of ['github', 'demo', 'download']) {
+      const v = links[key];
+      if (v !== undefined && v !== null && v !== '' && !isHttpsUrl(v)) {
+        return `El enlace "${key}" debe ser una URL https:// válida`;
+      }
+    }
+  }
+  if (present(demoType) && demoType !== null && !DEMO_TYPES.includes(demoType)) {
+    return 'demoType no válido';
+  }
+  if (present(technologies)) {
+    if (!Array.isArray(technologies) || technologies.length > 40 ||
+        !technologies.every((t) => typeof t === 'string' && /^[\w.+#-]{1,40}$/.test(t))) {
+      return 'technologies debe ser una lista de nombres de tecnología válidos';
+    }
+  }
+  if (present(hoverColor) && !HOVER_COLORS.includes(hoverColor)) {
+    return 'hoverColor no válido';
+  }
+  return null;
+}
+
+// Normaliza enlaces: cadenas vacías -> null
+function cleanLinks(links) {
+  const out = {};
+  for (const key of ['github', 'demo', 'download']) {
+    if (links && links[key] !== undefined) out[key] = links[key] || null;
+  }
+  return out;
 }
 
 // ==========================================
@@ -165,16 +241,10 @@ router.post('/admin', authenticateToken, requireAdmin, async (req, res) => {
       hoverColor
     } = req.body;
 
-    // Validate required fields
-    if (!slug || !title?.en || !title?.es || !description?.en || !description?.es || !image) {
-      return res.status(400).json({ 
-        error: 'Faltan campos requeridos: slug, title (en/es), description (en/es), image' 
-      });
-    }
-
-    // Validar URL de imagen (VUL-014)
-    if (!isValidImageUrl(image)) {
-      return res.status(400).json({ error: 'La URL de la imagen debe ser una URL https:// válida' });
+    // Validar tipos, formatos y enlaces (VUL-014)
+    const validationError = validateProjectBody(req.body);
+    if (validationError) {
+      return res.status(400).json({ error: validationError });
     }
 
     // Check if slug already exists
@@ -190,7 +260,7 @@ router.post('/admin', authenticateToken, requireAdmin, async (req, res) => {
       title,
       description,
       image,
-      links: links || {},
+      links: cleanLinks(links),
       demoType: demoType || null,
       technologies: technologies || [],
       hoverColor: hoverColor || 'blue'
@@ -224,6 +294,11 @@ router.put('/admin/:id', authenticateToken, requireAdmin, async (req, res) => {
       hoverColor
     } = req.body;
 
+    const validationError = validateProjectBody(req.body, { partial: true });
+    if (validationError) {
+      return res.status(400).json({ error: validationError });
+    }
+
     const project = await Project.findById(req.params.id);
     
     if (!project) {
@@ -245,7 +320,7 @@ router.put('/admin/:id', authenticateToken, requireAdmin, async (req, res) => {
     if (title) project.title = { ...project.title, ...title };
     if (description) project.description = { ...project.description, ...description };
     if (image) project.image = image;
-    if (links) project.links = { ...project.links, ...links };
+    if (links) project.links = { ...project.links, ...cleanLinks(links) };
     if (demoType !== undefined) project.demoType = demoType;
     if (technologies) project.technologies = technologies;
     if (hoverColor) project.hoverColor = hoverColor;

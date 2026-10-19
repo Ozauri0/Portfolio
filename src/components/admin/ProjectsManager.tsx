@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import projectsService, { Project, CreateProjectData } from '@/services/projectsService';
 import { techIconsMap, techCategories, hoverColors } from '@/lib/techIcons';
+import { safeHref } from '@/lib/utils';
 
 interface ProjectFormData {
   slug: string;
@@ -393,7 +394,7 @@ export default function ProjectsManager() {
                   <div className="rounded-xl overflow-hidden border border-zinc-800 bg-zinc-900 aspect-video flex items-center justify-center">
                     {formData.image ? (
                       <img
-                        src={formData.image.startsWith('/') ? `${process.env.NEXT_PUBLIC_API_URL || ''}/public${formData.image}` : formData.image}
+                        src={formData.image.startsWith('/') && !formData.image.startsWith('/public/') ? `${process.env.NEXT_PUBLIC_API_URL || ''}/public${formData.image}` : formData.image}
                         alt="preview"
                         className="w-full h-full object-cover"
                       />
@@ -735,13 +736,13 @@ export default function ProjectsManager() {
 
                   {/* Actions */}
                   <div className="flex items-center gap-1">
-                    {project.links.github && (
-                      <a href={project.links.github} target="_blank" rel="noopener noreferrer" aria-label="Abrir repositorio" className="p-1.5 rounded-md text-zinc-500 hover:text-white hover:bg-zinc-800 transition-colors">
+                    {safeHref(project.links.github) && (
+                      <a href={safeHref(project.links.github)!} target="_blank" rel="noopener noreferrer" aria-label="Abrir repositorio" className="p-1.5 rounded-md text-zinc-500 hover:text-white hover:bg-zinc-800 transition-colors">
                         <Github className="h-4 w-4" />
                       </a>
                     )}
-                    {(project.links.demo || project.links.download) && (
-                      <a href={project.links.demo || project.links.download || ''} target="_blank" rel="noopener noreferrer" aria-label="Abrir demo o descarga" className="p-1.5 rounded-md text-zinc-500 hover:text-white hover:bg-zinc-800 transition-colors">
+                    {safeHref(project.links.demo || project.links.download) && (
+                      <a href={safeHref(project.links.demo || project.links.download)!} target="_blank" rel="noopener noreferrer" aria-label="Abrir demo o descarga" className="p-1.5 rounded-md text-zinc-500 hover:text-white hover:bg-zinc-800 transition-colors">
                         <ExternalLink className="h-4 w-4" />
                       </a>
                     )}
