@@ -37,8 +37,8 @@ async function generateRefreshToken(user, ipAddress, userAgent) {
     token,
     userId: user._id || user.id,
     expiresAt,
-    ipAddress,
-    userAgent
+    ipAddress: String(ipAddress || '').slice(0, 64),
+    userAgent: String(userAgent || '').slice(0, 300)
   });
   
   await refreshToken.save();

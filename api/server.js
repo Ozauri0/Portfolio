@@ -28,7 +28,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Connect to MongoDB
-connectDB();
+connectDB().then(() => require('./utils/maintenance').startMaintenance());
 
 // CORS - DEBE IR PRIMERO
 // En producción solo se acepta FRONTEND_URL; los orígenes locales/red privada solo en desarrollo

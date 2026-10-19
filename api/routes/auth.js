@@ -71,11 +71,10 @@ router.post('/login', loginLimiter, [
 
       // Register failed login attempt
       try {
-        await LoginLog.create({
+        await LoginLog.record({
           email: email,
           ipAddress: clientIP,
           userAgent: userAgent,
-          loginTime: new Date(),
           success: false
         });
       } catch (logErr) {
@@ -101,12 +100,11 @@ router.post('/login', loginLimiter, [
     if (!isPasswordValid) {
       // Register failed login attempt
       try {
-        await LoginLog.create({
+        await LoginLog.record({
           userId: user._id,
           email: user.email,
           ipAddress: clientIP,
           userAgent: userAgent,
-          loginTime: new Date(),
           success: false
         });
       } catch (logErr) {
@@ -139,12 +137,11 @@ router.post('/login', loginLimiter, [
 
     // Register successful login
     try {
-      await LoginLog.create({
+      await LoginLog.record({
         userId: user._id,
         email: user.email,
         ipAddress: clientIP,
         userAgent: userAgent,
-        loginTime: new Date(),
         success: true
       });
 
