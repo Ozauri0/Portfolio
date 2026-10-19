@@ -13,7 +13,7 @@ export default function useSecretAccess() {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {      // Check the specific combination: Ctrl + Shift + L
       if (event.ctrlKey && event.shiftKey && event.key === 'L') {
-        event.preventDefault();        console.log('🔑 Acceso secreto detectado - Redirigiendo al login...');
+        event.preventDefault();
           // Show temporary visual notification
         const notification = document.createElement('div');
         notification.innerHTML = t.secretAccess.notification;

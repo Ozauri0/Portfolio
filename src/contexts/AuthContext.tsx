@@ -59,8 +59,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setIsLoading(true);
       const response = await authService.login(email, password);      setUser(response.user);
       
-      // Optional: show success message
-      console.log('Login exitoso');
     } catch (error) {
       console.error('Error en login:', error);
       throw error;
@@ -73,8 +71,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       setIsLoading(true);      await authService.register(email, password, fullName);
       
-      // Optional: show success message
-      console.log('Registro exitoso. Por favor, verifica tu email.');
     } catch (error) {
       console.error('Error en registro:', error);
       throw error;

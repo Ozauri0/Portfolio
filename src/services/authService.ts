@@ -84,7 +84,6 @@ class AuthService {
   // Asegurar token válido antes de peticiones
   private async ensureValidToken(): Promise<string | null> {
     if (this.isTokenExpiredOrExpiring() && this.accessToken) {
-      console.log('🔄 Token próximo a expirar, renovando proactivamente...');
       try {
         const newToken = await this.refreshAccessToken();
         return newToken;
@@ -130,7 +129,6 @@ class AuthService {
         // Save new access token (15 minutos de expiración)
         if (data.accessToken && data.user) {
           this.saveToStorage(data.accessToken, data.user, 15);
-          console.log('✅ Token renovado, nueva expiración:', new Date(this.tokenExpiry!).toLocaleTimeString());
         }
 
         return data.accessToken;
@@ -182,11 +180,9 @@ class AuthService {
           retryOnTokenExpired;
           
         if (shouldRefresh) {
-          console.log('🔄 Token expirado, intentando refresh...');
           try {
             // Try to refresh token
             const newToken = await this.refreshAccessToken();
-            console.log('✅ Token renovado exitosamente');
             
             // Retry original request with new token
             const retryConfig: RequestInit = {
@@ -259,7 +255,6 @@ class AuthService {
         // Parsear expiresIn (ej: "15m" -> 15 minutos)
         const expiresInMinutes = data.expiresIn ? parseInt(data.expiresIn) : 15;
         this.saveToStorage(data.accessToken, data.user, expiresInMinutes);
-        console.log('✅ Login exitoso, token expira:', new Date(this.tokenExpiry!).toLocaleTimeString());
       }
 
       return data;

@@ -13,6 +13,11 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   output: "standalone",
 
+  // En producción se eliminan los console.log/info/debug; error y warn se conservan
+  compiler: {
+    removeConsole: { exclude: ['error', 'warn'] },
+  },
+
   images: {
     remotePatterns: [
       {
