@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 const multer = require('multer');
 const Project = require('../models/Project');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
@@ -10,26 +11,10 @@ const { authenticateToken, requireAdmin } = require('../middleware/auth');
 // En Docker se usa la variable de entorno PUBLIC_DIR, en local resuelve a ../../public
 const PUBLIC_DIR = process.env.PUBLIC_DIR || path.join(__dirname, '..', '..', 'public');
 
-// Configuración de multer: guarda en /public con nombre sanitizado
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    if (!fs.existsSync(PUBLIC_DIR)) {
-      fs.mkdirSync(PUBLIC_DIR, { recursive: true });
-    }
-    cb(null, PUBLIC_DIR);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    const base = path.basename(file.originalname, ext)
-      .replace(/[^a-zA-Z0-9._-]/g, '-')
-      .substring(0, 60);
-    const unique = `${Date.now()}-${base}${ext}`;
-    cb(null, unique);
-  }
-});
-
+// Configuración de multer: el archivo llega a memoria, se valida su contenido real (magic bytes)
+// y solo entonces se guarda en /public con un nombre aleatorio (nunca derivado del original)
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
   fileFilter: (req, file, cb) => {
     const allowed = ['.jpg', '.jpeg', '.png', '.webp'];
@@ -41,6 +26,46 @@ const upload = multer({
     }
   }
 });
+
+// Detecta el tipo real por la firma del archivo. Devuelve la extensión o null.
+function detectImageType(buffer) {
+  if (!buffer || buffer.length < 12) return null;
+  if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) return '.jpg';
+  if (buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return '.png';
+  if (buffer.subarray(0, 4).toString('latin1') === 'RIFF' && buffer.subarray(8, 12).toString('latin1') === 'WEBP') return '.webp';
+  return null;
+}
+
+// Nombres generados por esta API (aleatorios o los antiguos con timestamp). Solo estos se borran.
+const UPLOADED_FILE_RE = /^([a-f0-9]{32}|\d{13}-[\w.-]+)\.(jpg|jpeg|png|webp)$/i;
+
+// Si `image` apunta a un archivo subido por la API, devuelve su nombre; si no, null
+function uploadedFilename(image) {
+  if (typeof image !== 'string') return null;
+  let pathname = image;
+  if (/^https?:\/\//i.test(image)) {
+    try { pathname = new URL(image).pathname; } catch { return null; }
+  }
+  if (!pathname.startsWith('/public/')) return null;
+  const name = pathname.slice('/public/'.length);
+  return UPLOADED_FILE_RE.test(name) ? name : null;
+}
+
+// Borra el archivo subido si ningún otro proyecto lo referencia
+async function removeImageIfOrphan(image, excludeProjectId) {
+  const name = uploadedFilename(image);
+  if (!name) return;
+  const stillUsed = await Project.exists({
+    _id: { $ne: excludeProjectId },
+    image: { $regex: `/public/${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$` }
+  });
+  if (stillUsed) return;
+  try {
+    await fs.promises.unlink(path.join(PUBLIC_DIR, name));
+  } catch (err) {
+    if (err.code !== 'ENOENT') console.warn('No se pudo borrar la imagen huérfana:', err.message);
+  }
+}
 
 const HOVER_COLORS = ['blue', 'green', 'purple', 'red', 'orange', 'yellow', 'pink', 'cyan', 'indigo'];
 const DEMO_TYPES = ['demo', 'download', 'documentation'];
@@ -136,8 +161,8 @@ function cleanLinks(links) {
 // ==========================================
 
 // Upload project image - Admin only
-router.post('/admin/upload-image', authenticateToken, requireAdmin, (req, res, next) => {
-  upload.single('image')(req, res, (err) => {
+router.post('/admin/upload-image', authenticateToken, requireAdmin, (req, res) => {
+  upload.single('image')(req, res, async (err) => {
     if (err instanceof multer.MulterError) {
       if (err.code === 'LIMIT_FILE_SIZE') {
         return res.status(400).json({ error: 'La imagen no puede superar los 5 MB' });
@@ -150,7 +175,22 @@ router.post('/admin/upload-image', authenticateToken, requireAdmin, (req, res, n
     if (!req.file) {
       return res.status(400).json({ error: 'No se recibió ningún archivo' });
     }
-    res.json({ path: `/public/${req.file.filename}` });
+
+    // El contenido real debe ser jpg, png o webp, sin importar la extensión declarada
+    const ext = detectImageType(req.file.buffer);
+    if (!ext) {
+      return res.status(400).json({ error: 'El archivo no es una imagen jpg, png o webp válida' });
+    }
+
+    try {
+      await fs.promises.mkdir(PUBLIC_DIR, { recursive: true });
+      const filename = `${crypto.randomBytes(16).toString('hex')}${ext}`;
+      await fs.promises.writeFile(path.join(PUBLIC_DIR, filename), req.file.buffer, { flag: 'wx' });
+      res.json({ path: `/public/${filename}` });
+    } catch (writeErr) {
+      console.error('Error guardando imagen:', writeErr);
+      res.status(500).json({ error: 'Error al guardar la imagen' });
+    }
   });
 });
 
@@ -319,6 +359,7 @@ router.put('/admin/:id', authenticateToken, requireAdmin, async (req, res) => {
     if (visible !== undefined) project.visible = visible;
     if (title) project.title = { ...project.title, ...title };
     if (description) project.description = { ...project.description, ...description };
+    const previousImage = project.image;
     if (image) project.image = image;
     if (links) project.links = { ...project.links, ...cleanLinks(links) };
     if (demoType !== undefined) project.demoType = demoType;
@@ -326,6 +367,11 @@ router.put('/admin/:id', authenticateToken, requireAdmin, async (req, res) => {
     if (hoverColor) project.hoverColor = hoverColor;
 
     await project.save();
+
+    // Si cambió la imagen, borrar el archivo anterior si quedó huérfano
+    if (image && image !== previousImage) {
+      await removeImageIfOrphan(previousImage, project._id);
+    }
     
     res.json({ 
       message: 'Proyecto actualizado exitosamente',
@@ -389,6 +435,8 @@ router.delete('/admin/:id', authenticateToken, requireAdmin, async (req, res) =>
     if (!project) {
       return res.status(404).json({ error: 'Proyecto no encontrado' });
     }
+
+    await removeImageIfOrphan(project.image, project._id);
     
     res.json({ 
       message: 'Proyecto eliminado exitosamente',
