@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getClientIp } from '@/lib/clientIp';
 
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
@@ -11,10 +12,19 @@ async function proxyRequest(request: NextRequest) {
   const headers: Record<string, string> = {};
   request.headers.forEach((value, key) => {
     const lower = key.toLowerCase();
-    if (lower !== 'host' && lower !== 'connection' && lower !== 'transfer-encoding') {
+    if (
+      lower !== 'host' &&
+      lower !== 'connection' &&
+      lower !== 'transfer-encoding' &&
+      lower !== 'x-forwarded-for' &&
+      lower !== 'x-real-ip'
+    ) {
       headers[key] = value;
     }
   });
+  // Reescribir la IP del cliente: se descarta lo que envió el cliente en estos headers
+  const clientIp = getClientIp(request.headers);
+  if (clientIp !== 'unknown') headers['x-forwarded-for'] = clientIp;
 
   const fetchOptions: RequestInit & { duplex?: string } = {
     method: request.method,

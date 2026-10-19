@@ -37,3 +37,9 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 Run `bun audit --prod` in the repository root and in `api/` before every release (both must report no vulnerabilities).
 Dependabot (`.github/dependabot.yml`) opens weekly update PRs for both packages and monthly ones for the Docker base images.
 `react-icons` is pinned to `5.5.0` because newer versions removed icons used in `src/lib/techIcons.tsx`; `overrides` in `package.json` force patched `postcss` and `sharp` versions required by `next`.
+
+## Client IP / reverse proxy
+
+Rate limits and login logs use the client IP taken from the entries that *our* proxies append to `X-Forwarded-For` (never the first, client-controlled one).
+Set `TRUSTED_PROXY_HOPS` in the frontend `.env` to the number of trusted proxies in front of the app (default `1` = nginx; use `2` for Cloudflare + nginx).
+The `/api/*` proxy rewrites `X-Forwarded-For` and drops `X-Real-IP` before forwarding to the API.

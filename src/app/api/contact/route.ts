@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getClientIp } from '@/lib/clientIp';
 
 // En memoria para rate limiting (VUL-005)
 // En producción se podría reemplazar con Redis para entornos multi-instancia
@@ -25,11 +26,8 @@ function getRateLimit(ip: string): { allowed: boolean; remaining: number } {
 }
 
 export async function POST(req: NextRequest) {
-  // Obtener IP del cliente
-  const ip =
-    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-    req.headers.get('x-real-ip') ??
-    'unknown';
+  // IP del cliente tomada de las entradas añadidas por nuestros proxies (no falsificable)
+  const ip = getClientIp(req.headers);
 
   // Rate limit server-side (VUL-005)
   const { allowed } = getRateLimit(ip);

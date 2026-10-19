@@ -23,12 +23,9 @@ const loginLimiter = rateLimit({
 });
 
 // Helper function to get client IP (VUL-002)
+// req.ip respeta 'trust proxy': toma la última entrada de X-Forwarded-For que no es un
+// proxy de confianza, por lo que un cliente no puede falsificarla con el primer valor.
 function getClientIP(req) {
-  const forwarded = req.headers['x-forwarded-for'];
-  if (forwarded) {
-    const firstIP = forwarded.split(',')[0].trim();
-    if (/^(\d{1,3}\.){3}\d{1,3}$/.test(firstIP)) return firstIP;
-  }
   return req.ip || req.socket?.remoteAddress || '0.0.0.0';
 }
 
