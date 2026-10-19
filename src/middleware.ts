@@ -25,7 +25,8 @@ export function middleware(request: NextRequest) {
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' https://static.cloudflareinsights.com${isDev ? " 'unsafe-eval'" : ''}`,
     "style-src 'self' 'unsafe-inline'",
-    `img-src 'self' data: blob: https:${isDev ? ' http:' : ''}`,
+    // La API sirve las imágenes subidas (/public): se permite su origen explícitamente (también http en local)
+    `img-src 'self' data: blob: https:${api ? ` ${api}` : ''}${isDev ? ' http:' : ''}`,
     `connect-src ${connectSrc.join(' ')}`,
     "font-src 'self' data:",
     "object-src 'none'",

@@ -49,7 +49,7 @@ services:
     restart: unless-stopped
     command: ["mongod", "--quiet"]
     ports:
-      - "27017:27017"
+      - "127.0.0.1:27018:27017"
     volumes:
       - portfolio-mongo-data-local:/data/db
     healthcheck:
