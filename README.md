@@ -53,3 +53,5 @@ Both images are based on `oven/bun:1-alpine` (install, build and runtime all use
 2. Create `.env` (frontend, see `.env.example`) and `api/.env` (API, see `api/.env.example`).
 3. Build and start: `docker compose build --no-cache && docker compose up -d`.
 4. Check `docker compose ps` (API healthcheck uses `/api/health`).
+
+On the server prefer `./scripts/deploy.sh`: it refuses to run with local changes (a blocked `git pull` would silently rebuild old code), pulls, rebuilds without cache, brings the stack up, waits for the API healthcheck and **reloads Nginx Proxy Manager** (recreating containers changes their IPs and nginx caches them, which causes Cloudflare 502/52x errors).

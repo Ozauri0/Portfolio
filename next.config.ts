@@ -7,7 +7,7 @@ const securityHeaders = [
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
   // La Content-Security-Policy (con nonce por petición) se define en src/middleware.ts
-  { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' },
+  // HSTS lo envía Nginx Proxy Manager (max-age 2 años); duplicarlo aquí generaba dos cabeceras
 ];
 
 const nextConfig: NextConfig = {
