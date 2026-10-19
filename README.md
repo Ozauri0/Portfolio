@@ -31,3 +31,9 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Dependency review
+
+Run `bun audit --prod` in the repository root and in `api/` before every release (both must report no vulnerabilities).
+Dependabot (`.github/dependabot.yml`) opens weekly update PRs for both packages and monthly ones for the Docker base images.
+`react-icons` is pinned to `5.5.0` because newer versions removed icons used in `src/lib/techIcons.tsx`; `overrides` in `package.json` force patched `postcss` and `sharp` versions required by `next`.
