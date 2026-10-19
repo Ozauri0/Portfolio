@@ -33,7 +33,9 @@ export function middleware(request: NextRequest) {
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",
-    ...(isDev ? [] : ['upgrade-insecure-requests']),
+    // Solo si la petición llegó por https (nginx envía X-Forwarded-Proto): Safari/WebKit también
+    // aplica la directiva a http://localhost y rompería la carga de recursos en local
+    ...(!isDev && request.headers.get('x-forwarded-proto') === 'https' ? ['upgrade-insecure-requests'] : []),
   ].join('; ');
 
   const requestHeaders = new Headers(request.headers);
