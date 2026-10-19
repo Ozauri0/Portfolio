@@ -4,6 +4,7 @@ const User = require('../models/User');
 const LoginLog = require('../models/LoginLog');
 const UniqueVisitor = require('../models/UniqueVisitor');
 const AnalyticsClick = require('../models/AnalyticsClick');
+const Project = require('../models/Project');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
 // Middleware for all admin routes
@@ -24,10 +25,8 @@ router.get('/dashboard', async (req, res) => {
         email: 0,
         total: 0
       },
+      // Clics por slug de cada proyecto existente (dinámico) + total
       projectClicks: {
-        learnpro: 0,
-        mybudget: 0,
-        educaplus: 0,
         total: 0
       }
     };    // Count total unique visitors
@@ -54,15 +53,19 @@ router.get('/dashboard', async (req, res) => {
     });
     stats.socialClicks.total = stats.socialClicks.github + stats.socialClicks.linkedin + stats.socialClicks.email;
 
-    // Get project clicks
+    // Get project clicks: una entrada por proyecto existente (incluso con 0 clics);
+    // los contadores de proyectos eliminados se ignoran
+    const projects = await Project.find().sort({ order: 1, createdAt: -1 }).select('slug');
     const projectClicks = await AnalyticsClick.find({ type: 'project' });
+    const clicksBySlug = new Map(projectClicks.map(click => [click.target, click.count || 0]));
 
-    projectClicks.forEach(click => {
-      if (click.target === 'learnpro') stats.projectClicks.learnpro += click.count || 0;
-      if (click.target === 'mybudget') stats.projectClicks.mybudget += click.count || 0;
-      if (click.target === 'educaplus') stats.projectClicks.educaplus += click.count || 0;
+    const projectStats = { total: 0 };
+    projects.forEach(project => {
+      const count = clicksBySlug.get(project.slug) || 0;
+      projectStats[project.slug] = count;
+      projectStats.total += count;
     });
-    stats.projectClicks.total = stats.projectClicks.learnpro + stats.projectClicks.mybudget + stats.projectClicks.educaplus;
+    stats.projectClicks = projectStats;
 
     res.json({
       message: 'Bienvenido al panel de administración',

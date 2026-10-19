@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const rateLimit = require('express-rate-limit');
 const AnalyticsClick = require('../models/AnalyticsClick');
 const UniqueVisitor = require('../models/UniqueVisitor');
+const Project = require('../models/Project');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
 // Helper: anonimizar IP con HMAC (VUL-013 - privacidad GDPR)
@@ -47,9 +48,11 @@ router.post('/track-click', clickLimiter, async (req, res) => {
       });
     }
 
-    // Validate targets
+    // Validate targets (target debe ser texto: evita inyección de operadores en la consulta)
+    if (typeof target !== 'string') {
+      return res.status(400).json({ error: 'Objetivo no válido' });
+    }
     const validSocialTargets = ['github', 'linkedin', 'email'];
-    const validProjectTargets = ['learnpro', 'mybudget', 'educaplus'];
     
     if (type === 'social' && !validSocialTargets.includes(target)) {
       return res.status(400).json({
@@ -57,13 +60,14 @@ router.post('/track-click', clickLimiter, async (req, res) => {
       });
     }
 
-    if (type === 'project' && !validProjectTargets.includes(target)) {
+    // Los proyectos son dinámicos: el objetivo debe ser el slug de un proyecto existente
+    if (type === 'project' && !(await Project.exists({ slug: target.toLowerCase() }))) {
       return res.status(400).json({
         error: 'Objetivo de proyecto no válido'
       });
     }    // Incremento atómico (sin condición de carrera entre findOne y save)
     await AnalyticsClick.findOneAndUpdate(
-      { type, target },
+      { type, target: type === 'project' ? target.toLowerCase() : target },
       { $inc: { count: 1 }, $set: { updatedAt: new Date() }, $setOnInsert: { createdAt: new Date() } },
       { upsert: true }
     );

@@ -73,8 +73,8 @@ function validateProjectBody(body, { partial = false } = {}) {
   const present = (v) => v !== undefined;
 
   if (!partial || present(slug)) {
-    if (typeof slug !== 'string' || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/i.test(slug) || slug.length > 60) {
-      return 'El slug debe ser texto (letras, números y guiones, máx. 60)';
+    if (typeof slug !== 'string' || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/i.test(slug) || slug.length > 60 || slug.toLowerCase() === 'total') {
+      return 'El slug debe ser texto (letras, números y guiones, máx. 60) y no puede ser "total"';
     }
   }
   if (!partial || present(title)) {
