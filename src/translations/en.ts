@@ -1,16 +1,20 @@
 export const en = {
     hero: {
-      title: "Full Stack",
+      title: "Software",
       subtitle: "Developer",
-      specialization: "Mobile and web apps, from idea to server.",
+      specialization: "Web, APIs and automation, from idea to server.",
       viewProjects: "View Projects",
       contactMe: "Contact Me"
     },
     about: {
       title: "About Me",
-      paragraph1: "I'm a Full Stack developer. I build mobile apps with Ionic, Angular and Capacitor, and web apps with Next.js, Node.js and Django: from the interface down to the database.",
-      paragraph2: "I also handle the server side. This site runs on my own VPS with Docker and Nginx, behind Cloudflare. My projects range from MyBudget, published on Google Play, to Temblo, an early earthquake alert for Chile.",
+      paragraph1: "I'm a software developer. I work on web and backend with Next.js, Node.js and Django, and I automate processes with Python and TypeScript. I'm currently developing for GruasCares, and last year I built an ERP for MiPortalVentas.",
+      paragraph2: "I also take care of where the software runs: this site lives on my own VPS with Docker and Nginx, behind Cloudflare. At Universidad Católica de Temuco I build tools that automate data work.",
       downloadCV: "Download CV"
+    },
+    experience: {
+      title: "Experience",
+      more: "Other experience"
     },
     skills: {
       title: "Skills & Technologies",

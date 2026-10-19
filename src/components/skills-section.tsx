@@ -50,33 +50,6 @@ export default function SkillsSection() {
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Mobile Development */}
-          <Card className="bg-zinc-900 border-zinc-800 hover:border-blue-500/30 transition-all duration-300">
-            <CardContent className="pt-1 relative z-10">
-              <div className="flex items-center gap-3 mb-5">
-                <div className="p-2 bg-blue-500/10 rounded-lg">
-                  <Smartphone className="h-5 w-5 text-blue-400" />
-                </div>
-                <h3 className="text-xl font-bold text-white">{t.skills.mobile}</h3>
-              </div>
-              
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-gray-300">
-                  <SiIonic className="text-[#3880FF] h-4 w-4" />
-                  <span>Ionic Angular</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-300">
-                  <SiCapacitor className="text-[#53B9FF] h-4 w-4" />
-                  <span>Capacitor</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-300">
-                  <SiAndroidstudio className="text-[#3DDC84] h-4 w-4" />
-                  <span>Android Studio</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Web Development */}
           <Card className="bg-zinc-900 border-zinc-800 hover:border-green-500/30 transition-all duration-300">
             <CardContent className="pt-1 relative z-10">
@@ -208,6 +181,33 @@ export default function SkillsSection() {
                 <div className="flex items-center gap-2 text-gray-300">
                   <SiSqlite className="text-[#003B57] h-4 w-4" />
                   <span>SQLite</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Mobile Development */}
+          <Card className="bg-zinc-900 border-zinc-800 hover:border-blue-500/30 transition-all duration-300">
+            <CardContent className="pt-1 relative z-10">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="p-2 bg-blue-500/10 rounded-lg">
+                  <Smartphone className="h-5 w-5 text-blue-400" />
+                </div>
+                <h3 className="text-xl font-bold text-white">{t.skills.mobile}</h3>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-gray-300">
+                  <SiIonic className="text-[#3880FF] h-4 w-4" />
+                  <span>Ionic Angular</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-300">
+                  <SiCapacitor className="text-[#53B9FF] h-4 w-4" />
+                  <span>Capacitor</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-300">
+                  <SiAndroidstudio className="text-[#3DDC84] h-4 w-4" />
+                  <span>Android Studio</span>
                 </div>
               </div>
             </CardContent>

@@ -8,8 +8,8 @@ import { AuthProvider } from '@/contexts/AuthContext';
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Christian Ferrer | Full Stack Developer",
-  description: "Personal portfolio showcasing my projects and skills as a Full Stack Developer",
+  title: "Christian Ferrer | Software Developer",
+  description: "Personal portfolio showcasing my projects and skills as a Software Developer",
 };
 
 export default async function RootLayout({

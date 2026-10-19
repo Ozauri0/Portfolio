@@ -19,6 +19,7 @@ import { translations } from "@/translations"
 import LanguageSelector from "@/components/language-selector"
 import ContactForm from "@/components/contact-form"
 import SkillsSection from "@/components/skills-section"
+import ExperienceTimeline from "@/components/experience-timeline"
 import analyticsService from "@/services/analyticsService"
 
 export default function Home() {
@@ -168,6 +169,7 @@ export default function Home() {
                 {t.about.paragraph2}
               </p>
             </div>
+            <ExperienceTimeline />
           </div>
         </section>
 
