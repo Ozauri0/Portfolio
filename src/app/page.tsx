@@ -126,21 +126,21 @@ export default function Home() {
                   onClick={scrollToContact}>
                     {t.hero.contactMe}</Button>
                 </div>                <div className="flex gap-4 justify-center md:justify-start">
-                  <a href="https://github.com/Ozauri0" target="_blank" rel="noopener noreferrer" onClick={() => handleSocialClick('github')}>
-                    <Button size="icon" variant="ghost" className="rounded-full text-white">
+                  <Button asChild size="icon" variant="ghost" className="rounded-full text-white">
+<a href="https://github.com/Ozauri0" target="_blank" rel="noopener noreferrer" aria-label="GitHub" onClick={() => handleSocialClick('github')}>
                       <Github className="h-5 w-5" />
-                    </Button>
-                  </a>
-                  <a href="https://www.linkedin.com/in/christian-ferrer-640b7b216/" target="_blank" rel="noopener noreferrer" onClick={() => handleSocialClick('linkedin')}>
-                    <Button size="icon" variant="ghost" className="rounded-full text-white">
+                    </a>
+</Button>
+                  <Button asChild size="icon" variant="ghost" className="rounded-full text-white">
+<a href="https://www.linkedin.com/in/christian-ferrer-640b7b216/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" onClick={() => handleSocialClick('linkedin')}>
                       <Linkedin className="h-5 w-5" />
-                    </Button>
-                  </a>
-                  <a href="mailto:christianferrer.dev@gmail.com" rel="noopener noreferrer" onClick={() => handleSocialClick('email')}>
-                    <Button size="icon" variant="ghost" className="rounded-full text-white">
+                    </a>
+</Button>
+                  <Button asChild size="icon" variant="ghost" className="rounded-full text-white">
+<a href="mailto:christianferrer.dev@gmail.com" rel="noopener noreferrer" aria-label="Email" onClick={() => handleSocialClick('email')}>
                       <Mail className="h-5 w-5" />
-                    </Button>
-                  </a>
+                    </a>
+</Button>
                 </div>
               </div>
                 {/* Profile picture */}
@@ -199,9 +199,9 @@ export default function Home() {
             )}
 
             <div className="flex justify-center mt-12">
-              <a href="https://github.com/Ozauri0/" target="_blank" rel="noopener noreferrer">
-                <Button variant="outline" className="text-white">{t.projects.viewAll}</Button>
-              </a>
+              <Button asChild variant="outline" className="text-white">
+                <a href="https://github.com/Ozauri0/" target="_blank" rel="noopener noreferrer">{t.projects.viewAll}</a>
+              </Button>
             </div>
           </div>
         </section>
@@ -219,21 +219,21 @@ export default function Home() {
           <div className="container mx-auto max-w-6xl">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <p className="text-gray-400">© {new Date().getFullYear()} | {t.footer.rights}</p>              <div className="flex gap-4 mt-4 md:mt-0">
-                <a href="https://github.com/Ozauri0" target="_blank" rel="noopener noreferrer" onClick={() => handleSocialClick('github')}>
-                  <Button size="icon" variant="ghost" className="rounded-full text-white">
+                <Button asChild size="icon" variant="ghost" className="rounded-full text-white">
+<a href="https://github.com/Ozauri0" target="_blank" rel="noopener noreferrer" aria-label="GitHub" onClick={() => handleSocialClick('github')}>
                     <Github className="h-5 w-5" />
-                  </Button>
-                </a>
-                <a href="https://www.linkedin.com/in/christian-ferrer-640b7b216/" target="_blank" rel="noopener noreferrer" onClick={() => handleSocialClick('linkedin')}>
-                  <Button size="icon" variant="ghost" className="rounded-full text-white">
+                  </a>
+</Button>
+                <Button asChild size="icon" variant="ghost" className="rounded-full text-white">
+<a href="https://www.linkedin.com/in/christian-ferrer-640b7b216/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" onClick={() => handleSocialClick('linkedin')}>
                     <Linkedin className="h-5 w-5" />
-                  </Button>
-                </a>
-                <a href="mailto:christianferrer.dev@gmail.com" rel="noopener noreferrer" onClick={() => handleSocialClick('email')}>
-                  <Button size="icon" variant="ghost" className="rounded-full text-white">
+                  </a>
+</Button>
+                <Button asChild size="icon" variant="ghost" className="rounded-full text-white">
+<a href="mailto:christianferrer.dev@gmail.com" rel="noopener noreferrer" aria-label="Email" onClick={() => handleSocialClick('email')}>
                     <Mail className="h-5 w-5" />
-                  </Button>
-                </a>
+                  </a>
+</Button>
               </div>
             </div>
           </div>

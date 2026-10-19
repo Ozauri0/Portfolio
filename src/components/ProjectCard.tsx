@@ -126,31 +126,27 @@ export default function ProjectCard({ project }: ProjectCardProps) {
         {/* Action buttons */}
         <div className="mt-auto flex gap-2">
           {project.links.github && (
-            <a 
+            <Button asChild size="sm" variant="outline" className={`gap-1 text-white ${demoLink ? 'flex-1' : 'w-full'}`}>
+              <a 
               href={project.links.github} 
               target="_blank" 
               rel="noopener noreferrer" 
-              className={demoLink ? 'flex-1' : 'w-full'}
-              onClick={handleProjectClick}
-            >
-              <Button size="sm" variant="outline" className="gap-1 text-white w-full">
+              onClick={handleProjectClick}>
                 <Github className="h-4 w-4" /> {t.projects.code}
-              </Button>
-            </a>
+              </a>
+            </Button>
           )}
           
           {demoLink && (
-            <a 
+            <Button asChild size="sm" className={`gap-1 bg-white text-black hover:bg-gray-200 ${project.links.github ? 'flex-1' : 'w-full'}`}>
+              <a 
               href={demoLink} 
               target="_blank" 
               rel="noopener noreferrer" 
-              className={project.links.github ? 'flex-1' : 'w-full'}
-              onClick={handleProjectClick}
-            >
-              <Button size="sm" className="gap-1 bg-white text-black hover:bg-gray-200 w-full">
+              onClick={handleProjectClick}>
                 {getDemoButtonIcon()} {getDemoButtonLabel()}
-              </Button>
-            </a>
+              </a>
+            </Button>
           )}
         </div>
       </CardContent>

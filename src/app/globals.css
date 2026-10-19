@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* El sitio es siempre oscuro: `dark:` debe seguir la clase .dark y no prefers-color-scheme */
+@custom-variant dark (&:is(.dark *));
+
 
 @layer base {
   :root {
