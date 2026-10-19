@@ -6,6 +6,15 @@ const cookieParser = require('cookie-parser');
 const path = require('path');
 require('dotenv').config();
 
+// Fallar rápido si falta configuración obligatoria (sin secretos por defecto)
+const { validateEnv } = require('./utils/env');
+try {
+  validateEnv();
+} catch (error) {
+  console.error(`❌ ${error.message}`);
+  process.exit(1);
+}
+
 // Import database connection
 const connectDB = require('./config/database');
 

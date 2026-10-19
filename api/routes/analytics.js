@@ -8,8 +8,7 @@ const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
 // Helper: anonimizar IP con HMAC (VUL-013 - privacidad GDPR)
 function anonymizeIP(ip) {
-  const salt = process.env.IP_HASH_SALT || 'default_salt_change_in_env';
-  return crypto.createHmac('sha256', salt).update(ip).digest('hex');
+  return crypto.createHmac('sha256', process.env.IP_HASH_SALT).update(ip).digest('hex');
 }
 
 // Límites propios y más estrictos que el global para los endpoints públicos de tracking

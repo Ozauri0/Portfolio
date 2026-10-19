@@ -74,16 +74,19 @@ Crea un archivo `.env` en la carpeta `api/`:
 NODE_ENV=development
 PORT=5000
 
-# MongoDB
+# MongoDB (obligatoria)
 MONGODB_URI=mongodb://localhost:27017/portfolio
 
-# JWT
-JWT_SECRET=tu_clave_secreta_super_segura
-JWT_EXPIRES_IN=24h
+# Secretos (obligatorios, mínimo 32 caracteres; la API no arranca sin ellos)
+# Generar con: openssl rand -hex 32
+JWT_SECRET=
+IP_HASH_SALT=
 
 # Frontend
 FRONTEND_URL=http://localhost:3000
 ```
+
+Variables obligatorias: `MONGODB_URI`, `JWT_SECRET` e `IP_HASH_SALT`. No hay valores por defecto para secretos: si falta alguna o los secretos tienen menos de 32 caracteres, la API termina con un error al arrancar. Hay una plantilla en `api/.env.example`.
 
 ## 📡 Estructura de la API
 
