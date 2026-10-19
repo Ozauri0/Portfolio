@@ -32,7 +32,7 @@
 - **Base de Datos**: MongoDB con Mongoose
 - **Autenticación**: JWT (JSON Web Tokens)
 - **Seguridad**: bcryptjs, helmet, express-rate-limit
-- **Desarrollo**: nodemon
+- **Desarrollo**: bun --watch
 
 ## 🚀 Inicio Rápido
 
@@ -40,7 +40,7 @@
 
 - Node.js v16 o superior
 - MongoDB (local o Atlas)
-- npm o yarn
+- bun (>= 1.1)
 
 ### Instalación
 
@@ -52,13 +52,13 @@ git clone <tu-repo>
 cd api
 
 # 3. Instalar dependencias
-npm install
+bun install
 
 # 4. Crear usuario administrador (en carpeta de scripts)
-npm run create-admin
+bun run create-admin
 
 # 6. Iniciar servidor
-npm run dev
+bun run dev
 ```
 
 El servidor estará disponible en `http://localhost:5000`
@@ -186,13 +186,13 @@ curl http://localhost:5000/api/health
 ### Crear Usuario Admin
 
 ```bash
-npm run create-admin
+bun run create-admin
 ```
 
 ### Iniciar en Desarrollo
 
 ```bash
-npm run dev
+bun run dev
 ```
 
 ## 🔒 Seguridad
@@ -220,7 +220,7 @@ Ver modelos en `models/` para estructura completa.
 ## 📚 Scripts Disponibles
 
 ```bash
-npm start          # Iniciar en producción
-npm run dev        # Iniciar en desarrollo (con nodemon)
-npm run create-admin  # Crear usuario administrador
+bun run start         # Iniciar en producción
+bun run dev        # Iniciar en desarrollo (con bun --watch)
+bun run create-admin  # Crear usuario administrador
 ```

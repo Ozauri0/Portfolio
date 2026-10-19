@@ -42,3 +42,8 @@ yarn-error.log*
 next-env.d.ts
 
 #api only for dev
+
+# usar bun: no versionar otros lockfiles
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

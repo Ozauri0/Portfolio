@@ -1,12 +1,12 @@
-FROM node:18-alpine AS base
+FROM oven/bun:1-alpine AS base
 
 # Etapa de instalación de dependencias
 FROM base AS deps
 WORKDIR /app
 
 # Copia archivos de configuración de dependencias
-COPY package.json package-lock.json* ./
-RUN npm ci
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile
 
 # Etapa de construcción
 FROM base AS builder
@@ -19,9 +19,9 @@ ARG NEXT_PUBLIC_API_URL=http://localhost:5000
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
 # Construcción de la aplicación
-RUN npm run build
+RUN bun run build
 
-# Etapa de producción
+# Etapa de producción (runtime bun)
 FROM base AS runner
 WORKDIR /app
 
@@ -45,4 +45,4 @@ EXPOSE 3002
 ENV PORT 3002
 ENV HOSTNAME "0.0.0.0"
 
-CMD ["node", "server.js"]
+CMD ["bun", "server.js"]

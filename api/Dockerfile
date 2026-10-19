@@ -1,4 +1,9 @@
-FROM node:18-alpine
+FROM oven/bun:1-alpine AS deps
+WORKDIR /app
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile --production
+
+FROM oven/bun:1-alpine
 
 WORKDIR /app
 
@@ -6,9 +11,9 @@ WORKDIR /app
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 apiuser
 
-# Instalar solo dependencias de producción
-COPY package.json package-lock.json* ./
-RUN npm ci --only=production
+# Dependencias de producción (instaladas con bun)
+COPY --from=deps /app/node_modules ./node_modules
+COPY package.json ./
 
 # Copiar código fuente
 COPY . .
@@ -23,4 +28,4 @@ EXPOSE 5000
 ENV PORT 5000
 ENV NODE_ENV production
 
-CMD ["node", "server.js"]
+CMD ["bun", "server.js"]
