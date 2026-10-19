@@ -20,6 +20,13 @@ export default function SecretAdminAccess() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  // Mensaje cuando se llega por sesión expirada o sin sesión
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('reason') === 'expired') {
+      setError('Tu sesión expiró o no has iniciado sesión. Inicia sesión nuevamente.');
+    }
+  }, []);
+
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {

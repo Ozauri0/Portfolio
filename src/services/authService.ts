@@ -146,17 +146,20 @@ class AuthService {
   }
 
   // Perform HTTP request with authentication and automatic token refresh
-  private async request(url: string, options: RequestInit = {}, retryOnTokenExpired = true): Promise<any> {
+  // Punto único para llamadas autenticadas: añade el token, renueva si expira y reintenta
+  async request(url: string, options: RequestInit = {}, retryOnTokenExpired = true): Promise<any> {
     // Asegurar token válido antes de hacer la petición (renovación proactiva)
     const currentToken = await this.ensureValidToken();
 
+    // FormData necesita que el navegador fije el Content-Type (boundary)
+    const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
     const config: RequestInit = {
       credentials: 'include', // Always include cookies for refresh token
+      ...options,
       headers: {
-        'Content-Type': 'application/json',
+        ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
         ...options.headers,
       },
-      ...options,
     };
 
     // Add authorization token if it exists

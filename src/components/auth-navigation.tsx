@@ -1,62 +1,20 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { translations } from '@/translations';
 import { User, LogOut, Shield } from 'lucide-react';
 import Link from 'next/link';
-import authService from '@/services/authService';
 
 export default function AuthNavigation() {
   const { language } = useLanguage();
   const t = translations[language];
-  const { user, isAuthenticated, logout, isLoading } = useAuth();  const [isAdmin, setIsAdmin] = useState(false);
+  const { user, isAuthenticated, logout } = useAuth();
   
-  // Check if user is admin on load
-  React.useEffect(() => {
-    if (isAuthenticated && user) {
-      checkAdminStatus();
-    } else {
-      setIsAdmin(false);
-    }
-  }, [isAuthenticated, user]);
-
-  const checkAdminStatus = async () => {
-    try {
-      const token = authService.getToken();
-      if (!token) {
-        console.log('No token found');
-        setIsAdmin(false);
-        return;
-      }
-
-      console.log('Checking admin status with token:', token.substring(0, 20) + '...');
-      
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/dashboard`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include'
-      });
-      
-      console.log('Admin check response status:', response.status);
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Admin check success:', data);
-        setIsAdmin(true);
-      } else {
-        console.log('Admin check failed:', response.status);
-        setIsAdmin(false);
-      }
-    } catch (error) {
-      console.error('Error checking admin status:', error);
-      setIsAdmin(false);
-    }
-  };
+  // El rol viene en la respuesta de login/refresh; la autorización real se valida en la API
+  const isAdmin = isAuthenticated && user?.role === 'admin';
 
   const handleLogout = async () => {
     try {

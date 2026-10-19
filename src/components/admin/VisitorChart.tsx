@@ -54,14 +54,7 @@ const VisitorChart: React.FC<{ className?: string }> = ({ className }) => {
     setLoading(true);
     setError(null);
     try {
-      const token = authService.getToken();
-      if (!token) { setError('Sin autenticación'); setLoading(false); return; }
-
-      const res  = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/visitor-chart?timeRange=${timeRange}`,
-        { headers: { Authorization: `Bearer ${token}` }, credentials: 'include' }
-      );
-      const json = await res.json();
+      const json = await authService.request(`/admin/visitor-chart?timeRange=${timeRange}`);
 
       if (json.success) {
         setChartData(json.data ?? {
@@ -73,8 +66,12 @@ const VisitorChart: React.FC<{ className?: string }> = ({ className }) => {
         setError(json.error || 'Error al cargar datos');
         setChartData({ daily: [], hourly: Array.from({ length: 24 }, (_, i) => ({ hour: i, visits: 0 })), totalInPeriod: 0 });
       }
-    } catch {
-      setError('Error de red');
+    } catch (err: any) {
+      if (err?.code === 'SESSION_EXPIRED') {
+        window.location.href = '/login?reason=expired';
+        return;
+      }
+      setError(err?.message || 'Error de red');
       setChartData({ daily: [], hourly: Array.from({ length: 24 }, (_, i) => ({ hour: i, visits: 0 })), totalInPeriod: 0 });
     } finally {
       setLoading(false);

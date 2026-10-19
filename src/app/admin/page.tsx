@@ -48,6 +48,7 @@ export default function AdminAccess() {
   const [loadingLogs, setLoadingLogs] = useState(false);
   const [showAllLogs, setShowAllLogs] = useState(false);
   const [loadingRecentLogs, setLoadingRecentLogs] = useState(true);
+  const [logsError, setLogsError] = useState('');
   const [resetAction, setResetAction] = useState<'social' | 'projects' | null>(null);
   const [resetLoading, setResetLoading] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
@@ -58,7 +59,7 @@ export default function AdminAccess() {
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.push('/');
+      router.push('/login?reason=expired');
       return;
     }
 
@@ -77,7 +78,7 @@ export default function AdminAccess() {
     } catch (error: any) {
       // Si la sesión expiró, redirigir a login
       if (error?.message === 'SESSION_EXPIRED' || error?.code === 'SESSION_EXPIRED') {
-        router.push('/login');
+        router.push('/login?reason=expired');
         return;
       }
       setIsAdmin(false);
@@ -87,28 +88,23 @@ export default function AdminAccess() {
     }
   };
 
+  // Si la sesión expiró (el refresh falló) volvemos a /login; otros errores se muestran en la UI
+  const handleRequestError = (err: any, fallback: string): string => {
+    if (err?.message === 'SESSION_EXPIRED' || err?.code === 'SESSION_EXPIRED') {
+      router.push('/login?reason=expired');
+      return 'Sesión expirada';
+    }
+    return err?.message || fallback;
+  };
+
   const fetchRecentLogs = async () => {
     setLoadingRecentLogs(true);
+    setLogsError('');
     try {
-      const token = authService.getToken();
-      if (!token) return;
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/logs?limit=5`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include'
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setRecentLogs(data.logs || []);
-      } else {
-        console.error('Error obteniendo logs recientes:', response.status);
-      }
+      const data = await authService.request('/admin/logs?limit=5');
+      setRecentLogs(data.logs || []);
     } catch (error) {
-      console.error('Error fetching recent logs:', error);
+      setLogsError(handleRequestError(error, 'Error obteniendo los logs recientes'));
     } finally {
       setLoadingRecentLogs(false);
     }
@@ -116,27 +112,13 @@ export default function AdminAccess() {
 
   const fetchAllLogs = async () => {
     setLoadingLogs(true);
+    setLogsError('');
     try {
-      const token = authService.getToken();
-      if (!token) return;
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/logs?limit=50`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include'
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setAllLogs(data.logs || []);
-        setShowAllLogs(true);
-      } else {
-        console.error('Error obteniendo todos los logs:', response.status);
-      }
+      const data = await authService.request('/admin/logs?limit=50');
+      setAllLogs(data.logs || []);
+      setShowAllLogs(true);
     } catch (error) {
-      console.error('Error fetching all logs:', error);
+      setLogsError(handleRequestError(error, 'Error obteniendo los logs'));
     } finally {
       setLoadingLogs(false);
     }
@@ -180,43 +162,25 @@ export default function AdminAccess() {
   const handleConfirmReset = async (type: 'social' | 'projects') => {
     setResetLoading(true);
     try {
-      const token = authService.getToken();
-      if (!token) return;
+      await authService.request(
+        type === 'social' ? '/admin/reset-social' : '/admin/reset-projects',
+        { method: 'POST' }
+      );
 
-      // Usar exactamente las rutas que ya funcionan en tu backend pero con la variable de entorno
-      const endpoint = type === 'social' 
-        ? `${process.env.NEXT_PUBLIC_API_URL}/api/admin/reset-social` 
-        : `${process.env.NEXT_PUBLIC_API_URL}/api/admin/reset-projects`;
+      // Update admin stats
+      const adminData = await authService.getAdminDashboard();
+      setAdminStats(adminData.stats);
+      setResetSuccess(true);
 
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include'
-      });
+      // Mostrar mensaje de éxito
+      const successMessage = type === 'social'
+        ? 'Estadísticas de redes sociales reiniciadas correctamente'
+        : 'Estadísticas de proyectos reiniciadas correctamente';
 
-      if (response.ok) {
-        // Update admin stats
-        const adminData = await authService.getAdminDashboard();
-        setAdminStats(adminData.stats);
-        setResetSuccess(true);
-        
-        // Mostrar mensaje de éxito
-        const successMessage = type === 'social'
-          ? 'Estadísticas de redes sociales reiniciadas correctamente'
-          : 'Estadísticas de proyectos reiniciadas correctamente';
-        
-        setResetMessage(successMessage);
-        alert(successMessage);
-      } else {
-        console.error('Error resetting stats:', response.status);
-        alert('Error al reiniciar estadísticas. Inténtalo de nuevo.');
-      }
+      setResetMessage(successMessage);
+      alert(successMessage);
     } catch (error) {
-      console.error('Error resetting stats:', error);
-      alert('Error al reiniciar estadísticas. Inténtalo de nuevo.');
+      alert(handleRequestError(error, 'Error al reiniciar estadísticas. Inténtalo de nuevo.'));
     } finally {
       setResetLoading(false);
       setResetAction(null);
@@ -504,7 +468,13 @@ export default function AdminAccess() {
                 {loadingLogs ? 'Cargando...' : 'Ver Todos los Logs'}
               </Button>
             </div>
-            
+
+            {logsError && (
+              <div role="alert" className="mb-4 rounded-md border border-red-500/40 bg-red-900/20 px-4 py-3 text-sm text-red-300">
+                {logsError}
+              </div>
+            )}
+
             {loadingRecentLogs ? (
               <div className="flex items-center justify-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
