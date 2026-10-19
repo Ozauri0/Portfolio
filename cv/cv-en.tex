@@ -1,0 +1,113 @@
+%% Harvard-style resume (Harvard Office of Career Services format) -- English
+%% Compiles with pdfLaTeX on Overleaf (Menu > Compiler: pdfLaTeX) with no extra files.
+\documentclass[10pt,letterpaper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{mathptmx}                 % Times, the Harvard-style serif
+\usepackage[top=0.4in,bottom=0.35in,left=0.6in,right=0.6in]{geometry}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+
+% Section headings: bold small caps with a rule underneath
+\titleformat{\section}{\bfseries\large\scshape}{}{0pt}{}[\vspace{-0.6em}\rule{\linewidth}{0.5pt}]
+\titlespacing*{\section}{0pt}{0.5em}{0.3em}
+
+% \entry{Organization}{Location}{Role}{Dates}
+\newcommand{\entry}[4]{%
+  \textbf{#1}\hfill #2\par\nopagebreak
+  \textit{#3}\hfill \textit{#4}\par\nopagebreak\vspace{0.05em}}
+
+% Bullet lists: compact, start every bullet with an action verb
+\setlist[itemize]{leftmargin=1.2em,itemsep=0pt,topsep=0.08em,parsep=0pt,partopsep=0pt,label=\textbullet}
+
+\newcommand{\gap}{\vspace{0.3em}}
+
+\begin{document}
+
+% ---------- Header ----------
+\begin{center}
+  {\LARGE\bfseries Christian Ferrer}\\[0.2em]
+  % TODO: add phone number if you want it listed -> +56 9 XXXX XXXX $\cdot$
+  Temuco, Chile $\cdot$ \href{mailto:christianferrer.dev@gmail.com}{christianferrer.dev@gmail.com} $\cdot$
+  \href{https://christianferrer.me}{christianferrer.me}\\
+  \href{https://www.linkedin.com/in/christian-ferrer-640b7b216/}{linkedin.com/in/christian-ferrer-640b7b216} $\cdot$
+  \href{https://github.com/Ozauri0}{github.com/Ozauri0}
+\end{center}
+
+% ---------- Education ----------
+\section{Education}
+% TODO: confirm the institution, program name and expected graduation date.
+\entry{Universidad Cat\'olica de Temuco}{Temuco, Chile}{Civil Engineering in Computer Science (Ingenier\'ia Civil en Inform\'atica)}{In progress}
+
+% ---------- Software experience ----------
+\section{Software Development Experience}
+\entry{GruasCares}{}{Software Developer}{Present}
+\begin{itemize}
+  \item Develop software for the GruasCares project.
+\end{itemize}
+\gap
+\entry{Universidad Cat\'olica de Temuco}{Remote}{Data Management and Monitoring Assistant (PACE)}{Sep.\ 2025 -- Present}
+\begin{itemize}
+  \item Developed, on my own initiative, a desktop application with Electron and TypeScript that automates the bulk download of Moodle course reports through web scraping, removing a manual process.
+  \item Implemented a processing module that filters out teacher and assistant records and merges each course's files into a single multi-sheet Excel workbook, ready for the team's analysis.
+\end{itemize}
+\gap
+\entry{Universidad Cat\'olica de Temuco (DGE)}{Remote}{Academic Data Migration and Processing Specialist (Python/XML)}{Nov.\ 2025 -- Dec.\ 2025}
+\begin{itemize}
+  \item Automated the digital publication of the CLABES congress proceedings on Open Journal Systems (OJS) with two Python scripts: one splits and renames the proceedings into articles, the other generates XML metadata for bulk import, with no manual work.
+\end{itemize}
+\gap
+\entry{MiPortalVentas}{}{Software Developer}{2025}
+\begin{itemize}
+  \item Developed an ERP system for MiPortalVentas.
+\end{itemize}
+
+% ---------- Projects ----------
+\section{Selected Projects}
+\begin{itemize}
+  \item \textbf{Temblo} (\href{https://temblo.cl}{temblo.cl}): Built a live earthquake early-warning web application for Chile with Next.js, TypeScript, Node.js/Express and MongoDB; deployed with Docker and Nginx.
+  \item \textbf{LearnPro} (\href{https://lp.christianferrer.me/}{lp.christianferrer.me}): Developed a learning-management platform for educators with Next.js, React, TypeScript, Node.js and MongoDB.
+  \item \textbf{MyBudget}: Published a personal-finance app on Google Play (Ionic, Angular, Capacitor, SQLite).
+  \item \textbf{This portfolio} (\href{https://christianferrer.me}{christianferrer.me}): Designed, built and self-host it on my own VPS with Docker, Nginx and Cloudflare.
+\end{itemize}
+
+% ---------- Additional experience ----------
+\section{Additional Experience}
+\entry{Universidad Cat\'olica de Temuco}{Temuco, Chile}{Academic Processes Lead, Bachelor Program}{Jul.\ 2026 -- Sep.\ 2026}
+\begin{itemize}
+  \item Led a team of 3 assistants and made decisions on the academic offering, section capacity balancing and room assignment.
+  \item Restructured schedules quickly in response to unexpected changes and reported directly to the Program Director.
+\end{itemize}
+\gap
+\entry{Universidad Cat\'olica de Temuco}{Temuco, Chile}{Academic Processes Assistant Coordinator, Bachelor Program}{Jul.\ 2025 -- Aug.\ 2025; Jan.\ 2026 -- Apr.\ 2026}
+\begin{itemize}
+  \item Supported course enrollment and registration, capacity control and section balancing for new and returning students.
+\end{itemize}
+\gap
+\entry{Gobierno Regional de La Araucan\'ia}{Temuco, Chile}{IT Intern (Initial Internship)}{Dec.\ 2025 -- Jan.\ 2026}
+\begin{itemize}
+  \item Configured and maintained Cisco switch interfaces and PBX telephony; managed users and permissions with Active Directory.
+  \item Performed hardware upgrades and Windows deployments; gave direct technical support to the Regional Council and the Governor.
+\end{itemize}
+\gap
+\entry{CINAP}{Hybrid}{E-learning Tutor}{Dec.\ 2023 -- Present}
+
+% ---------- Skills ----------
+\section{Skills}
+\begin{itemize}[label={}, leftmargin=0pt]
+  \item \textbf{Languages:} Python, TypeScript, JavaScript
+  \item \textbf{Web and backend:} Next.js, React, Angular, Node.js/Express, Django, Flask, FastAPI, REST APIs
+  \item \textbf{Data and DevOps:} MongoDB, MySQL, SQLite, Docker, Linux, Nginx, Git
+  \item \textbf{Other:} Electron, Ionic/Capacitor, web scraping, XML, Cisco IOS, Active Directory
+  % TODO: add spoken languages and levels, e.g. \textbf{Languages spoken:} Spanish (native), English (...)
+\end{itemize}
+
+\end{document}

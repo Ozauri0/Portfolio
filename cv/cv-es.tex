@@ -1,0 +1,113 @@
+%% CV estilo Harvard (formato de la Oficina de Carreras de Harvard) -- Español
+%% Compila con pdfLaTeX en Overleaf (Menú > Compilador: pdfLaTeX), sin archivos adicionales.
+\documentclass[10pt,letterpaper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish,es-noshorthands]{babel}
+\usepackage{mathptmx}                 % Times, the Harvard-style serif
+\usepackage[top=0.4in,bottom=0.35in,left=0.6in,right=0.6in]{geometry}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+
+% Títulos de sección: negrita en versalitas con una línea debajo
+\titleformat{\section}{\bfseries\large\scshape}{}{0pt}{}[\vspace{-0.6em}\rule{\linewidth}{0.5pt}]
+\titlespacing*{\section}{0pt}{0.5em}{0.3em}
+
+% \entry{Organization}{Location}{Role}{Dates}
+\newcommand{\entry}[4]{%
+  \textbf{#1}\hfill #2\par\nopagebreak
+  \textit{#3}\hfill \textit{#4}\par\nopagebreak\vspace{0.05em}}
+
+% Viñetas compactas: cada una empieza con un verbo de acción
+\setlist[itemize]{leftmargin=1.2em,itemsep=0pt,topsep=0.08em,parsep=0pt,partopsep=0pt,label=\textbullet}
+
+\newcommand{\gap}{\vspace{0.3em}}
+
+\begin{document}
+
+% ---------- Header ----------
+\begin{center}
+  {\LARGE\bfseries Christian Ferrer}\\[0.2em]
+  % TODO: agrega tu teléfono si quieres incluirlo -> +56 9 XXXX XXXX $\cdot$
+  Temuco, Chile $\cdot$ \href{mailto:christianferrer.dev@gmail.com}{christianferrer.dev@gmail.com} $\cdot$
+  \href{https://christianferrer.me}{christianferrer.me}\\
+  \href{https://www.linkedin.com/in/christian-ferrer-640b7b216/}{linkedin.com/in/christian-ferrer-640b7b216} $\cdot$
+  \href{https://github.com/Ozauri0}{github.com/Ozauri0}
+\end{center}
+
+% ---------- Educación ----------
+\section{Educación}
+% TODO: confirma la institución, el nombre del programa y la fecha estimada de egreso.
+\entry{Universidad Cat\'olica de Temuco}{Temuco, Chile}{Ingenier\'ia Civil en Inform\'atica}{En curso}
+
+% ---------- Software experience ----------
+\section{Experiencia en Desarrollo de Software}
+\entry{GruasCares}{}{Desarrollador de Software}{Actualidad}
+\begin{itemize}
+  \item Desarrollo software para el proyecto GruasCares.
+\end{itemize}
+\gap
+\entry{Universidad Cat\'olica de Temuco}{Remoto}{Ayudante de Gesti\'on de Datos y Monitoreo (PACE)}{sept.\ 2025 -- actualidad}
+\begin{itemize}
+  \item Desarroll\'e, por iniciativa propia, una aplicaci\'on de escritorio con Electron y TypeScript que automatiza la descarga masiva de reportes de cursos de Moodle mediante web scraping, eliminando un proceso manual.
+  \item Implement\'e un m\'odulo de procesamiento que filtra los registros de docentes y ayudantes y fusiona los archivos de cada curso en un \'unico Excel con una hoja por curso, listo para el an\'alisis del equipo.
+\end{itemize}
+\gap
+\entry{Universidad Cat\'olica de Temuco (DGE)}{Remoto}{Especialista en Migraci\'on y Procesamiento de Datos Acad\'emicos (Python/XML)}{nov.\ 2025 -- dic.\ 2025}
+\begin{itemize}
+  \item Automatic\'e la publicaci\'on digital de las actas del congreso CLABES en Open Journal Systems (OJS) con dos scripts en Python: uno separa y renombra las actas en art\'iculos y el otro genera metadatos XML para la importaci\'on masiva, sin intervenci\'on manual.
+\end{itemize}
+\gap
+\entry{MiPortalVentas}{}{Desarrollador de Software}{2025}
+\begin{itemize}
+  \item Desarroll\'e un sistema ERP para MiPortalVentas.
+\end{itemize}
+
+% ---------- Projects ----------
+\section{Proyectos Destacados}
+\begin{itemize}
+  \item \textbf{Temblo} (\href{https://temblo.cl}{temblo.cl}): Constru\'i una aplicaci\'on web de alerta temprana de temblores para Chile con Next.js, TypeScript, Node.js/Express y MongoDB; desplegada con Docker y Nginx.
+  \item \textbf{LearnPro} (\href{https://lp.christianferrer.me/}{lp.christianferrer.me}): Desarroll\'e una plataforma de gesti\'on de aprendizaje para educadores con Next.js, React, TypeScript, Node.js y MongoDB.
+  \item \textbf{MyBudget}: Publiqu\'e en Google Play una aplicaci\'on de finanzas personales (Ionic, Angular, Capacitor, SQLite).
+  \item \textbf{Este portafolio} (\href{https://christianferrer.me}{christianferrer.me}): Lo dise\~n\'e, constru\'i y lo alojo en mi propio VPS con Docker, Nginx y Cloudflare.
+\end{itemize}
+
+% ---------- Additional experience ----------
+\section{Otras Experiencias}
+\entry{Universidad Cat\'olica de Temuco}{Temuco, Chile}{Jefe Coordinador de Procesos Acad\'emicos, Programa Bachiller}{jul.\ 2026 -- sept.\ 2026}
+\begin{itemize}
+  \item Dirig\'i a un equipo de 3 asistentes y tom\'e decisiones sobre la oferta acad\'emica, el balanceo de cupos por secci\'on y la asignaci\'on de salas.
+  \item Reestructur\'e horarios con rapidez ante cambios imprevistos y report\'e directamente a la Jefatura de Carrera.
+\end{itemize}
+\gap
+\entry{Universidad Cat\'olica de Temuco}{Temuco, Chile}{Asistente Coordinador de Procesos Acad\'emicos, Programa Bachiller}{jul.\ 2025 -- ago.\ 2025; ene.\ 2026 -- abr.\ 2026}
+\begin{itemize}
+  \item Apoy\'e la matr\'icula e inscripci\'on de asignaturas, el control de cupos y el balanceo de secciones de estudiantes nuevos y antiguos.
+\end{itemize}
+\gap
+\entry{Gobierno Regional de La Araucan\'ia}{Temuco, Chile}{Pr\'actica Inicial, Tecnolog\'ias de la Informaci\'on}{dic.\ 2025 -- ene.\ 2026}
+\begin{itemize}
+  \item Configur\'e y mantuve interfaces de switches Cisco y la telefon\'ia PBX; gestion\'e usuarios y permisos con Active Directory.
+  \item Realic\'e actualizaciones de hardware e instalaciones de Windows; brind\'e soporte t\'ecnico directo al Consejo Regional y al Gobernador.
+\end{itemize}
+\gap
+\entry{CINAP}{H\'ibrido}{Tutor E-learning}{dic.\ 2023 -- actualidad}
+
+% ---------- Skills ----------
+\section{Habilidades}
+\begin{itemize}[label={}, leftmargin=0pt]
+  \item \textbf{Lenguajes:} Python, TypeScript, JavaScript
+  \item \textbf{Web y backend:} Next.js, React, Angular, Node.js/Express, Django, Flask, FastAPI, REST APIs
+  \item \textbf{Datos y DevOps:} MongoDB, MySQL, SQLite, Docker, Linux, Nginx, Git
+  \item \textbf{Otros:} Electron, Ionic/Capacitor, web scraping, XML, Cisco IOS, Active Directory
+  % TODO: agrega idiomas y nivel, p. ej. \textbf{Idiomas:} Espa\~nol (nativo), Ingl\'es (...)
+\end{itemize}
+
+\end{document}
