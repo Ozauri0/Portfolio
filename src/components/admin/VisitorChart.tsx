@@ -254,6 +254,7 @@ const VisitorChart: React.FC<{ className?: string }> = ({ className }) => {
 
             {/* Refresh */}
             <button
+              aria-label="Actualizar gráfico"
               onClick={fetchChartData}
               disabled={loading}
               className="w-7 h-7 flex items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white hover:border-zinc-600 transition-all disabled:opacity-40"

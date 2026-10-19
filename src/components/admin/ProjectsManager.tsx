@@ -293,7 +293,7 @@ export default function ProjectsManager() {
                     </p>
                   </div>
                 </div>
-                <Button type="button" variant="ghost" size="icon" onClick={resetForm} className="text-zinc-500 hover:text-white hover:bg-zinc-800 flex-shrink-0">
+                <Button type="button" variant="ghost" size="icon" aria-label="Cerrar formulario" onClick={resetForm} className="text-zinc-500 hover:text-white hover:bg-zinc-800 flex-shrink-0">
                   <X className="h-4 w-4" />
                 </Button>
               </div>
@@ -521,6 +521,7 @@ export default function ProjectsManager() {
                           type="button"
                           onClick={() => setFormData({ ...formData, hoverColor: color })}
                           title={color}
+                          aria-label={`Color ${color}`}
                           className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs border transition-all ${
                             isActive
                               ? 'border-white/40 bg-white/10 text-white'
@@ -681,6 +682,7 @@ export default function ProjectsManager() {
                   {/* Reorder buttons */}
                   <div className="flex flex-col gap-0.5">
                     <button
+                      aria-label="Subir proyecto"
                       onClick={() => moveProject(index, 'up')}
                       disabled={index === 0}
                       className="p-0.5 rounded text-zinc-600 hover:text-zinc-300 disabled:opacity-20 transition-colors"
@@ -688,6 +690,7 @@ export default function ProjectsManager() {
                       <ChevronUp className="h-4 w-4" />
                     </button>
                     <button
+                      aria-label="Bajar proyecto"
                       onClick={() => moveProject(index, 'down')}
                       disabled={index === projects.length - 1}
                       className="p-0.5 rounded text-zinc-600 hover:text-zinc-300 disabled:opacity-20 transition-colors"
@@ -733,23 +736,20 @@ export default function ProjectsManager() {
                   {/* Actions */}
                   <div className="flex items-center gap-1">
                     {project.links.github && (
-                      <a href={project.links.github} target="_blank" rel="noopener noreferrer">
-                        <button className="p-1.5 rounded-md text-zinc-500 hover:text-white hover:bg-zinc-800 transition-colors">
-                          <Github className="h-4 w-4" />
-                        </button>
+                      <a href={project.links.github} target="_blank" rel="noopener noreferrer" aria-label="Abrir repositorio" className="p-1.5 rounded-md text-zinc-500 hover:text-white hover:bg-zinc-800 transition-colors">
+                        <Github className="h-4 w-4" />
                       </a>
                     )}
                     {(project.links.demo || project.links.download) && (
-                      <a href={project.links.demo || project.links.download || ''} target="_blank" rel="noopener noreferrer">
-                        <button className="p-1.5 rounded-md text-zinc-500 hover:text-white hover:bg-zinc-800 transition-colors">
-                          <ExternalLink className="h-4 w-4" />
-                        </button>
+                      <a href={project.links.demo || project.links.download || ''} target="_blank" rel="noopener noreferrer" aria-label="Abrir demo o descarga" className="p-1.5 rounded-md text-zinc-500 hover:text-white hover:bg-zinc-800 transition-colors">
+                        <ExternalLink className="h-4 w-4" />
                       </a>
                     )}
                     <button
                       onClick={() => handleToggleVisibility(project)}
                       className="p-1.5 rounded-md text-zinc-500 hover:text-white hover:bg-zinc-800 transition-colors"
                       title={project.visible ? 'Ocultar' : 'Mostrar'}
+                      aria-label={project.visible ? 'Ocultar proyecto' : 'Mostrar proyecto'}
                     >
                       {project.visible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                     </button>
@@ -757,6 +757,7 @@ export default function ProjectsManager() {
                       onClick={() => handleEdit(project)}
                       className="p-1.5 rounded-md text-zinc-500 hover:text-blue-400 hover:bg-blue-500/10 transition-colors"
                       title="Editar"
+                      aria-label="Editar proyecto"
                     >
                       <Pencil className="h-4 w-4" />
                     </button>
@@ -764,6 +765,7 @@ export default function ProjectsManager() {
                       onClick={() => handleDelete(project)}
                       className="p-1.5 rounded-md text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
                       title="Eliminar"
+                      aria-label="Eliminar proyecto"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
