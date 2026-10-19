@@ -15,7 +15,7 @@
     "chart.js": "^4.5.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "lucide-react": "^0.482.0",
+    "lucide-react": "^1.58.0",
     "next": "^15.5.28",
     "react": "^19.3.1",
     "react-chartjs-2": "^5.3.1",
