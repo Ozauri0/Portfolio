@@ -43,3 +43,12 @@ Dependabot (`.github/dependabot.yml`) opens weekly update PRs for both packages 
 Rate limits and login logs use the client IP taken from the entries that *our* proxies append to `X-Forwarded-For` (never the first, client-controlled one).
 Set `TRUSTED_PROXY_HOPS` in the frontend `.env` to the number of trusted proxies in front of the app (default `1` = nginx; use `2` for Cloudflare + nginx).
 The `/api/*` proxy rewrites `X-Forwarded-For` and drops `X-Real-IP` before forwarding to the API.
+
+## Docker deployment
+
+Both images are based on `oven/bun:1-alpine` (install, build and runtime all use bun) and run as a non-root user.
+
+1. Create the external network used by `docker-compose.yml` once: `docker network create red-internet`.
+2. Create `.env` (frontend, see `.env.example`) and `api/.env` (API, see `api/.env.example`).
+3. Build and start: `docker compose build --no-cache && docker compose up -d`.
+4. Check `docker compose ps` (API healthcheck uses `/api/health`).
