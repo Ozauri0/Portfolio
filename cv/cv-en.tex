@@ -6,7 +6,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
 \usepackage{mathptmx}                 % Times, the Harvard-style serif
-\usepackage[top=0.4in,bottom=0.35in,left=0.6in,right=0.6in]{geometry}
+\usepackage[top=0.38in,bottom=0.3in,left=0.6in,right=0.6in]{geometry}
 \usepackage{enumitem}
 \usepackage{titlesec}
 \usepackage[hidelinks]{hyperref}
@@ -28,7 +28,7 @@
 % Bullet lists: compact, start every bullet with an action verb
 \setlist[itemize]{leftmargin=1.2em,itemsep=0pt,topsep=0.08em,parsep=0pt,partopsep=0pt,label=\textbullet}
 
-\newcommand{\gap}{\vspace{0.3em}}
+\newcommand{\gap}{\vspace{0.22em}}
 
 \begin{document}
 
@@ -49,16 +49,22 @@
 
 % ---------- Software experience ----------
 \section{Software Development Experience}
-\entry{GruasCares}{}{Full Stack Developer}{Present}
+\entry{Temblo}{\href{https://temblo.cl}{temblo.cl}}{Full Stack Developer (personal project)}{Present}
 \begin{itemize}
-  \item Develop a full-stack platform for Gr\'uas Cares, a vehicle recovery and workshop business: a new landing page, tow-truck transport requests, workshop appointment scheduling and staff job management, with panels for clients, mechanics and administrators.
-  \item Implement secure role-based authentication (JWT in httpOnly cookies, rate limiting) with Next.js, TypeScript, Express on Bun, PostgreSQL and Drizzle ORM; covered by automated tests and containerized with Docker.
+  \item Build and operate a real-time 3D seismic monitoring platform for Chile and the world that ingests global telemetry and detects earthquakes automatically within seconds.
+  \item Develop the full stack: Next.js, TypeScript and Tailwind CSS interface (3D view, camera control, stations, archived events, sound alarm) and a Node.js/Express API with MongoDB and JWT; deployed with Docker and Nginx.
+\end{itemize}
+\gap
+\entry{GruasCares}{\href{https://gruascares.cl}{gruascares.cl}}{Full Stack Developer}{Present}
+\begin{itemize}
+  \item Develop a full-stack platform for Gr\'uas Cares, a vehicle recovery and workshop business: landing page, tow-truck requests, workshop scheduling and staff job management, with panels by role (client, mechanic, admin).
+  \item Implement role-based authentication (JWT in httpOnly cookies, rate limiting) with Next.js, TypeScript, Express on Bun, PostgreSQL and Drizzle ORM; tested and containerized with Docker.
 \end{itemize}
 \gap
 \entry{Universidad Cat\'olica de Temuco}{Remote}{Data Management and Monitoring Assistant (PACE)}{Sep.\ 2025 -- Present}
 \begin{itemize}
   \item Developed, on my own initiative, a desktop application with Electron and TypeScript that automates the bulk download of Moodle course reports through web scraping, removing a manual process.
-  \item Implemented a processing module that filters out teacher and assistant records and merges each course's files into a single multi-sheet Excel workbook, ready for the team's analysis.
+  \item Built a processing module that filters out teacher and assistant records and merges each course's files into one multi-sheet Excel workbook.
 \end{itemize}
 \gap
 \entry{Universidad Cat\'olica de Temuco (DGE)}{Remote}{Academic Data Migration and Processing Specialist (Python/XML)}{Nov.\ 2025 -- Dec.\ 2025}
@@ -71,29 +77,21 @@
   \item Developed an ERP system for MiPortalVentas.
 \end{itemize}
 
-% ---------- Projects ----------
-\section{Selected Projects}
+% ---------- Leadership ----------
+\section{Leadership Experience}
+\entry{Universidad Cat\'olica de Temuco}{Temuco, Chile}{Academic Processes Lead, Bachelor Program}{Jul.\ 2026 -- Sep.\ 2026}
 \begin{itemize}
-  \item \textbf{Temblo} (\href{https://temblo.cl}{temblo.cl}): Built a live earthquake early-warning web application for Chile with Next.js, TypeScript, Node.js/Express and MongoDB; deployed with Docker and Nginx.
-  \item \textbf{GruasCares} (\href{https://gruascares.cl}{gruascares.cl}): Full-stack platform for a vehicle recovery and workshop business.
+  \item Led the area's operations through the semester changeover while still an undergraduate student, directing a team of 3 assistants and reporting directly to the Program Director.
+  \item Reviewed and optimized the schedules of approximately 300 students, balancing offering, section capacity and rooms.
+  \item Resolved teaching-planning contingencies quickly, restructuring schedules after unexpected changes.
+  \item Previously Assistant Coordinator (Jul.\ -- Aug.\ 2025; Jan.\ -- Apr.\ 2026): supported enrollment and capacity control.
 \end{itemize}
 
 % ---------- Additional experience ----------
 \section{Additional Experience}
-\entry{Universidad Cat\'olica de Temuco}{Temuco, Chile}{Academic Processes Lead, Bachelor Program}{Jul.\ 2026 -- Sep.\ 2026}
-\begin{itemize}
-  \item Led a team of 3 assistants; decided on the academic offering, section capacity and room assignment, and restructured schedules quickly after unexpected changes.
-\end{itemize}
-\gap
-\entry{Universidad Cat\'olica de Temuco}{Temuco, Chile}{Academic Processes Assistant Coordinator, Bachelor Program}{Jul.\ 2025 -- Aug.\ 2025; Jan.\ 2026 -- Apr.\ 2026}
-\begin{itemize}
-  \item Supported course enrollment and registration, capacity control and section balancing for new and returning students.
-\end{itemize}
-\gap
 \entry{Gobierno Regional de La Araucan\'ia}{Temuco, Chile}{IT Intern (Initial Internship)}{Dec.\ 2025 -- Jan.\ 2026}
 \begin{itemize}
-  \item Configured and maintained Cisco switch interfaces and PBX telephony; managed users and permissions with Active Directory.
-  \item Performed hardware upgrades and Windows deployments; gave direct technical support to the Regional Council and the Governor.
+  \item Configured Cisco switches and PBX telephony, managed users with Active Directory, upgraded hardware and deployed Windows; gave direct technical support to the Regional Council and the Governor.
 \end{itemize}
 \gap
 \entry{CINAP}{Hybrid}{E-learning Tutor}{Dec.\ 2023 -- Present}

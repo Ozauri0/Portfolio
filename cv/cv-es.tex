@@ -6,7 +6,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[spanish,es-noshorthands]{babel}
 \usepackage{mathptmx}                 % Times, the Harvard-style serif
-\usepackage[top=0.4in,bottom=0.35in,left=0.6in,right=0.6in]{geometry}
+\usepackage[top=0.38in,bottom=0.3in,left=0.6in,right=0.6in]{geometry}
 \usepackage{enumitem}
 \usepackage{titlesec}
 \usepackage[hidelinks]{hyperref}
@@ -28,7 +28,7 @@
 % Viñetas compactas: cada una empieza con un verbo de acción
 \setlist[itemize]{leftmargin=1.2em,itemsep=0pt,topsep=0.08em,parsep=0pt,partopsep=0pt,label=\textbullet}
 
-\newcommand{\gap}{\vspace{0.3em}}
+\newcommand{\gap}{\vspace{0.22em}}
 
 \begin{document}
 
@@ -49,16 +49,22 @@
 
 % ---------- Software experience ----------
 \section{Experiencia en Desarrollo de Software}
-\entry{GruasCares}{}{Desarrollador Full Stack}{Actualidad}
+\entry{Temblo}{\href{https://temblo.cl}{temblo.cl}}{Desarrollador Full Stack (proyecto personal)}{Actualidad}
 \begin{itemize}
-  \item Desarrollo una plataforma full stack para Gr\'uas Cares, empresa de rescate de veh\'iculos y serviteca: un nuevo landing page, solicitud de gr\'uas para transporte, agendamiento de horas en la serviteca y gesti\'on de personal y trabajos, con paneles para clientes, mec\'anicos y administradores.
-  \item Implemento autenticaci\'on segura por roles (JWT en cookies httpOnly, l\'imite de peticiones) con Next.js, TypeScript, Express sobre Bun, PostgreSQL y Drizzle ORM; con pruebas automatizadas y contenedores Docker.
+  \item Construyo y opero una plataforma de monitoreo s\'ismico 3D en tiempo real para Chile y el mundo, que recibe telemetr\'ia global y detecta sismos autom\'aticamente en segundos.
+  \item Desarrollo el stack completo: interfaz en Next.js, TypeScript y Tailwind CSS (vista 3D, control de c\'amara, estaciones, eventos archivados, alarma sonora) y una API en Node.js/Express con MongoDB y JWT; desplegada con Docker y Nginx.
+\end{itemize}
+\gap
+\entry{GruasCares}{\href{https://gruascares.cl}{gruascares.cl}}{Desarrollador Full Stack}{Actualidad}
+\begin{itemize}
+  \item Desarrollo una plataforma full stack para Gr\'uas Cares, empresa de rescate de veh\'iculos y serviteca: landing page, solicitud de gr\'uas, agenda de la serviteca y gesti\'on de personal y trabajos, con paneles por rol (cliente, mec\'anico, admin).
+  \item Implemento autenticaci\'on por roles (JWT en cookies httpOnly, l\'imite de peticiones) con Next.js, TypeScript, Express sobre Bun, PostgreSQL y Drizzle ORM; con pruebas y contenedores Docker.
 \end{itemize}
 \gap
 \entry{Universidad Cat\'olica de Temuco}{Remoto}{Ayudante de Gesti\'on de Datos y Monitoreo (PACE)}{sept.\ 2025 -- actualidad}
 \begin{itemize}
   \item Desarroll\'e, por iniciativa propia, una aplicaci\'on de escritorio con Electron y TypeScript que automatiza la descarga masiva de reportes de cursos de Moodle mediante web scraping, eliminando un proceso manual.
-  \item Implement\'e un m\'odulo de procesamiento que filtra los registros de docentes y ayudantes y fusiona los archivos de cada curso en un \'unico Excel con una hoja por curso, listo para el an\'alisis del equipo.
+  \item Constru\'i un m\'odulo que filtra los registros de docentes y ayudantes y fusiona los archivos de cada curso en un Excel con una hoja por curso.
 \end{itemize}
 \gap
 \entry{Universidad Cat\'olica de Temuco (DGE)}{Remoto}{Especialista en Migraci\'on y Procesamiento de Datos Acad\'emicos (Python/XML)}{nov.\ 2025 -- dic.\ 2025}
@@ -71,29 +77,21 @@
   \item Desarroll\'e un sistema ERP para MiPortalVentas.
 \end{itemize}
 
-% ---------- Projects ----------
-\section{Proyectos Destacados}
+% ---------- Liderazgo ----------
+\section{Experiencia de Liderazgo}
+\entry{Universidad Cat\'olica de Temuco}{Temuco, Chile}{Jefe Coordinador de Procesos Acad\'emicos, Programa Bachiller}{jul.\ 2026 -- sept.\ 2026}
 \begin{itemize}
-  \item \textbf{Temblo} (\href{https://temblo.cl}{temblo.cl}): Constru\'i una aplicaci\'on web de alerta temprana de temblores para Chile con Next.js, TypeScript, Node.js/Express y MongoDB; desplegada con Docker y Nginx.
-  \item \textbf{GruasCares} (\href{https://gruascares.cl}{gruascares.cl}): Plataforma full stack para una empresa de rescate de veh\'iculos y serviteca.
+  \item Dirig\'i la operaci\'on del \'area durante el cambio de semestre, siendo a\'un estudiante, a cargo de un equipo de 3 asistentes y reportando directamente a la Jefatura de Carrera.
+  \item Revis\'e y optimic\'e los horarios de aproximadamente 300 estudiantes, equilibrando oferta, cupos por secci\'on y salas.
+  \item Resolv\'i con rapidez contingencias de planificaci\'on docente, reestructurando horarios ante cambios imprevistos.
+  \item Antes Asistente Coordinador (jul.\ -- ago.\ 2025; ene.\ -- abr.\ 2026): apoy\'e la matr\'icula y el control de cupos.
 \end{itemize}
 
 % ---------- Additional experience ----------
 \section{Otras Experiencias}
-\entry{Universidad Cat\'olica de Temuco}{Temuco, Chile}{Jefe Coordinador de Procesos Acad\'emicos, Programa Bachiller}{jul.\ 2026 -- sept.\ 2026}
-\begin{itemize}
-  \item Dirig\'i a un equipo de 3 asistentes; decid\'i sobre la oferta acad\'emica, los cupos por secci\'on y la asignaci\'on de salas, y reestructur\'e horarios con rapidez ante cambios imprevistos.
-\end{itemize}
-\gap
-\entry{Universidad Cat\'olica de Temuco}{Temuco, Chile}{Asistente Coordinador de Procesos Acad\'emicos, Programa Bachiller}{jul.\ 2025 -- ago.\ 2025; ene.\ 2026 -- abr.\ 2026}
-\begin{itemize}
-  \item Apoy\'e la matr\'icula e inscripci\'on de asignaturas, el control de cupos y el balanceo de secciones de estudiantes nuevos y antiguos.
-\end{itemize}
-\gap
 \entry{Gobierno Regional de La Araucan\'ia}{Temuco, Chile}{Pr\'actica Inicial, Tecnolog\'ias de la Informaci\'on}{dic.\ 2025 -- ene.\ 2026}
 \begin{itemize}
-  \item Configur\'e y mantuve interfaces de switches Cisco y la telefon\'ia PBX; gestion\'e usuarios y permisos con Active Directory.
-  \item Realic\'e actualizaciones de hardware e instalaciones de Windows; brind\'e soporte t\'ecnico directo al Consejo Regional y al Gobernador.
+  \item Configur\'e switches Cisco y telefon\'ia PBX, gestion\'e usuarios con Active Directory, actualic\'e hardware e instal\'e Windows; brind\'e soporte t\'ecnico directo al Consejo Regional y al Gobernador.
 \end{itemize}
 \gap
 \entry{CINAP}{H\'ibrido}{Tutor E-learning}{dic.\ 2023 -- actualidad}
