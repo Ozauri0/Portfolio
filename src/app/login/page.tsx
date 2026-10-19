@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Eye, EyeOff, Lock, Mail, Shield } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import NodeBackground from '@/components/node-background';
+import UniverseBackground from '@/components/universe-background';
 
 export default function SecretAdminAccess() {
   const { login, isAuthenticated, isLoading } = useAuth();
@@ -69,7 +69,7 @@ export default function SecretAdminAccess() {
   if (isAuthenticated) {
     return (
       <div className="relative min-h-screen bg-black text-white flex items-center justify-center p-4">
-        <NodeBackground />
+        <UniverseBackground />
         <Card className="relative z-10 w-full max-w-md bg-black border-zinc-800">
           <CardContent className="p-6 text-center">
             <Shield className="w-12 h-12 text-green-400 mx-auto mb-4" />
@@ -83,7 +83,7 @@ export default function SecretAdminAccess() {
 
   return (
     <div className="relative min-h-screen bg-black text-white flex items-center justify-center p-4">
-      <NodeBackground />
+      <UniverseBackground />
       <Card className="relative z-10 w-full max-w-md bg-black border-zinc-800 hover:border-blue-500/30 transition-all duration-300">
         <CardHeader className="text-center">
           <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">

@@ -2,15 +2,14 @@ export const en = {
     hero: {
       title: "Full Stack",
       subtitle: "Developer",
-      specialization: "Specialized in mobile and web development with modern technologies",
-      description: "I'm a passionate developer focused on creating efficient, scalable, and user-friendly applications. With expertise in both mobile and web development, I bring ideas to life using the latest technologies and best practices.",
+      specialization: "Mobile and web apps, from idea to server.",
       viewProjects: "View Projects",
       contactMe: "Contact Me"
     },
     about: {
       title: "About Me",
-      paragraph1: "My experience spans across frontend and backend development, with a strong foundation in DevOps practices and server management. I'm dedicated to creating solutions that are not only technically sound but also deliver exceptional user experiences.",
-      paragraph2: "I'm constantly learning and exploring new technologies to stay ahead in this rapidly evolving field. My approach combines technical expertise with a keen understanding of business needs to deliver solutions that truly make a difference.",
+      paragraph1: "I'm a Full Stack developer. I build mobile apps with Ionic, Angular and Capacitor, and web apps with Next.js, Node.js and Django: from the interface down to the database.",
+      paragraph2: "I also handle the server side. This site runs on my own VPS with Docker and Nginx, behind Cloudflare. My projects range from MyBudget, published on Google Play, to Temblo, an early earthquake alert for Chile.",
       downloadCV: "Download CV"
     },
     skills: {

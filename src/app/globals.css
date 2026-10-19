@@ -208,3 +208,19 @@
   background-color: #52525b; /* zinc-600 */
 }
 
+
+/* ── Universo: nebulosas del fondo global ───────────────────────── */
+.universe-nebula {
+  background:
+    radial-gradient(38% 34% at 18% 22%, rgba(96, 165, 250, 0.11), transparent 70%),
+    radial-gradient(34% 30% at 82% 68%, rgba(168, 85, 247, 0.12), transparent 70%),
+    radial-gradient(30% 26% at 55% 105%, rgba(96, 165, 250, 0.07), transparent 70%);
+  animation: nebula-drift 70s ease-in-out infinite alternate;
+}
+@keyframes nebula-drift {
+  from { transform: translate3d(-2%, -1%, 0) scale(1); }
+  to { transform: translate3d(2%, 2%, 0) scale(1.06); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .universe-nebula { animation: none; }
+}

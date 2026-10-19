@@ -4,7 +4,7 @@ import { useRef, useEffect, useState } from "react";
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { ScrollToTopButton } from "@/components/ui/scroll-to-top-button"
-import NodeBackground from "@/components/node-background"
+import UniverseBackground from "@/components/universe-background"
 import AuthNavigation from "@/components/auth-navigation"
 import useSecretAccess from "@/hooks/useSecretAccess"
 import ProjectCard from "@/components/ProjectCard"
@@ -82,7 +82,7 @@ export default function Home() {
 
   return (
     <div className="relative min-h-screen bg-black text-white">
-      <NodeBackground />
+      <UniverseBackground />
       
       {/* Header with navigation */}
       <header className="fixed top-0 left-0 z-50 p-4 flex items-center space-x-4">
@@ -108,11 +108,8 @@ export default function Home() {
                   <span className="text-gray-400">{t.hero.subtitle}</span>
                   </h1>
                 </div>
-                <p className="text-xl md:text-2xl text-gray-300">
+                <p className="text-2xl md:text-3xl leading-snug text-gray-200 max-w-md mx-auto md:mx-0">
                   {t.hero.specialization}
-                </p>
-                <p className="text-gray-300">
-                  {t.hero.description}
                 </p>
                 <div className="flex flex-wrap gap-3 justify-center md:justify-start">
                   <Button 
@@ -207,7 +204,7 @@ export default function Home() {
         </section>
 
         {/* Contact Section */}
-        <section ref={contactRef} className="py-20 px-4 bg-black">
+        <section ref={contactRef} className="py-20 px-4">
           <div className="container mx-auto max-w-3xl">
             <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center text-white">{t.contact.title}</h2>
             <ContactForm />
