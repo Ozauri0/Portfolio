@@ -10,13 +10,20 @@ export interface ExperienceItem {
 
 export const softwareExperience: ExperienceItem[] = [
   {
-    role: { es: 'Desarrollador de software', en: 'Software developer' },
+    role: { es: 'Desarrollador Full Stack', en: 'Full Stack developer' },
     org: 'GruasCares',
     period: { es: 'Actualidad', en: 'Present' },
     points: {
-      es: ['Desarrollo de software para el proyecto GruasCares.'],
-      en: ['Software development for the GruasCares project.'],
+      es: [
+        'Desarrollo una plataforma full stack para Grúas Cares: un nuevo landing page y paneles de gestión para clientes, mecánicos y administradores.',
+        'Incluye solicitud de grúas para transporte, agendamiento de horas en la serviteca y gestión de personal y trabajos (quién realizó cada tarea).',
+      ],
+      en: [
+        'I develop a full-stack platform for Grúas Cares: a new landing page and management panels for clients, mechanics and administrators.',
+        'It covers tow-truck transport requests, workshop appointment scheduling, and staff and job management (who performed each task).',
+      ],
     },
+    tech: ['Next.js', 'TypeScript', 'Express', 'PostgreSQL'],
   },
   {
     role: { es: 'Desarrollador de software', en: 'Software developer' },
