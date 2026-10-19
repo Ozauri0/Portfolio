@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const crypto = require('crypto');
+const rateLimit = require('express-rate-limit');
 const AnalyticsClick = require('../models/AnalyticsClick');
 const UniqueVisitor = require('../models/UniqueVisitor');
+const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
 // Helper: anonimizar IP con HMAC (VUL-013 - privacidad GDPR)
 function anonymizeIP(ip) {
@@ -10,8 +12,25 @@ function anonymizeIP(ip) {
   return crypto.createHmac('sha256', salt).update(ip).digest('hex');
 }
 
+// Límites propios y más estrictos que el global para los endpoints públicos de tracking
+const clickLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Demasiadas peticiones, intenta más tarde.' }
+});
+
+const visitorLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Demasiadas peticiones, intenta más tarde.' }
+});
+
 // Track click on social media or project links
-router.post('/track-click', async (req, res) => {
+router.post('/track-click', clickLimiter, async (req, res) => {
   try {
     const { type, target } = req.body;
 
@@ -43,22 +62,12 @@ router.post('/track-click', async (req, res) => {
       return res.status(400).json({
         error: 'Objetivo de proyecto no válido'
       });
-    }    // Check if record exists
-    const existingRecord = await AnalyticsClick.findOne({ type, target });
-
-    if (existingRecord) {
-      // Update existing record
-      existingRecord.count += 1;
-      existingRecord.updatedAt = new Date();
-      await existingRecord.save();
-    } else {
-      // Create new record
-      await AnalyticsClick.create({
-        type,
-        target,
-        count: 1
-      });
-    }
+    }    // Incremento atómico (sin condición de carrera entre findOne y save)
+    await AnalyticsClick.findOneAndUpdate(
+      { type, target },
+      { $inc: { count: 1 }, $set: { updatedAt: new Date() }, $setOnInsert: { createdAt: new Date() } },
+      { upsert: true }
+    );
 
     res.json({
       success: true,
@@ -73,8 +82,8 @@ router.post('/track-click', async (req, res) => {
   }
 });
 
-// Get analytics data (public endpoint for basic stats)
-router.get('/stats', async (req, res) => {
+// Get analytics data (solo admin: las estadísticas ya no son públicas)
+router.get('/stats', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const stats = {
       socialClicks: {
@@ -120,7 +129,7 @@ router.get('/stats', async (req, res) => {
 });
 
 // Track unique visitor by IP address
-router.post('/track-visitor', async (req, res) => {
+router.post('/track-visitor', visitorLimiter, async (req, res) => {
   try {
     // Get IP address from request
     const ipAddress = req.ip || 
@@ -138,38 +147,25 @@ router.post('/track-visitor', async (req, res) => {
     // Get user agent for additional context
     const userAgent = req.headers['user-agent'] || 'Unknown';
 
-    // Check if this IP has visited before
-    const existingVisitor = await UniqueVisitor.findOne({ ipAddress: hashedIp });
+    // Upsert atómico: crea el visitante o actualiza su última visita
+    const now = new Date();
+    const visitor = await UniqueVisitor.findOneAndUpdate(
+      { ipAddress: hashedIp },
+      {
+        $set: { lastVisit: now, userAgent: userAgent.slice(0, 300) },
+        $inc: { visitCount: 1 },
+        $setOnInsert: { firstVisit: now }
+      },
+      { upsert: true, new: true }
+    );
 
-    if (!existingVisitor) {
-      // New unique visitor - insert record
-      await UniqueVisitor.create({
-        ipAddress: hashedIp,
-        userAgent: userAgent,
-        firstVisit: new Date(),
-        lastVisit: new Date(),
-        visitCount: 1
-      });
-
-      res.json({
-        success: true,
-        message: 'New unique visitor tracked',
-        isNewVisitor: true
-      });
-    } else {
-      // Update existing visitor's last visit and count
-      existingVisitor.lastVisit = new Date();
-      existingVisitor.visitCount += 1;
-      existingVisitor.userAgent = userAgent;
-      await existingVisitor.save();
-
-      res.json({
-        success: true,
-        message: 'Existing visitor updated',
-        isNewVisitor: false,
-        visitCount: existingVisitor.visitCount
-      });
-    }
+    const isNewVisitor = visitor.visitCount === 1;
+    res.json({
+      success: true,
+      message: isNewVisitor ? 'New unique visitor tracked' : 'Existing visitor updated',
+      isNewVisitor,
+      ...(isNewVisitor ? {} : { visitCount: visitor.visitCount })
+    });
 
   } catch (error) {
     console.error('Error tracking visitor:', error);
