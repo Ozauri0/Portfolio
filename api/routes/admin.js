@@ -138,10 +138,13 @@ router.get('/logs', async (req, res) => {
     const skip = (parsedPage - 1) * parsedLimit;
 
     // Get ALL login logs (not just for authenticated user) since this is admin panel
-    const logs = await LoginLog.find()
-      .sort({ loginTime: -1 })
-      .skip(skip)
-      .limit(parsedLimit);
+    const [logs, total] = await Promise.all([
+      LoginLog.find()
+        .sort({ loginTime: -1 })
+        .skip(skip)
+        .limit(parsedLimit),
+      LoginLog.countDocuments()
+    ]);
 
     // Format the logs for better display with correct timezone
     const formattedLogs = logs.map(log => {
@@ -173,8 +176,9 @@ router.get('/logs', async (req, res) => {
       pagination: {
         page: parsedPage,
         limit: parsedLimit,
-        total: logs.length,
-        hasMore: logs.length === parsedLimit
+        total,
+        totalPages: Math.max(1, Math.ceil(total / parsedLimit)),
+        hasMore: skip + logs.length < total
       }
     });
 

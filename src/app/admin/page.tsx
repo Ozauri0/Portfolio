@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import authService from '@/services/authService';
 import VisitorChart from '@/components/admin/VisitorChart';
 import ProjectsManager from '@/components/admin/ProjectsManager';
+import { getBrowserName, getDeviceType } from '@/lib/userAgent';
 
 interface LoginLog {
   id: string;
@@ -49,6 +50,9 @@ export default function AdminAccess() {
   const [showAllLogs, setShowAllLogs] = useState(false);
   const [loadingRecentLogs, setLoadingRecentLogs] = useState(true);
   const [logsError, setLogsError] = useState('');
+  const [logsPage, setLogsPage] = useState(1);
+  const [logsTotal, setLogsTotal] = useState(0);
+  const [logsTotalPages, setLogsTotalPages] = useState(1);
   const [resetAction, setResetAction] = useState<'social' | 'projects' | null>(null);
   const [resetLoading, setResetLoading] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
@@ -110,12 +114,17 @@ export default function AdminAccess() {
     }
   };
 
-  const fetchAllLogs = async () => {
+  const LOGS_PAGE_SIZE = 20;
+
+  const fetchAllLogs = async (page = 1) => {
     setLoadingLogs(true);
     setLogsError('');
     try {
-      const data = await authService.request('/admin/logs?limit=50');
+      const data = await authService.request(`/admin/logs?page=${page}&limit=${LOGS_PAGE_SIZE}`);
       setAllLogs(data.logs || []);
+      setLogsPage(data.pagination?.page ?? page);
+      setLogsTotal(data.pagination?.total ?? 0);
+      setLogsTotalPages(data.pagination?.totalPages ?? 1);
       setShowAllLogs(true);
     } catch (error) {
       setLogsError(handleRequestError(error, 'Error obteniendo los logs'));
@@ -130,20 +139,6 @@ export default function AdminAccess() {
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
     }
-  };
-
-  const getBrowserInfo = (userAgent: string) => {
-    if (userAgent.includes('Chrome')) return 'Chrome';
-    if (userAgent.includes('Firefox')) return 'Firefox';
-    if (userAgent.includes('Safari')) return 'Safari';
-    if (userAgent.includes('Edge')) return 'Edge';
-    return 'Desconocido';
-  };
-
-  const getDeviceInfo = (userAgent: string) => {
-    if (userAgent.includes('Mobile')) return 'Móvil';
-    if (userAgent.includes('Tablet')) return 'Tablet';
-    return 'Escritorio';
   };
 
   const handleResetRequest = (type: 'social' | 'projects') => {
@@ -459,7 +454,7 @@ export default function AdminAccess() {
                 <h3 className="text-lg md:text-xl font-bold text-white">Últimas Conexiones</h3>
               </div>
               <Button 
-                onClick={fetchAllLogs}
+                onClick={() => fetchAllLogs(1)}
                 variant="outline"
                 className="border-green-600 text-green-400 hover:bg-green-600 hover:text-white"
                 disabled={loadingLogs}
@@ -509,7 +504,7 @@ export default function AdminAccess() {
                       </div>
                       <div className="flex items-center space-x-2">
                         <Monitor className="h-4 w-4 text-blue-400 flex-shrink-0" />
-                        <span className="text-gray-300 truncate">{getBrowserInfo(log.userAgent)} - {getDeviceInfo(log.userAgent)}</span>
+                        <span className="text-gray-300 truncate">{getBrowserName(log.userAgent)} - {getDeviceType(log.userAgent)}</span>
                       </div>
                     </div>
                   </div>
@@ -554,8 +549,8 @@ export default function AdminAccess() {
                           <td className="px-4 py-3 text-sm text-white hidden sm:table-cell">{log.formattedDate}</td>
                           <td className="px-4 py-3 text-sm text-white font-mono hidden md:table-cell">{log.ipAddress}</td>
                           <td className="px-4 py-3 text-sm text-white hidden lg:table-cell">{log.location}</td>
-                          <td className="px-4 py-3 text-sm text-white hidden md:table-cell">{getBrowserInfo(log.userAgent)}</td>
-                          <td className="px-4 py-3 text-sm text-white hidden lg:table-cell">{getDeviceInfo(log.userAgent)}</td>
+                          <td className="px-4 py-3 text-sm text-white hidden md:table-cell">{getBrowserName(log.userAgent)}</td>
+                          <td className="px-4 py-3 text-sm text-white hidden lg:table-cell">{getDeviceType(log.userAgent)}</td>
                           <td className="px-4 py-3 text-sm">
                             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${log.success ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
                               {log.success ? 'Exitoso' : 'Fallido'}
@@ -565,6 +560,29 @@ export default function AdminAccess() {
                       ))}
                     </tbody>
                   </table>
+                </div>
+              </div>
+              <div className="flex items-center justify-between mt-4 text-sm text-gray-400">
+                <span>{logsTotal} registros · Página {logsPage} de {logsTotalPages}</span>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                    disabled={loadingLogs || logsPage <= 1}
+                    onClick={() => fetchAllLogs(logsPage - 1)}
+                  >
+                    Anterior
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                    disabled={loadingLogs || logsPage >= logsTotalPages}
+                    onClick={() => fetchAllLogs(logsPage + 1)}
+                  >
+                    Siguiente
+                  </Button>
                 </div>
               </div>
             </CardContent>
