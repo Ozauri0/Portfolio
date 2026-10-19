@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from '@/contexts/LanguageContext';
@@ -11,11 +12,14 @@ export const metadata: Metadata = {
   description: "Personal portfolio showcasing my projects and skills as a Full Stack Developer",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Leer headers fuerza render dinámico para que Next aplique el nonce de la CSP a sus scripts
+  await headers();
+
   return (
     <html lang="en" className="dark">
       <body className={inter.className}>

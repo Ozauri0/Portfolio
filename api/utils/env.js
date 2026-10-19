@@ -20,6 +20,10 @@ function validateEnv(env = process.env) {
     }
   }
 
+  if (env.NODE_ENV === 'production' && !env.FRONTEND_URL) {
+    problems.push('FRONTEND_URL no está definida (requerida en producción para CORS)');
+  }
+
   if (problems.length > 0) {
     throw new Error(`Configuración de entorno inválida:\n - ${problems.join('\n - ')}`);
   }

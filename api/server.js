@@ -31,26 +31,34 @@ const PORT = process.env.PORT || 5000;
 connectDB();
 
 // CORS - DEBE IR PRIMERO
-app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://localhost:3002',
-    /^http:\/\/192\.168\.\d+\.\d+:(3000|3001|3002)$/,  // Permite cualquier IP de red local 192.168.x.x
-    /^http:\/\/172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}:(3000|3001|3002)$/, // Solo rango privado 172.16-172.31 (VUL-006)
-    /^http:\/\/10\.\d+\.\d+\.\d+:(3000|3001|3002)$/,   // Permite IPs del rango 10.x.x.x
-    process.env.FRONTEND_URL
-  ].filter(Boolean),
+// En producción solo se acepta FRONTEND_URL; los orígenes locales/red privada solo en desarrollo
+const isProduction = process.env.NODE_ENV === 'production';
+const allowedOrigins = isProduction
+  ? [process.env.FRONTEND_URL]
+  : [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://localhost:3002',
+      /^http:\/\/192\.168\.\d+\.\d+:(3000|3001|3002)$/,  // Red local 192.168.x.x
+      /^http:\/\/172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}:(3000|3001|3002)$/, // Rango privado 172.16-172.31 (VUL-006)
+      /^http:\/\/10\.\d+\.\d+\.\d+:(3000|3001|3002)$/,   // Rango 10.x.x.x
+      process.env.FRONTEND_URL
+    ];
+
+const corsOptions = {
+  origin: allowedOrigins.filter(Boolean),
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   exposedHeaders: ['Authorization'],
   optionsSuccessStatus: 200,
   preflightContinue: false
-}));
+};
+
+app.use(cors(corsOptions));
 
 // Handle preflight requests
-app.options('*', cors());
+app.options('*', cors(corsOptions));
 
 // Security middleware
 app.use(helmet({
@@ -61,6 +69,8 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'"],
       scriptSrc: ["'self'"],
       imgSrc: ["'self'", "data:", "https:"],
+      objectSrc: ["'none'"],
+      frameAncestors: ["'none'"],
     },
   },
 }));

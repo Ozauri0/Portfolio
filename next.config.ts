@@ -6,18 +6,8 @@ const securityHeaders = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
-  {
-    key: 'Content-Security-Policy',
-    value: [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com",
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: https: http:",
-      `connect-src 'self' https://api.christianferrer.me https://api.emailjs.com`,
-      "font-src 'self' data:",
-      "frame-ancestors 'none'",
-    ].join('; '),
-  },
+  // La Content-Security-Policy (con nonce por petición) se define en src/middleware.ts
+  { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' },
 ];
 
 const nextConfig: NextConfig = {
