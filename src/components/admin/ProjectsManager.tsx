@@ -24,6 +24,7 @@ import {
 import projectsService, { Project, CreateProjectData } from '@/services/projectsService';
 import { techIconsMap, techCategories, hoverColors } from '@/lib/techIcons';
 import { safeHref } from '@/lib/utils';
+import ConfirmDialog from '@/components/ui/confirm-dialog';
 
 interface ProjectFormData {
   slug: string;
@@ -56,6 +57,8 @@ export default function ProjectsManager() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+  const [deleting, setDeleting] = useState(false);
   
   // Form states
   const [showForm, setShowForm] = useState(false);
@@ -156,15 +159,18 @@ export default function ProjectsManager() {
     }
   };
 
-  const handleDelete = async (project: Project) => {
-    if (!confirm(`¿Estás seguro de eliminar "${project.title.es}"?`)) return;
-
+  const handleDelete = async () => {
+    if (!projectToDelete) return;
+    setDeleting(true);
     try {
-      await projectsService.deleteProject(project._id);
+      await projectsService.deleteProject(projectToDelete._id);
       setSuccess('Proyecto eliminado');
       await loadProjects();
     } catch (err: any) {
       setError(err.message || 'Error al eliminar proyecto');
+    } finally {
+      setDeleting(false);
+      setProjectToDelete(null);
     }
   };
 
@@ -249,6 +255,16 @@ export default function ProjectsManager() {
           </Button>
         )}
       </div>
+
+      <ConfirmDialog
+        open={projectToDelete !== null}
+        title="Eliminar proyecto"
+        message={`¿Eliminar "${projectToDelete?.title.es ?? ''}"? Esta acción no se puede deshacer.`}
+        confirmLabel="Eliminar"
+        loading={deleting}
+        onConfirm={handleDelete}
+        onCancel={() => setProjectToDelete(null)}
+      />
 
       {/* Messages */}
       {error && (
@@ -763,7 +779,7 @@ export default function ProjectsManager() {
                       <Pencil className="h-4 w-4" />
                     </button>
                     <button
-                      onClick={() => handleDelete(project)}
+                      onClick={() => setProjectToDelete(project)}
                       className="p-1.5 rounded-md text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
                       title="Eliminar"
                       aria-label="Eliminar proyecto"

@@ -10,6 +10,8 @@ import authService from '@/services/authService';
 import VisitorChart from '@/components/admin/VisitorChart';
 import ProjectsManager from '@/components/admin/ProjectsManager';
 import { getBrowserName, getDeviceType } from '@/lib/userAgent';
+import ConfirmDialog from '@/components/ui/confirm-dialog';
+import { Toast, useToast } from '@/components/ui/toast';
 
 interface LoginLog {
   id: string;
@@ -54,9 +56,9 @@ export default function AdminAccess() {
   const [logsTotal, setLogsTotal] = useState(0);
   const [logsTotalPages, setLogsTotalPages] = useState(1);
   const [resetAction, setResetAction] = useState<'social' | 'projects' | null>(null);
+  const [pendingReset, setPendingReset] = useState<'social' | 'projects' | null>(null);
   const [resetLoading, setResetLoading] = useState(false);
-  const [resetSuccess, setResetSuccess] = useState(false);
-  const [resetMessage, setResetMessage] = useState('');
+  const { toast, show: showToast, dismiss: dismissToast } = useToast();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'projects'>('dashboard');
   const router = useRouter();
   
@@ -141,20 +143,13 @@ export default function AdminAccess() {
     }
   };
 
-  const handleResetRequest = (type: 'social' | 'projects') => {
-    const message = type === 'social' 
-      ? '¿Estás seguro de que deseas reiniciar todas las estadísticas de clicks en redes sociales? Esta acción no se puede deshacer.'
-      : '¿Estás seguro de que deseas reiniciar todas las estadísticas de clicks en proyectos? Esta acción no se puede deshacer.';
-    
-    const confirmed = window.confirm(message);
-    
-    if (confirmed) {
-      setResetAction(type);
-      handleConfirmReset(type);
-    }
-  };
+  // Abre el diálogo de confirmación (sin window.confirm)
+  const handleResetRequest = (type: 'social' | 'projects') => setPendingReset(type);
 
-  const handleConfirmReset = async (type: 'social' | 'projects') => {
+  const handleConfirmReset = async () => {
+    const type = pendingReset;
+    if (!type) return;
+    setResetAction(type);
     setResetLoading(true);
     try {
       await authService.request(
@@ -165,20 +160,16 @@ export default function AdminAccess() {
       // Update admin stats
       const adminData = await authService.getAdminDashboard();
       setAdminStats(adminData.stats);
-      setResetSuccess(true);
 
-      // Mostrar mensaje de éxito
-      const successMessage = type === 'social'
+      showToast('success', type === 'social'
         ? 'Estadísticas de redes sociales reiniciadas correctamente'
-        : 'Estadísticas de proyectos reiniciadas correctamente';
-
-      setResetMessage(successMessage);
-      alert(successMessage);
+        : 'Estadísticas de proyectos reiniciadas correctamente');
     } catch (error) {
-      alert(handleRequestError(error, 'Error al reiniciar estadísticas. Inténtalo de nuevo.'));
+      showToast('error', handleRequestError(error, 'Error al reiniciar estadísticas. Inténtalo de nuevo.'));
     } finally {
       setResetLoading(false);
       setResetAction(null);
+      setPendingReset(null);
     }
   };
 
@@ -228,6 +219,18 @@ export default function AdminAccess() {
 
   return (
     <div className="min-h-screen bg-black text-white">
+        <ConfirmDialog
+          open={pendingReset !== null}
+          title="Reiniciar estadísticas"
+          message={pendingReset === 'social'
+            ? '¿Reiniciar todas las estadísticas de clicks en redes sociales? Esta acción no se puede deshacer.'
+            : '¿Reiniciar todas las estadísticas de clicks en proyectos? Esta acción no se puede deshacer.'}
+          confirmLabel="Reiniciar"
+          loading={resetLoading}
+          onConfirm={handleConfirmReset}
+          onCancel={() => setPendingReset(null)}
+        />
+        <Toast toast={toast} onDismiss={dismissToast} />
       <div className="container mx-auto px-4 py-4 md:py-8">
         {/* Encabezado y controles */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 md:mb-8 gap-4">
@@ -485,9 +488,9 @@ export default function AdminAccess() {
                 {recentLogs.map((log) => (
                   <div key={log.id} className="p-3 md:p-4 bg-zinc-800 rounded-lg border border-zinc-700">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-2">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                        <span className="text-white font-medium truncate">{log.email}</span>
+                      <div className="flex items-center space-x-2 min-w-0">
+                        <div className="w-2 h-2 bg-green-400 rounded-full shrink-0"></div>
+                        <span className="text-white font-medium truncate" title={log.email}>{log.email}</span>
                       </div>
                       <span className={`px-2 py-1 rounded-full text-xs font-semibold ${log.success ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
                         {log.success ? 'Exitoso' : 'Fallido'}

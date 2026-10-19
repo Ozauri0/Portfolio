@@ -8,6 +8,7 @@ const Project = require('../models/Project');
 const DailyVisit = require('../models/DailyVisit');
 const { SITE_TIMEZONE, lastDates } = require('../utils/siteTime');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
+const { audit } = require('../utils/audit');
 
 // Middleware for all admin routes
 router.use(authenticateToken);
@@ -273,13 +274,14 @@ router.get('/visitor-chart', async (req, res) => {
 router.post('/reset-social', async (req, res) => {
   try {
     // Reiniciar estadísticas de clicks en redes sociales
-    await AnalyticsClick.updateMany(
+    const result = await AnalyticsClick.updateMany(
       { type: 'social' },
       { 
         count: 0,
         updatedAt: new Date()
       }
     );
+    await audit(req, 'reset-social-stats', { modified: result.modifiedCount });
 
     res.json({
       message: 'Estadísticas de redes sociales reiniciadas correctamente'
@@ -297,13 +299,14 @@ router.post('/reset-social', async (req, res) => {
 router.post('/reset-projects', async (req, res) => {
   try {
     // Reiniciar estadísticas de clicks en proyectos
-    await AnalyticsClick.updateMany(
+    const result = await AnalyticsClick.updateMany(
       { type: 'project' },
       { 
         count: 0,
         updatedAt: new Date()
       }
     );
+    await audit(req, 'reset-project-stats', { modified: result.modifiedCount });
 
     res.json({
       message: 'Estadísticas de proyectos reiniciadas correctamente'

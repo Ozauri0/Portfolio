@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const multer = require('multer');
 const Project = require('../models/Project');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
+const { audit } = require('../utils/audit');
 
 // Directorio público de Next.js (sirve imágenes estáticas)
 // En Docker se usa la variable de entorno PUBLIC_DIR, en local resuelve a ../../public
@@ -437,6 +438,7 @@ router.delete('/admin/:id', authenticateToken, requireAdmin, async (req, res) =>
     }
 
     await removeImageIfOrphan(project.image, project._id);
+    await audit(req, 'delete-project', { projectId: project._id, slug: project.slug });
     
     res.json({ 
       message: 'Proyecto eliminado exitosamente',
