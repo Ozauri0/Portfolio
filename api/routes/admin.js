@@ -5,6 +5,8 @@ const LoginLog = require('../models/LoginLog');
 const UniqueVisitor = require('../models/UniqueVisitor');
 const AnalyticsClick = require('../models/AnalyticsClick');
 const Project = require('../models/Project');
+const DailyVisit = require('../models/DailyVisit');
+const { SITE_TIMEZONE, lastDates } = require('../utils/siteTime');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
 // Middleware for all admin routes
@@ -229,111 +231,39 @@ router.get('/visitor-stats', async (req, res) => {
   }
 });
 
-// Obtener datos detallados de visitas para el gráfico
+// Obtener datos detallados de visitas para el gráfico.
+// Días y horas se calculan siempre en SITE_TIMEZONE; los datos vienen del histórico diario (DailyVisit).
+const CHART_RANGE_DAYS = { day: 1, week: 7, month: 30, year: 365 };
+
 router.get('/visitor-chart', async (req, res) => {
   try {
-    const { timeRange = 'week' } = req.query;
-    
-    let startDate = new Date();
-    
-    // Configurar el rango de fechas según el parámetro
-    switch (timeRange) {
-      case 'day':
-        startDate.setDate(startDate.getDate() - 1);
-        break;
-      case 'week':
-        startDate.setDate(startDate.getDate() - 7);
-        break;
-      case 'month':
-        startDate.setMonth(startDate.getMonth() - 1);
-        break;
-      case 'year':
-        startDate.setFullYear(startDate.getFullYear() - 1);
-        break;
-      default:
-        startDate.setDate(startDate.getDate() - 7); // Por defecto una semana
-    }
-    
-    // Obtener todos los visitantes en el rango de fechas
-    const visitors = await UniqueVisitor.find({
-      lastVisit: { $gte: startDate }
-    }).sort({ lastVisit: 1 });
-    
-    // Si no hay visitantes, devolver datos vacíos pero estructurados
-    if (!visitors || visitors.length === 0) {
-      return res.json({
-        success: true,
-        data: {
-          daily: [],
-          hourly: Array.from({ length: 24 }, (_, i) => ({ hour: i, visits: 0 })),
-          totalInPeriod: 0
-        },
-        timeRange,
-        message: 'No hay visitas en este período'
+    const timeRange = CHART_RANGE_DAYS[req.query.timeRange] ? req.query.timeRange : 'week';
+    const dates = lastDates(CHART_RANGE_DAYS[timeRange]);
+
+    const records = await DailyVisit.find({ date: { $in: dates } }).lean();
+    const byDate = new Map(records.map(r => [r.date, r]));
+
+    const hourly = Array.from({ length: 24 }, (_, hour) => ({ hour, visits: 0 }));
+    let totalInPeriod = 0;
+    const daily = dates.map(date => {
+      const record = byDate.get(date);
+      const visits = record?.visits || 0;
+      totalInPeriod += visits;
+      Object.entries(record?.hours || {}).forEach(([hour, count]) => {
+        if (hourly[hour]) hourly[hour].visits += count;
       });
-    }
-    
-    // Agrupar visitas por día
-    const visitsByDate = {};
-    const visitsByHour = {};
-    
-    // Inicializar arrays para horas
-    for (let i = 0; i < 24; i++) {
-      visitsByHour[i] = 0;
-    }
-    
-    // Procesar los datos para agruparlos por día y hora
-    visitors.forEach(visitor => {
-      const visitDate = new Date(visitor.lastVisit);
-      
-      // Formato de fecha YYYY-MM-DD
-      const dateKey = visitDate.toISOString().split('T')[0];
-      const hourKey = visitDate.getHours(); // Usar hora local en lugar de UTC
-      
-      // Agrupar por día
-      if (!visitsByDate[dateKey]) {
-        visitsByDate[dateKey] = 0;
-      }
-      visitsByDate[dateKey]++;
-      
-      // Agrupar por hora
-      visitsByHour[hourKey]++;
+      return { date, visits };
     });
-    
-    // Convertir a arrays para el gráfico
-    const dailyData = Object.keys(visitsByDate).map(date => ({
-      date,
-      visits: visitsByDate[date]
-    }));
-    
-    const hourlyData = Object.keys(visitsByHour).map(hour => ({
-      hour: parseInt(hour),
-      visits: visitsByHour[hour]
-    }));
-    
+
     res.json({
       success: true,
-      data: {
-        daily: dailyData,
-        hourly: hourlyData,
-        totalInPeriod: visitors.length
-      },
-      timeRange
+      data: { daily, hourly, totalInPeriod },
+      timeRange,
+      timezone: SITE_TIMEZONE
     });
-    
   } catch (error) {
     console.error('Error obteniendo datos para el gráfico:', error);
-    // Devolver datos vacíos estructurados en caso de error
-    res.json({
-      success: false,
-      data: {
-        daily: [],
-        hourly: Array.from({ length: 24 }, (_, i) => ({ hour: i, visits: 0 })),
-        totalInPeriod: 0
-      },
-      timeRange: req.query.timeRange || 'week',
-      error: 'Error interno del servidor: ' + error.message
-    });
+    res.status(500).json({ success: false, error: 'Error interno del servidor' });
   }
 });
 

@@ -5,6 +5,8 @@ const rateLimit = require('express-rate-limit');
 const AnalyticsClick = require('../models/AnalyticsClick');
 const UniqueVisitor = require('../models/UniqueVisitor');
 const Project = require('../models/Project');
+const DailyVisit = require('../models/DailyVisit');
+const { siteParts } = require('../utils/siteTime');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
 // Helper: anonimizar IP con HMAC (VUL-013 - privacidad GDPR)
@@ -150,17 +152,29 @@ router.post('/track-visitor', visitorLimiter, async (req, res) => {
     // Get user agent for additional context
     const userAgent = req.headers['user-agent'] || 'Unknown';
 
-    // Upsert atómico: crea el visitante o actualiza su última visita
+    // Upsert atómico: crea el visitante o actualiza su última visita.
+    // Se obtiene el documento previo para saber si ya había sido contado hoy.
     const now = new Date();
-    const visitor = await UniqueVisitor.findOneAndUpdate(
+    const previous = await UniqueVisitor.findOneAndUpdate(
       { ipAddress: hashedIp },
       {
         $set: { lastVisit: now, userAgent: userAgent.slice(0, 300) },
         $inc: { visitCount: 1 },
         $setOnInsert: { firstVisit: now }
       },
-      { upsert: true, new: true }
+      { upsert: true, new: false }
     );
+    const visitor = { visitCount: (previous?.visitCount || 0) + 1 };
+
+    // Histórico: un visitante único cuenta una vez por día (zona horaria del sitio)
+    const today = siteParts(now);
+    if (!previous || siteParts(previous.lastVisit).date !== today.date) {
+      await DailyVisit.updateOne(
+        { date: today.date },
+        { $inc: { visits: 1, [`hours.${today.hour}`]: 1 } },
+        { upsert: true }
+      );
+    }
 
     const isNewVisitor = visitor.visitCount === 1;
     res.json({
