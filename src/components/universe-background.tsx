@@ -66,6 +66,8 @@ export default function UniverseBackground() {
     let sphere: Point3[] = [];
     let ring: Point3[] = [];
     let mouseX = 0, mouseY = 0, camX = 0, camY = 0;
+    let flares: { x: number; y: number; s: number; ph: number; c: string }[] = [];
+    let nebula: HTMLCanvasElement | null = null;
 
     // Sprite de brillo para las estrellas más cercanas (se genera una sola vez)
     const glow = document.createElement('canvas');
@@ -111,8 +113,8 @@ export default function UniverseBackground() {
 
       // Galaxia espiral: dos brazos logarítmicos, más densos hacia el núcleo
       galaxy = [];
-      if (variant === 'galaxy') {
-        const n = Math.round(Math.min(Math.max((w * h) / 650, 1400), 2800));
+      if (variant === 'galaxy' || variant === 'orbit') {
+        const n = variant === 'orbit' ? (w < 768 ? 500 : 900) : Math.round(Math.min(Math.max((w * h) / 650, 1400), 2800));
         for (let i = 0; i < n; i++) {
           const t = Math.pow(Math.random(), 0.75);
           const color = t < 0.14 ? '255,244,225' : t < 0.5 ? '165,195,255' : t < 0.8 ? '190,165,255' : '230,170,255';
@@ -130,6 +132,26 @@ export default function UniverseBackground() {
           c: PALETTE[Math.floor(Math.random() * PALETTE.length)], s: rand(0.6, 1.4),
         }));
         // Esfera de Fibonacci: puntos repartidos uniformemente; color según latitud (azul -> violeta)
+        // Nebulosa prerenderizada a baja resolución (barata de dibujar; los degradados suaves no pierden calidad)
+        nebula = document.createElement('canvas');
+        nebula.width = Math.ceil(w / 4); nebula.height = Math.ceil(h / 4);
+        const nx = nebula.getContext('2d')!;
+        const blob = (fx: number, fy: number, fr: number, rgba: string) => {
+          const gx = fx * nebula!.width, gy = fy * nebula!.height, gr = fr * Math.max(nebula!.width, nebula!.height);
+          const gd = nx.createRadialGradient(gx, gy, 0, gx, gy, gr);
+          gd.addColorStop(0, rgba); gd.addColorStop(1, 'rgba(0,0,0,0)');
+          nx.fillStyle = gd; nx.fillRect(0, 0, nebula!.width, nebula!.height);
+        };
+        nx.globalCompositeOperation = 'lighter';
+        blob(0.12, 0.16, 0.42, 'rgba(96,165,250,0.26)');
+        blob(0.86, 0.22, 0.38, 'rgba(168,85,247,0.26)');
+        blob(0.72, 0.82, 0.42, 'rgba(236,72,153,0.13)');
+        blob(0.2, 0.86, 0.36, 'rgba(56,189,248,0.15)');
+        blob(0.5, 0.5, 0.3, 'rgba(139,92,246,0.10)');
+        flares = Array.from({ length: w < 768 ? 4 : 7 }, () => ({
+          x: rand(0.04, 0.96), y: rand(0.05, 0.95), s: rand(9, 20), ph: rand(0, Math.PI * 2),
+          c: Math.random() < 0.5 ? '200,220,255' : '220,200,255',
+        }));
         const nSphere = w < 768 ? 520 : 900;
         const golden = Math.PI * (3 - Math.sqrt(5));
         sphere = Array.from({ length: nSphere }, (_, i) => {
@@ -153,15 +175,16 @@ export default function UniverseBackground() {
       }
     };
 
-    const drawGalaxy = () => {
-      const cx = w * (w < 768 ? 0.5 : 0.74);
-      const cy = h * (w < 768 ? 0.22 : 0.3) - window.scrollY * 0.1;
-      const R = Math.min(w, h) * (w < 768 ? 0.5 : 0.62);
-      const tilt = 0.42, spin = reduced.matches ? 0.6 : time / 1000 * 0.045;
+    const drawGalaxy = (opts?: { cx: number; cy: number; R: number; tilt: number; alpha: number }) => {
+      const cx = opts?.cx ?? w * (w < 768 ? 0.5 : 0.74);
+      const cy = opts?.cy ?? h * (w < 768 ? 0.22 : 0.3) - window.scrollY * 0.1;
+      const R = opts?.R ?? Math.min(w, h) * (w < 768 ? 0.5 : 0.62);
+      const tilt = opts?.tilt ?? 0.42, spin = reduced.matches ? 0.6 : time / 1000 * 0.045;
+      const fade = opts?.alpha ?? 1;
       if (cy < -R || cy > h + R) return;
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
-      ctx.globalAlpha = 0.9;
+      ctx.globalAlpha = 0.9 * fade;
       const gs = R * 0.95;
       ctx.drawImage(core, cx - gs, cy - gs * tilt, gs * 2, gs * 2 * tilt);
       for (const p of galaxy) {
@@ -169,7 +192,7 @@ export default function UniverseBackground() {
         const rr = p.t * R;
         const x = cx + Math.cos(theta) * rr;
         const y = cy + Math.sin(theta) * rr * tilt;
-        ctx.globalAlpha = p.alpha * (reduced.matches ? 1 : 0.8 + 0.2 * Math.sin(time / 700 + p.t * 40));
+        ctx.globalAlpha = fade * p.alpha * (reduced.matches ? 1 : 0.8 + 0.2 * Math.sin(time / 700 + p.t * 40));
         ctx.fillStyle = `rgb(${p.color})`;
         ctx.fillRect(x, y, p.size, p.size);
       }
@@ -222,6 +245,36 @@ export default function UniverseBackground() {
       }
     };
 
+    // Estrella brillante con destellos en cruz (difracción): sprite prerenderizado por color, se dibuja escalado
+    const flareSprite = (rgb: string) => {
+      const cv = document.createElement('canvas');
+      cv.width = cv.height = 96;
+      const x = cv.getContext('2d')!;
+      x.globalCompositeOperation = 'lighter';
+      for (const [dx, dy, l] of [[1, 0, 46], [0, 1, 46], [0.7, 0.7, 16], [0.7, -0.7, 16]] as const) {
+        const gr = x.createLinearGradient(48 - dx * l, 48 - dy * l, 48 + dx * l, 48 + dy * l);
+        gr.addColorStop(0, `rgba(${rgb},0)`); gr.addColorStop(0.5, `rgba(${rgb},0.85)`); gr.addColorStop(1, `rgba(${rgb},0)`);
+        x.strokeStyle = gr; x.lineWidth = 1.2;
+        x.beginPath(); x.moveTo(48 - dx * l, 48 - dy * l); x.lineTo(48 + dx * l, 48 + dy * l); x.stroke();
+      }
+      x.drawImage(glow, 36, 36, 24, 24);
+      return cv;
+    };
+    const flareSprites: Record<string, HTMLCanvasElement> = { '200,220,255': flareSprite('200,220,255'), '220,200,255': flareSprite('220,200,255') };
+
+    const drawFlares = () => {
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      for (const f of flares) {
+        const tw = reduced.matches ? 1 : 0.7 + 0.3 * Math.sin(time / 900 + f.ph);
+        const x = f.x * w - camX * 10, y = ((f.y * h - window.scrollY * 0.03) % h + h) % h - camY * 7;
+        const size = f.s * 2.1 * (0.8 + 0.4 * tw);
+        ctx.globalAlpha = 0.9 * tw;
+        ctx.drawImage(flareSprites[f.c], x - size / 2, y - size / 2, size, size);
+      }
+      ctx.restore();
+    };
+
     const drawOrbit = () => {
       const anchor = document.querySelector('[data-universe-anchor]');
       if (!anchor) return;
@@ -260,6 +313,18 @@ export default function UniverseBackground() {
         const size = Math.min(2.6, p.s * (0.8 + front * 1.1) * k);
         ctx.fillRect(ox + q.x * R * k - size / 2, oy + q.y * R * k - size / 2, size, size);
       }
+      // luna: órbita propia, más inclinada; se ve más chica y tenue cuando pasa por detrás
+      const ma = reduced.matches ? 2.2 : t * 0.55;
+      const mp = rotate({ x: Math.cos(ma) * 2.25, y: 0, z: Math.sin(ma) * 2.25 }, camX * 0.35, pitch - 0.35);
+      const mq = { x: mp.x * cr - mp.y * sr * 0.6, y: mp.x * sr * 0.6 + mp.y * cr, z: mp.z };
+      const mk = persp(mq.z), mfront = Math.max(0, Math.min(1, (2.25 - mq.z) / 4.5));
+      const mx = ox + mq.x * R * mk, my = oy + mq.y * R * mk, mr = Math.max(2.5, R * 0.035 * mk);
+      ctx.globalAlpha = 0.35 + mfront * 0.65;
+      ctx.drawImage(glow, mx - mr * 4, my - mr * 4, mr * 8, mr * 8);
+      const shade = ctx.createRadialGradient(mx - (mx - ox) * 0.02 - mr * 0.4, my - mr * 0.4, mr * 0.1, mx, my, mr);
+      shade.addColorStop(0, 'rgba(235,240,255,1)'); shade.addColorStop(0.6, 'rgba(150,170,230,0.9)'); shade.addColorStop(1, 'rgba(70,60,140,0.6)');
+      ctx.fillStyle = shade;
+      ctx.beginPath(); ctx.arc(mx, my, mr, 0, Math.PI * 2); ctx.fill();
       ctx.restore();
     };
 
@@ -270,6 +335,19 @@ export default function UniverseBackground() {
 
       if (variant === 'orbit') {
         camX += (mouseX - camX) * 0.05; camY += (mouseY - camY) * 0.05;
+        if (nebula) {
+          const drift = reduced.matches ? 0 : Math.sin(time / 9000) * 0.02;
+          ctx.globalAlpha = 0.85;
+          ctx.drawImage(nebula, -w * (0.1 + drift) - camX * 26, -h * 0.1 - camY * 18, w * 1.2, h * 1.2);
+          ctx.globalAlpha = 1;
+        }
+        // galaxia lejana en la esquina opuesta al planeta (en móvil, abajo)
+        const small = w < 768;
+        drawGalaxy({
+          cx: w * (small ? 0.78 : 0.13) - camX * 18, cy: h * (small ? 0.9 : 0.13) - camY * 12 - window.scrollY * 0.05,
+          R: Math.min(w, h) * (small ? 0.22 : 0.2), tilt: 0.5, alpha: 0.6,
+        });
+        drawFlares();
         drawDeep(dt);
         drawOrbit();
       }
@@ -382,7 +460,7 @@ export default function UniverseBackground() {
   return (
     <div ref={rootRef} aria-hidden="true" data-universe={variant} className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
       {/* Nebulosas en los colores de la marca; en la variante "nebula" son mucho más intensas y siguen al cursor */}
-      <div className={`${variant === 'nebula' ? 'universe-nebula-rich' : 'universe-nebula'} absolute -inset-[20%]`} />
+      <div className={`${variant === 'nebula' ? 'universe-nebula-rich' : variant === 'orbit' ? 'hidden' : 'universe-nebula'} absolute -inset-[20%]`} />
       {variant === 'planet' && (
         <>
           <div className="universe-planet-glow" />
