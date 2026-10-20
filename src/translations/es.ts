@@ -12,10 +12,6 @@ export const es = {
       paragraph2: "También me ocupo de dónde corre el software: este sitio vive en mi propio VPS con Docker y Nginx, detrás de Cloudflare. En la Universidad Católica de Temuco desarrollo herramientas que automatizan el trabajo con datos.",
       downloadCV: "Descargar CV"
     },
-    experience: {
-      title: "Experiencia",
-      more: "Otras experiencias"
-    },
     skills: {
       title: "Habilidades y Tecnologías",
       description: "Tecnologías y herramientas que utilizo para crear soluciones digitales efectivas y escalables.",

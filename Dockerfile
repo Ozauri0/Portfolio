@@ -35,6 +35,7 @@ RUN adduser --system --uid 1001 nextjs
 # --chown asegura que el usuario nextjs (UID 1001) sea dueño del directorio
 # Esto es crítico para que el volumen compartido con la API sea accesible
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/cv/*.pdf ./cv/
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 

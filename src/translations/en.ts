@@ -12,10 +12,6 @@ export const en = {
       paragraph2: "I also take care of where the software runs: this site lives on my own VPS with Docker and Nginx, behind Cloudflare. At Universidad Católica de Temuco I build tools that automate data work.",
       downloadCV: "Download CV"
     },
-    experience: {
-      title: "Experience",
-      more: "Other experience"
-    },
     skills: {
       title: "Skills & Technologies",
       description: "Technologies and tools I use to create effective and scalable digital solutions.",

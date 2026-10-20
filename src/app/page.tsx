@@ -12,14 +12,14 @@ import projectsService, { Project } from "@/services/projectsService"
 import { 
   Github, 
   Linkedin, 
-  Mail
+  Mail,
+  Download
 } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { translations } from "@/translations"
 import LanguageSelector from "@/components/language-selector"
 import ContactForm from "@/components/contact-form"
 import SkillsSection from "@/components/skills-section"
-import ExperienceTimeline from "@/components/experience-timeline"
 import analyticsService from "@/services/analyticsService"
 
 export default function Home() {
@@ -169,7 +169,14 @@ export default function Home() {
                 {t.about.paragraph2}
               </p>
             </div>
-            <ExperienceTimeline />
+            <div className="flex justify-center mt-10">
+              <Button asChild size="lg" className="bg-white text-black hover:bg-gray-200 gap-2">
+                <a href={`/cv/${language}`} download>
+                  <Download className="h-4 w-4" aria-hidden="true" />
+                  {t.about.downloadCV}
+                </a>
+              </Button>
+            </div>
           </div>
         </section>
 
