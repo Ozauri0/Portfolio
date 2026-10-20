@@ -1,6 +1,10 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+
+// Variantes para comparar (se elige con ?bg=galaxy | warp | nebula | planet; sin parámetro: base)
+export type UniverseVariant = 'base' | 'galaxy' | 'warp' | 'nebula' | 'planet';
+const VARIANTS: UniverseVariant[] = ['base', 'galaxy', 'warp', 'nebula', 'planet'];
 
 interface Star {
   x: number; // 0..1 del ancho
@@ -18,6 +22,9 @@ interface Shooting {
   x: number; y: number; vx: number; vy: number; life: number; length: number;
 }
 
+interface GalaxyDot { arm: number; t: number; off: number; size: number; alpha: number; color: string }
+interface WarpStar { a: number; r: number; k: number; w: number }
+
 // Profundidad: las capas cercanas se mueven más al hacer scroll y derivan más rápido
 const PARALLAX = [0.04, 0.1, 0.22];
 const DRIFT = [1.2, 2.6, 5]; // px/s en horizontal
@@ -29,18 +36,29 @@ function rand(min: number, max: number) { return min + Math.random() * (max - mi
 // (zinc-900) lo tapan; donde el fondo es transparente se ve el universo.
 export default function UniverseBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [variant, setVariant] = useState<UniverseVariant>('base');
+
+  useEffect(() => {
+    const requested = new URLSearchParams(window.location.search).get('bg') as UniverseVariant | null;
+    if (requested && VARIANTS.includes(requested)) setVariant(requested);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    const root = rootRef.current;
     const ctx = canvas?.getContext('2d');
-    if (!canvas || !ctx) return;
+    if (!canvas || !root || !ctx) return;
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
     let w = 0, h = 0, dpr = 1;
     let stars: Star[] = [];
+    let galaxy: GalaxyDot[] = [];
+    let warp: WarpStar[] = [];
     let shooting: Shooting | null = null;
     let nextShoot = performance.now() + rand(3000, 6000);
     let raf = 0, last = performance.now(), time = 0;
+    let lastScroll = window.scrollY, boost = 0;
 
     // Sprite de brillo para las estrellas más cercanas (se genera una sola vez)
     const glow = document.createElement('canvas');
@@ -52,6 +70,19 @@ export default function UniverseBackground() {
     grad.addColorStop(1, 'rgba(200,215,255,0)');
     g.fillStyle = grad;
     g.fillRect(0, 0, 64, 64);
+
+    // Sprite del núcleo de la galaxia
+    const core = document.createElement('canvas');
+    core.width = core.height = 256;
+    const c = core.getContext('2d')!;
+    const cg = c.createRadialGradient(128, 128, 0, 128, 128, 128);
+    cg.addColorStop(0, 'rgba(255,244,225,0.95)');
+    cg.addColorStop(0.12, 'rgba(255,214,170,0.55)');
+    cg.addColorStop(0.35, 'rgba(120,150,255,0.22)');
+    cg.addColorStop(0.7, 'rgba(168,85,247,0.08)');
+    cg.addColorStop(1, 'rgba(168,85,247,0)');
+    c.fillStyle = cg;
+    c.fillRect(0, 0, 256, 256);
 
     const build = () => {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -70,12 +101,79 @@ export default function UniverseBackground() {
           glow: layer === 2 && Math.random() < 0.35,
         };
       });
+
+      // Galaxia espiral: dos brazos logarítmicos, más densos hacia el núcleo
+      galaxy = [];
+      if (variant === 'galaxy') {
+        const n = Math.round(Math.min(Math.max((w * h) / 650, 1400), 2800));
+        for (let i = 0; i < n; i++) {
+          const t = Math.pow(Math.random(), 0.75);
+          const color = t < 0.14 ? '255,244,225' : t < 0.5 ? '165,195,255' : t < 0.8 ? '190,165,255' : '230,170,255';
+          galaxy.push({
+            arm: i % 2, t, off: rand(-1, 1) * (0.55 - t * 0.35),
+            size: rand(0.7, 1.7) * (t < 0.14 ? 1.2 : 1), alpha: rand(0.25, 0.95) * (1 - t * 0.45), color,
+          });
+        }
+      }
+
+      // Hiperespacio: estrellas que salen del centro; el scroll las acelera
+      warp = [];
+      if (variant === 'warp') {
+        const n = Math.round(Math.min(Math.max((w * h) / 4500, 120), 360));
+        warp = Array.from({ length: n }, () => ({ a: rand(0, Math.PI * 2), r: Math.pow(Math.random(), 1.6) * Math.hypot(w, h) * 0.6, k: rand(0.5, 1.5), w: rand(0.5, 1.5) }));
+      }
     };
 
-    const draw = (now: number) => {
+    const drawGalaxy = () => {
+      const cx = w * (w < 768 ? 0.5 : 0.74);
+      const cy = h * (w < 768 ? 0.22 : 0.3) - window.scrollY * 0.1;
+      const R = Math.min(w, h) * (w < 768 ? 0.5 : 0.62);
+      const tilt = 0.42, spin = reduced.matches ? 0.6 : time / 1000 * 0.045;
+      if (cy < -R || cy > h + R) return;
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.globalAlpha = 0.9;
+      const gs = R * 0.95;
+      ctx.drawImage(core, cx - gs, cy - gs * tilt, gs * 2, gs * 2 * tilt);
+      for (const p of galaxy) {
+        const theta = p.arm * Math.PI + p.t * 2.7 * Math.PI + p.off + spin;
+        const rr = p.t * R;
+        const x = cx + Math.cos(theta) * rr;
+        const y = cy + Math.sin(theta) * rr * tilt;
+        ctx.globalAlpha = p.alpha * (reduced.matches ? 1 : 0.8 + 0.2 * Math.sin(time / 700 + p.t * 40));
+        ctx.fillStyle = `rgb(${p.color})`;
+        ctx.fillRect(x, y, p.size, p.size);
+      }
+      ctx.restore();
+    };
+
+    const drawWarp = (dt: number) => {
+      const cx = w * 0.5, cy = h * 0.46, max = Math.hypot(w, h) * 0.62;
+      ctx.save();
+      ctx.lineCap = 'round';
+      for (const s of warp) {
+        const speed = (22 + s.r * 0.22) * s.k * (0.28 + boost) * dt / 1000;
+        const r0 = s.r, r1 = s.r + speed;
+        s.r = r1;
+        if (s.r > max) { s.r = rand(4, 70); s.a = rand(0, Math.PI * 2); continue; }
+        const f = Math.min(1, r1 / (max * 0.8));
+        const x1 = cx + Math.cos(s.a) * r1, y1 = cy + Math.sin(s.a) * r1;
+        const tail = Math.max(r0, r1 - (3 + boost * 70) * f);
+        const x0 = cx + Math.cos(s.a) * tail, y0 = cy + Math.sin(s.a) * tail;
+        ctx.strokeStyle = `rgba(${f > 0.55 ? '200,185,255' : '150,190,255'},${0.15 + 0.75 * f})`;
+        ctx.lineWidth = (0.4 + f * 1.4) * s.w;
+        ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+      }
+      ctx.restore();
+    };
+
+    const draw = (now: number, dt: number) => {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
       const scroll = window.scrollY;
+
+      if (variant === 'galaxy') drawGalaxy();
+      if (variant === 'warp' && !reduced.matches) drawWarp(dt);
 
       for (const s of stars) {
         const px = (((s.x * w + time * DRIFT[s.layer] / 1000) % w) + w) % w;
@@ -119,6 +217,12 @@ export default function UniverseBackground() {
       const dt = Math.min(now - last, 64);
       last = now; time += dt;
 
+      // El scroll (velocidad suavizada) acelera el hiperespacio
+      const sy = window.scrollY;
+      boost += (Math.min(Math.abs(sy - lastScroll) / 14, 5) - boost) * 0.08;
+      lastScroll = sy;
+      root.style.setProperty('--sy', String(sy));
+
       if (!shooting && now > nextShoot) {
         const angle = rand(0.35, 0.7); // radianes hacia abajo
         const speed = rand(700, 1000);
@@ -137,36 +241,50 @@ export default function UniverseBackground() {
           nextShoot = now + rand(7000, 14000);
         }
       }
-      draw(now);
+      draw(now, dt);
     };
 
     const start = () => {
       cancelAnimationFrame(raf);
       build();
-      if (reduced.matches) { draw(performance.now()); return; } // cielo estático
+      if (reduced.matches) { draw(performance.now(), 16); return; } // cielo estático
       last = performance.now();
       raf = requestAnimationFrame(frame);
+    };
+
+    // Paralaje con el cursor (nebulosas y planeta)
+    const onPointer = (e: PointerEvent) => {
+      root.style.setProperty('--mx', String((e.clientX / window.innerWidth - 0.5) * 2));
+      root.style.setProperty('--my', String((e.clientY / window.innerHeight - 0.5) * 2));
     };
 
     start();
     window.addEventListener('resize', start);
     reduced.addEventListener('change', start);
+    if (!reduced.matches) window.addEventListener('pointermove', onPointer, { passive: true });
     // En modo estático el scroll no redibuja solo: repintar al desplazarse
-    const onScroll = () => { if (reduced.matches) draw(performance.now()); };
+    const onScroll = () => { if (reduced.matches) draw(performance.now(), 16); };
     window.addEventListener('scroll', onScroll, { passive: true });
 
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', start);
       window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('pointermove', onPointer);
       reduced.removeEventListener('change', start);
     };
-  }, []);
+  }, [variant]);
 
   return (
-    <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-      {/* Nebulosas muy tenues en los colores de la marca; derivan lentamente */}
-      <div className="universe-nebula absolute -inset-[20%]" />
+    <div ref={rootRef} aria-hidden="true" data-universe={variant} className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+      {/* Nebulosas en los colores de la marca; en la variante "nebula" son mucho más intensas y siguen al cursor */}
+      <div className={`${variant === 'nebula' ? 'universe-nebula-rich' : 'universe-nebula'} absolute -inset-[20%]`} />
+      {variant === 'planet' && (
+        <>
+          <div className="universe-planet-glow" />
+          <div className="universe-planet" />
+        </>
+      )}
       <canvas ref={canvasRef} className="absolute inset-0" />
     </div>
   );
