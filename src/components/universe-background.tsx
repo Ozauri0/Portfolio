@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 
 // Variantes para comparar (se elige con ?bg=galaxy | warp | nebula | planet; sin parámetro: base)
-export type UniverseVariant = 'base' | 'galaxy' | 'warp' | 'nebula' | 'planet';
-const VARIANTS: UniverseVariant[] = ['base', 'galaxy', 'warp', 'nebula', 'planet'];
+export type UniverseVariant = 'base' | 'galaxy' | 'warp' | 'nebula' | 'planet' | 'orbit';
+const VARIANTS: UniverseVariant[] = ['base', 'galaxy', 'warp', 'nebula', 'planet', 'orbit'];
 
 interface Star {
   x: number; // 0..1 del ancho
@@ -24,6 +24,7 @@ interface Shooting {
 
 interface GalaxyDot { arm: number; t: number; off: number; size: number; alpha: number; color: string }
 interface WarpStar { a: number; r: number; k: number; w: number }
+interface Point3 { x: number; y: number; z: number; c: string; s: number }
 
 // Profundidad: las capas cercanas se mueven más al hacer scroll y derivan más rápido
 const PARALLAX = [0.04, 0.1, 0.22];
@@ -59,6 +60,12 @@ export default function UniverseBackground() {
     let nextShoot = performance.now() + rand(3000, 6000);
     let raf = 0, last = performance.now(), time = 0;
     let lastScroll = window.scrollY, boost = 0;
+    // Variante "orbit": cámara 3D que sigue al cursor, campo de estrellas con profundidad,
+    // planeta de puntos y anillo orbital detrás del avatar
+    let deep: Point3[] = [];
+    let sphere: Point3[] = [];
+    let ring: Point3[] = [];
+    let mouseX = 0, mouseY = 0, camX = 0, camY = 0;
 
     // Sprite de brillo para las estrellas más cercanas (se genera una sola vez)
     const glow = document.createElement('canvas');
@@ -116,6 +123,28 @@ export default function UniverseBackground() {
         }
       }
 
+      if (variant === 'orbit') {
+        const nDeep = Math.round(Math.min(Math.max((w * h) / 2600, 260), 620));
+        deep = Array.from({ length: nDeep }, () => ({
+          x: rand(-1.6, 1.6), y: rand(-1.1, 1.1), z: rand(0.08, 1),
+          c: PALETTE[Math.floor(Math.random() * PALETTE.length)], s: rand(0.6, 1.4),
+        }));
+        // Esfera de Fibonacci: puntos repartidos uniformemente; color según latitud (azul -> violeta)
+        const nSphere = w < 768 ? 520 : 900;
+        const golden = Math.PI * (3 - Math.sqrt(5));
+        sphere = Array.from({ length: nSphere }, (_, i) => {
+          const y = 1 - (i / (nSphere - 1)) * 2;
+          const r = Math.sqrt(1 - y * y);
+          const th = golden * i;
+          return { x: Math.cos(th) * r, y, z: Math.sin(th) * r, c: y > 0.2 ? '150,190,255' : y > -0.35 ? '170,160,255' : '196,140,255', s: 1 };
+        });
+        const nRing = w < 768 ? 320 : 560;
+        ring = Array.from({ length: nRing }, () => {
+          const a = rand(0, Math.PI * 2), rr = rand(1.35, 1.85);
+          return { x: Math.cos(a) * rr, y: rand(-0.025, 0.025), z: Math.sin(a) * rr, c: Math.random() < 0.5 ? '235,240,255' : '196,160,255', s: rand(0.6, 1.5) };
+        });
+      }
+
       // Hiperespacio: estrellas que salen del centro; el scroll las acelera
       warp = [];
       if (variant === 'warp') {
@@ -167,15 +196,88 @@ export default function UniverseBackground() {
       ctx.restore();
     };
 
+    // Rotación de un punto 3D (yaw alrededor de Y, pitch alrededor de X)
+    const rotate = (p: { x: number; y: number; z: number }, yaw: number, pitch: number) => {
+      const cy = Math.cos(yaw), sy = Math.sin(yaw);
+      const x1 = p.x * cy + p.z * sy, z1 = -p.x * sy + p.z * cy;
+      const cp = Math.cos(pitch), sp = Math.sin(pitch);
+      return { x: x1, y: p.y * cp - z1 * sp, z: p.y * sp + z1 * cp };
+    };
+
+    const drawDeep = (dt: number) => {
+      const f = Math.min(w, h) * 0.9, cx = w / 2 + camX * w * 0.04, cy = h / 2 + camY * h * 0.04;
+      const speed = reduced.matches ? 0 : (0.018 + boost * 0.09) * dt / 1000;
+      for (const p of deep) {
+        p.z -= speed;
+        if (p.z < 0.06) { p.z = 1; p.x = rand(-1.6, 1.6); p.y = rand(-1.1, 1.1); }
+        // la cámara gira levemente con el cursor: las estrellas cercanas se desplazan más (paralaje 3D real)
+        const x = p.x - camX * 0.12 * (1 - p.z), y = p.y - camY * 0.08 * (1 - p.z);
+        const px = cx + (x / p.z) * f * 0.5, py = cy + (y / p.z) * f * 0.5;
+        if (px < -10 || px > w + 10 || py < -10 || py > h + 10) continue;
+        const near = 1 - p.z;
+        ctx.globalAlpha = Math.min(1, 0.15 + near * 1.1);
+        ctx.fillStyle = `rgb(${p.c})`;
+        const size = p.s * (0.5 + near * 2.2);
+        ctx.fillRect(px - size / 2, py - size / 2, size, size);
+      }
+    };
+
+    const drawOrbit = () => {
+      const anchor = document.querySelector('[data-universe-anchor]');
+      if (!anchor) return;
+      const rect = anchor.getBoundingClientRect();
+      if (rect.bottom < -rect.height * 2 || rect.top > h + rect.height * 2) return;
+      const ox = rect.left + rect.width / 2, oy = rect.top + rect.height / 2;
+      const R = rect.width * (w < 768 ? 0.6 : 0.78); // en móvil más contenido para no cruzar el texto
+      const t = reduced.matches ? 0.8 : time / 1000;
+      const yaw = t * 0.18 + camX * 0.35, pitch = -0.32 + camY * 0.2;
+      const persp = (z: number) => 6 / (6 + z); // cámara lejana: perspectiva suave
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      // halo suave detrás del planeta
+      ctx.globalAlpha = 0.55;
+      ctx.drawImage(core, ox - R * 1.6, oy - R * 1.6, R * 3.2, R * 3.2);
+      for (const p of sphere) {
+        const q = rotate(p, yaw, pitch);
+        const k = persp(q.z);
+        const front = (1 - q.z) / 2; // 1 = cara visible
+        ctx.globalAlpha = 0.12 + front * 0.75;
+        ctx.fillStyle = `rgb(${p.c})`;
+        const size = Math.min(2.4, (0.8 + front * 1.3) * k);
+        ctx.fillRect(ox + q.x * R * k - size / 2, oy + q.y * R * k - size / 2, size, size);
+      }
+      // anillo inclinado que gira en sentido contrario
+      // inclinado como el de Saturno: casi horizontal visto desde arriba y girado en diagonal (roll)
+      const ringYaw = -t * 0.32 + camX * 0.35, ringPitch = pitch - 0.08, roll = -0.42;
+      const cr = Math.cos(roll), sr = Math.sin(roll);
+      for (const p of ring) {
+        const r0 = rotate(p, ringYaw, ringPitch);
+        const q = { x: r0.x * cr - r0.y * sr, y: r0.x * sr + r0.y * cr, z: r0.z };
+        const k = persp(q.z);
+        const front = Math.max(0, Math.min(1, (1.6 - q.z) / 3.2));
+        ctx.globalAlpha = 0.3 + front * 0.65;
+        ctx.fillStyle = `rgb(${p.c})`;
+        const size = Math.min(2.6, p.s * (0.8 + front * 1.1) * k);
+        ctx.fillRect(ox + q.x * R * k - size / 2, oy + q.y * R * k - size / 2, size, size);
+      }
+      ctx.restore();
+    };
+
     const draw = (now: number, dt: number) => {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
       const scroll = window.scrollY;
 
+      if (variant === 'orbit') {
+        camX += (mouseX - camX) * 0.05; camY += (mouseY - camY) * 0.05;
+        drawDeep(dt);
+        drawOrbit();
+      }
       if (variant === 'galaxy') drawGalaxy();
       if (variant === 'warp' && !reduced.matches) drawWarp(dt);
 
       for (const s of stars) {
+        if (variant === 'orbit' && s.layer !== 0) continue;
         const px = (((s.x * w + time * DRIFT[s.layer] / 1000) % w) + w) % w;
         const py = (((s.y * h - scroll * PARALLAX[s.layer]) % h) + h) % h;
         const twinkle = reduced.matches ? 1 : 0.65 + 0.35 * Math.sin(time / 1000 * s.speed + s.phase);
@@ -254,8 +356,10 @@ export default function UniverseBackground() {
 
     // Paralaje con el cursor (nebulosas y planeta)
     const onPointer = (e: PointerEvent) => {
-      root.style.setProperty('--mx', String((e.clientX / window.innerWidth - 0.5) * 2));
-      root.style.setProperty('--my', String((e.clientY / window.innerHeight - 0.5) * 2));
+      mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+      mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+      root.style.setProperty('--mx', String(mouseX));
+      root.style.setProperty('--my', String(mouseY));
     };
 
     start();

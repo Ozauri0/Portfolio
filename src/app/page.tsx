@@ -143,7 +143,7 @@ export default function Home() {
               </div>
                 {/* Profile picture */}
               <div className="flex justify-center order-1 md:order-2">
-                <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 border-white/20 shadow-lg shadow-blue-500/10">
+                <div data-universe-anchor className="relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 border-white/20 shadow-lg shadow-blue-500/10">
                   <Image
                     src="/perfil.webp"
                     alt="Developer Profile"
