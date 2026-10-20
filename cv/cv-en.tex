@@ -1,109 +1,113 @@
-%% Harvard-style resume (Harvard Office of Career Services format) -- English
-%% Compiles with pdfLaTeX on Overleaf (Menu > Compiler: pdfLaTeX) with no extra files.
+% CV en formato Harvard (Harvard Office of Career Services), optimizado para sistemas ATS -- English
+% Compila con pdfLaTeX en Overleaf (Menu > Compiler: pdfLaTeX), sin archivos adicionales.
+% ATS: una sola columna, sin tablas ni imágenes, encabezados estándar, texto real (no gráfico),
+%      fuente Times estándar, fechas "Mes AAAA", y metadatos del PDF (título/autor/idioma).
 \documentclass[10pt,letterpaper]{article}
 
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage{cmap}                 % texto copiable/extraíble (acentos y ligaduras) para los parsers
+\fi
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
-\usepackage{mathptmx}                 % Times, the Harvard-style serif
+\usepackage{mathptmx}               % Times
 \usepackage[top=0.38in,bottom=0.3in,left=0.6in,right=0.6in]{geometry}
 \usepackage{enumitem}
 \usepackage{titlesec}
-\usepackage[hidelinks]{hyperref}
+\usepackage[hidelinks,unicode,pdftitle={Christian Ferrer - Resume},pdfauthor={Christian Ferrer},pdfsubject={Software Developer resume},pdflang={en-US}]{hyperref}
 \usepackage{microtype}
+\ifPDFTeX
+  \input{glyphtounicode}
+  \pdfgentounicode=1                % mapea cada glifo a Unicode: los ATS leen el texto exacto
+\fi
 
 \pagestyle{empty}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0pt}
 
-% Section headings: bold small caps with a rule underneath
-\titleformat{\section}{\bfseries\large\scshape}{}{0pt}{}[\vspace{-0.6em}\rule{\linewidth}{0.5pt}]
-\titlespacing*{\section}{0pt}{0.5em}{0.3em}
+% Títulos de sección: mayúsculas reales (no versalitas) con una línea debajo
+\titleformat{\section}{\bfseries\normalsize}{}{0pt}{\MakeUppercase}[\vspace{-0.6em}\rule{\linewidth}{0.5pt}]
+\titlespacing*{\section}{0pt}{0.4em}{0.25em}
 
-% \entry{Organization}{Location}{Role}{Dates}
+% \entry{Organización}{Lugar}{Cargo}{Fechas}
 \newcommand{\entry}[4]{%
   \textbf{#1}\hfill #2\par\nopagebreak
   \textit{#3}\hfill \textit{#4}\par\nopagebreak\vspace{0.05em}}
 
-% Bullet lists: compact, start every bullet with an action verb
 \setlist[itemize]{leftmargin=1.2em,itemsep=0pt,topsep=0.08em,parsep=0pt,partopsep=0pt,label=\textbullet}
-
 \newcommand{\gap}{\vspace{0.22em}}
 
 \begin{document}
 
-% ---------- Header ----------
 \begin{center}
   {\LARGE\bfseries Christian Ferrer}\\[0.2em]
-  % TODO: add phone number if you want it listed -> +56 9 XXXX XXXX $\cdot$
+  % TODO: add your phone number if you want it listed -> +56 9 XXXX XXXX $\cdot$
   Temuco, Chile $\cdot$ \href{mailto:christianferrer.dev@gmail.com}{christianferrer.dev@gmail.com} $\cdot$
   \href{https://christianferrer.me}{christianferrer.me}\\
   \href{https://www.linkedin.com/in/christian-ferrer-640b7b216/}{linkedin.com/in/christian-ferrer-640b7b216} $\cdot$
   \href{https://github.com/Ozauri0}{github.com/Ozauri0}
 \end{center}
 
-% ---------- Education ----------
+\section{Summary}
+I'm a software developer: I build full-stack web applications (Next.js, TypeScript, Node.js, PostgreSQL), automate data processes with Python and Electron, and deploy my own services with Docker, Linux and Nginx.
+
 \section{Education}
 % TODO: confirm the institution, program name and expected graduation date.
 \entry{Universidad Católica de Temuco}{Temuco, Chile}{Civil Engineering in Computer Science (Ingeniería Civil en Informática)}{In progress}
 
-% ---------- Software experience ----------
-\section{Software Development Experience}
+\section{Experience}
 \entry{Temblo}{\href{https://temblo.cl}{temblo.cl}}{Full Stack Developer (personal project)}{Present}
 \begin{itemize}
-  \item Build and operate a real-time 3D seismic monitoring platform for Chile and the world that ingests global telemetry and detects earthquakes automatically within seconds.
-  \item Develop the full stack: Next.js, TypeScript and Tailwind CSS interface (3D view, camera control, stations, archived events, sound alarm) and a Node.js/Express API with MongoDB and JWT; deployed with Docker and Nginx.
+  \item I build and operate a real-time 3D seismic monitoring platform for Chile and the world that ingests global telemetry and detects earthquakes automatically within seconds.
+  \item I develop the full stack: a Next.js, TypeScript and Tailwind CSS interface (3D view, camera control, stations, archived events, sound alarm) and a Node.js/Express API with MongoDB and JWT; I deploy it with Docker and Nginx.
 \end{itemize}
 \gap
 \entry{GruasCares}{\href{https://gruascares.cl}{gruascares.cl}}{Full Stack Developer}{Present}
 \begin{itemize}
-  \item Develop a full-stack platform for Grúas Cares, a vehicle recovery and workshop business: landing page, tow-truck requests, workshop scheduling and staff job management, with panels by role (client, mechanic, admin).
-  \item Implement role-based authentication (JWT in httpOnly cookies, rate limiting) with Next.js, TypeScript, Express on Bun, PostgreSQL and Drizzle ORM; tested and containerized with Docker.
+  \item I develop a full-stack platform for Grúas Cares, a vehicle recovery and workshop business: landing page, tow-truck requests, workshop scheduling and staff job management, with panels by role (client, mechanic, admin).
+  \item I implement role-based authentication (JWT in httpOnly cookies, rate limiting) with Next.js, TypeScript, Express on Bun, PostgreSQL and Drizzle ORM, backed by automated tests and Docker containers.
 \end{itemize}
 \gap
-\entry{Universidad Católica de Temuco}{Remote}{Data Management and Monitoring Assistant (PACE)}{Sep.\ 2025 -- Present}
+\entry{Universidad Católica de Temuco}{On-site}{Data Management and Monitoring Assistant (DGIA -- PACE)}{Sep 2025 -- Present}
 \begin{itemize}
-  \item Developed, on my own initiative, a desktop application with Electron and TypeScript that automates the bulk download of Moodle course reports through web scraping, removing a manual process.
-  \item Built a processing module that filters out teacher and assistant records and merges each course's files into one multi-sheet Excel workbook.
+  \item On my own initiative, I developed a desktop application with Electron and TypeScript that automates the bulk download of Moodle course reports through web scraping, removing a manual process.
+  \item I built a processing module that filters out teacher and assistant records and merges each course's files into one multi-sheet Excel workbook.
 \end{itemize}
 \gap
-\entry{Universidad Católica de Temuco (DGE)}{Remote}{Academic Data Migration and Processing Specialist (Python/XML)}{Nov.\ 2025 -- Dec.\ 2025}
+\entry{Universidad Católica de Temuco (DGE)}{Remote}{Academic Data Migration and Processing Specialist (Python/XML)}{Nov 2025 -- Dec 2025}
 \begin{itemize}
-  \item Automated the digital publication of the CLABES congress proceedings on Open Journal Systems (OJS) with two Python scripts: one splits and renames the proceedings into articles, the other generates XML metadata for bulk import, with no manual work.
+  \item I automated the digital publication of the CLABES congress proceedings on Open Journal Systems (OJS) with two Python scripts: one splits and renames the proceedings into articles, the other generates XML metadata for bulk import, with no manual work.
 \end{itemize}
 \gap
 \entry{MiPortalVentas}{}{Software Developer}{2025}
 \begin{itemize}
-  \item Developed an ERP system for MiPortalVentas.
-\end{itemize}
-
-% ---------- Leadership ----------
-\section{Leadership Experience}
-\entry{Universidad Católica de Temuco}{Temuco, Chile}{Academic Processes Lead, Bachelor Program}{Jul.\ 2026 -- Sep.\ 2026}
-\begin{itemize}
-  \item Led the area's operations through the semester changeover, directing a team of 3 assistants and reporting directly to the Program Director.
-  \item Reviewed and optimized the schedules of approximately 300 students, balancing offering, section capacity and rooms.
-  \item Resolved teaching-planning contingencies quickly, restructuring schedules after unexpected changes.
-  \item Previously Assistant Coordinator (Jul.\ -- Aug.\ 2025; Jan.\ -- Apr.\ 2026): supported enrollment and capacity control.
-\end{itemize}
-
-% ---------- Additional experience ----------
-\section{Additional Experience}
-\entry{Gobierno Regional de La Araucanía}{Temuco, Chile}{IT Intern (Initial Internship)}{Dec.\ 2025 -- Jan.\ 2026}
-\begin{itemize}
-  \item Configured Cisco switches and PBX telephony, managed users with Active Directory, upgraded hardware and deployed Windows; gave direct technical support to the Regional Council and the Governor.
+  \item I developed an ERP system for MiPortalVentas.
 \end{itemize}
 \gap
-\entry{CINAP}{Hybrid}{E-learning Tutor}{Dec.\ 2023 -- Present}
+\entry{Gobierno Regional de La Araucanía}{Temuco, Chile}{IT Intern (Initial Internship)}{Dec 2025 -- Jan 2026}
+\begin{itemize}
+  \item I configured Cisco switches and PBX telephony, managed users with Active Directory, upgraded hardware and deployed Windows, and gave direct technical support to the Regional Council and the Governor.
+\end{itemize}
+\gap
+\entry{CINAP}{Hybrid}{E-learning Tutor}{Dec 2023 -- Present}
 
-% ---------- Skills ----------
+\section{Leadership}
+\entry{Universidad Católica de Temuco}{Temuco, Chile}{Academic Processes Lead, Bachelor Program}{Jul 2026 -- Sep 2026}
+\begin{itemize}
+  \item I led the area's operations through the semester changeover, directing a team of 3 assistants and reporting directly to the Program Director.
+  \item I reviewed and optimized the schedules of approximately 300 students, balancing offering, section capacity and rooms.
+  \item I resolved teaching-planning contingencies quickly, restructuring schedules after unexpected changes.
+  \item Previously, as Assistant Coordinator (Jul -- Aug 2025; Jan -- Apr 2026), I supported enrollment.
+\end{itemize}
+
 \section{Skills}
 \begin{itemize}[label={}, leftmargin=0pt]
   \item \textbf{Languages:} Python, TypeScript, JavaScript
-  \item \textbf{Web and backend:} Next.js, React, Angular, Node.js/Express, Django, Flask, FastAPI, REST APIs
-  \item \textbf{Data and DevOps:} MongoDB, MySQL, SQLite, Docker, Linux, Nginx, Git
-  \item \textbf{Other:} Electron, Ionic/Capacitor, web scraping, XML, Cisco IOS, Active Directory
-  % TODO: add spoken languages and levels, e.g. \textbf{Languages spoken:} Spanish (native), English (...)
+  \item \textbf{Web and backend:} Next.js, React, Angular, Node.js, Express, Bun, Django, Flask, FastAPI, REST APIs, Tailwind CSS
+  \item \textbf{Data and DevOps:} PostgreSQL, MongoDB, MySQL, SQLite, Drizzle ORM, Docker, Linux, Nginx, Git
+  \item \textbf{Other:} Electron, web scraping, XML, Ionic, Capacitor, Cisco IOS, Active Directory
+  % TODO: add spoken languages and levels, e.g. \textbf{Spoken languages:} Spanish (native), English (...)
 \end{itemize}
 
 \end{document}

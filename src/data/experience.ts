@@ -35,10 +35,10 @@ export const softwareExperience: ExperienceItem[] = [
     },
   },
   {
-    role: { es: 'Ayudante de Gestión de Datos y Monitoreo (PACE)', en: 'Data Management and Monitoring Assistant (PACE)' },
+    role: { es: 'Ayudante de Gestión de Datos y Monitoreo (DGIA – PACE)', en: 'Data Management and Monitoring Assistant (DGIA – PACE)' },
     org: 'Universidad Católica de Temuco',
     period: { es: 'sept. 2025 – actualidad', en: 'Sep 2025 – Present' },
-    place: { es: 'Remoto', en: 'Remote' },
+    place: { es: 'Presencial', en: 'On-site' },
     points: {
       es: [
         'Por iniciativa propia, desarrollé una aplicación de escritorio con Electron y TypeScript que automatiza la descarga masiva de reportes de Moodle (web scraping), eliminando el proceso manual.',
