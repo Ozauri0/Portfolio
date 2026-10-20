@@ -15,12 +15,12 @@ export const softwareExperience: ExperienceItem[] = [
     period: { es: 'Actualidad', en: 'Present' },
     points: {
       es: [
-        'Desarrollo una plataforma full stack para Grúas Cares: un nuevo landing page y paneles de gestión para clientes, mecánicos y administradores.',
-        'Incluye solicitud de grúas para transporte, agendamiento de horas en la serviteca y gestión de personal y trabajos (quién realizó cada tarea).',
+        'Estoy desarrollando una plataforma full stack para Grúas Cares: un nuevo landing page y paneles de gestión para clientes, mecánicos y administradores.',
+        'Construyo la solicitud de grúas para transporte, el agendamiento de horas en la serviteca y la gestión de personal y trabajos (quién realizó cada tarea).',
       ],
       en: [
-        'I develop a full-stack platform for Grúas Cares: a new landing page and management panels for clients, mechanics and administrators.',
-        'It covers tow-truck transport requests, workshop appointment scheduling, and staff and job management (who performed each task).',
+        'I\'m developing a full-stack platform for Grúas Cares: a new landing page and management panels for clients, mechanics and administrators.',
+        'I\'m building tow-truck transport requests, workshop appointment scheduling, and staff and job management (who performed each task).',
       ],
     },
     tech: ['Next.js', 'TypeScript', 'Express', 'PostgreSQL'],
@@ -31,7 +31,7 @@ export const softwareExperience: ExperienceItem[] = [
     period: { es: '2025', en: '2025' },
     points: {
       es: ['Desarrollé un ERP para MiPortalVentas.'],
-      en: ['Built an ERP for MiPortalVentas.'],
+      en: ['I built an ERP for MiPortalVentas.'],
     },
   },
   {
@@ -42,11 +42,11 @@ export const softwareExperience: ExperienceItem[] = [
     points: {
       es: [
         'Por iniciativa propia, desarrollé una aplicación de escritorio con Electron y TypeScript que automatiza la descarga masiva de reportes de Moodle (web scraping), eliminando el proceso manual.',
-        'La aplicación filtra los registros de docentes y ayudantes, y unifica los archivos de cada curso en un único Excel separado por hojas, listo para el análisis del equipo.',
+        'La programé para que filtre los registros de docentes y ayudantes y unifique los archivos de cada curso en un único Excel separado por hojas, listo para el análisis del equipo.',
       ],
       en: [
         'On my own initiative, I built a desktop app with Electron and TypeScript that automates the bulk download of Moodle reports (web scraping), removing the manual process.',
-        'It filters out teacher and assistant records and merges each course\'s files into a single Excel workbook split by sheets, ready for the team to analyze.',
+        'I programmed it to filter out teacher and assistant records and merge each course\'s files into a single Excel workbook split by sheets, ready for the team to analyze.',
       ],
     },
     tech: ['TypeScript', 'Electron'],
@@ -58,11 +58,11 @@ export const softwareExperience: ExperienceItem[] = [
     place: { es: 'Remoto', en: 'Remote' },
     points: {
       es: [
-        'Automaticé la publicación digital de las actas del congreso CLABES en Open Journal Systems (OJS) con dos scripts en Python.',
+        'Automaticé la publicación digital de las actas del congreso CLABES en Open Journal Systems (OJS) con dos scripts en Python que escribí.',
         'Uno separa, clasifica y renombra las actas en artículos individuales; el otro genera metadatos XML para la importación masiva, sin intervención manual.',
       ],
       en: [
-        'Automated the digital publication of the CLABES congress proceedings on Open Journal Systems (OJS) with two Python scripts.',
+        'I automated the digital publication of the CLABES congress proceedings on Open Journal Systems (OJS) with two Python scripts I wrote.',
         'One splits, classifies and renames the proceedings into individual articles; the other generates XML metadata for bulk import, with no manual work.',
       ],
     },
@@ -76,8 +76,8 @@ export const otherExperience: ExperienceItem[] = [
     org: 'Gobierno Regional de La Araucanía',
     period: { es: 'dic. 2025 – ene. 2026', en: 'Dec 2025 – Jan 2026' },
     points: {
-      es: ['Redes con switches Cisco, telefonía PBX, Active Directory, soporte de hardware y software, y soporte directo al Consejo Regional y al Gobernador.'],
-      en: ['Networking with Cisco switches, PBX telephony, Active Directory, hardware and software support, and direct support for the Regional Council and the Governor.'],
+      es: ['Configuré switches Cisco y telefonía PBX, gestioné usuarios con Active Directory, brindé soporte de hardware y software, y atendí directamente al Consejo Regional y al Gobernador.'],
+      en: ['I configured Cisco switches and PBX telephony, managed users with Active Directory, provided hardware and software support, and assisted the Regional Council and the Governor directly.'],
     },
     tech: ['Cisco IOS', 'Active Directory'],
   },
@@ -87,7 +87,7 @@ export const otherExperience: ExperienceItem[] = [
     period: { es: 'jul. – sept. 2026', en: 'Jul – Sep 2026' },
     points: {
       es: ['Dirigí a un equipo de 3 personas y tomé decisiones sobre la oferta académica, los cupos y la asignación de salas.'],
-      en: ['Led a team of 3 and made decisions on the academic offering, section capacity and room assignment.'],
+      en: ['I led a team of 3 and made decisions on the academic offering, section capacity and room assignment.'],
     },
   },
   {
@@ -95,8 +95,8 @@ export const otherExperience: ExperienceItem[] = [
     org: 'Universidad Católica de Temuco',
     period: { es: 'jul. – ago. 2025 y ene. – abr. 2026', en: 'Jul – Aug 2025 and Jan – Apr 2026' },
     points: {
-      es: ['Apoyo en matrícula e inscripción de asignaturas, control de cupos y balanceo de secciones.'],
-      en: ['Support for enrollment and course registration, capacity control and section balancing.'],
+      es: ['Apoyé la matrícula e inscripción de asignaturas, el control de cupos y el balanceo de secciones.'],
+      en: ['I supported enrollment and course registration, capacity control and section balancing.'],
     },
   },
   {
