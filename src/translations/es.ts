@@ -8,8 +8,8 @@ export const es = {
     },
     about: {
       title: "Sobre Mí",
-      paragraph1: "Soy desarrollador de software. Trabajo en web y backend con Next.js, Node.js y Django, y automatizo procesos con Python y TypeScript. Actualmente desarrollo para GruasCares, y el año pasado construí un ERP para MiPortalVentas.",
-      paragraph2: "También me ocupo de dónde corre el software: este sitio vive en mi propio VPS con Docker y Nginx, detrás de Cloudflare. En la Universidad Católica de Temuco desarrollo herramientas que automatizan el trabajo con datos.",
+      paragraph1: "Soy desarrollador de software. Trabajo en web y backend con Next.js, Node.js y Django, y automatizo procesos con Python y TypeScript. Mi proyecto más grande es Temblo (temblo.cl), una plataforma de monitoreo sísmico en tiempo real para Chile que construí y opero yo mismo.",
+      paragraph2: "También me ocupo de dónde corre el software. Tengo experiencia con servidores Linux, donde alojo mis propias aplicaciones y también las de mis clientes, con Docker y Nginx; este mismo sitio vive en mi VPS, detrás de Cloudflare. En la Universidad Católica de Temuco desarrollo herramientas que automatizan el trabajo con datos.",
       downloadCV: "Descargar CV"
     },
     skills: {
