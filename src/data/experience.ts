@@ -41,15 +41,15 @@ export const softwareExperience: ExperienceItem[] = [
     place: { es: 'Presencial', en: 'On-site' },
     points: {
       es: [
-        'Por iniciativa propia, desarrollé una aplicación de escritorio con Electron y TypeScript que automatiza la descarga masiva de reportes de Moodle (web scraping), eliminando el proceso manual.',
+        'Por iniciativa propia, desarrollé una aplicación de escritorio multiplataforma (Windows, Linux y macOS) con Electron y TypeScript, hoy en producción, que automatiza la descarga masiva de reportes de Moodle (web scraping), eliminando el proceso manual.',
         'La programé para que filtre los registros de docentes y ayudantes y unifique los archivos de cada curso en un único Excel separado por hojas, listo para el análisis del equipo.',
       ],
       en: [
-        'On my own initiative, I built a desktop app with Electron and TypeScript that automates the bulk download of Moodle reports (web scraping), removing the manual process.',
+        'On my own initiative, I built a cross-platform desktop app (Windows, Linux and macOS) with Electron and TypeScript, now in production, that automates the bulk download of Moodle reports (web scraping), removing the manual process.',
         'I programmed it to filter out teacher and assistant records and merge each course\'s files into a single Excel workbook split by sheets, ready for the team to analyze.',
       ],
     },
-    tech: ['TypeScript', 'Electron'],
+    tech: ['TypeScript', 'Electron', 'Windows', 'Linux', 'macOS'],
   },
   {
     role: { es: 'Migración y procesamiento de datos académicos', en: 'Academic data migration and processing' },
