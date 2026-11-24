@@ -39,6 +39,9 @@ export const es = {
       otherskills3: "Diseño de bases de datos",
     },
     projects: {
+      viewDetails: "Ver detalles",
+      close: "Cerrar",
+      technologies: "Tecnologías",
       title: "Proyectos Destacados",
       viewAll: "Ver Todos los Proyectos",
       code: "Código",

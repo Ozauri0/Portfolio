@@ -8,6 +8,7 @@ import UniverseBackground from "@/components/universe-background"
 import SiteHeader from "@/components/site-header"
 import useSecretAccess from "@/hooks/useSecretAccess"
 import ProjectCard from "@/components/ProjectCard"
+import ProjectDialog from "@/components/project-dialog"
 import projectsService, { Project } from "@/services/projectsService"
 import { 
   Mail,
@@ -25,6 +26,7 @@ export default function Home() {
   const t = translations[language];
   const [projects, setProjects] = useState<Project[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   
   // Secret access hook (Ctrl + Shift + L)
   useSecretAccess();
@@ -193,7 +195,7 @@ export default function Home() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {projects.map((project) => (
-                  <ProjectCard key={project._id} project={project} />
+                  <ProjectCard key={project._id} project={project} onOpen={setSelectedProject} />
                 ))}
               </div>
             )}
@@ -238,6 +240,8 @@ export default function Home() {
             </div>
           </div>
         </footer>        
+        <ProjectDialog project={selectedProject} onClose={() => setSelectedProject(null)} />
+
         {/* Floating button to go back to top - With grow animation */}
         <ScrollToTopButton 
           onClick={scrollToTop} 
