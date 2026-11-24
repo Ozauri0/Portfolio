@@ -2,11 +2,11 @@
 # Deploy en el servidor: pull + rebuild sin cache + up + recarga de Nginx Proxy Manager.
 # Uso: ./scripts/deploy.sh
 #   NPM_CONTAINER=nginx-proxy-manager   (nombre del contenedor del proxy)
-#   SITE_URL=https://christianferrer.me (URL pública para la verificación final)
+#   SITE_URL=https://christianferrer.cl (URL pública para la verificación final)
 set -euo pipefail
 
 NPM_CONTAINER="${NPM_CONTAINER:-nginx-proxy-manager}"
-SITE_URL="${SITE_URL:-https://christianferrer.me}"
+SITE_URL="${SITE_URL:-https://christianferrer.cl}"
 cd "$(dirname "$0")/.."
 
 # 1. El árbol debe estar limpio: con cambios locales `git pull` se aborta y se
