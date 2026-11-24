@@ -50,6 +50,11 @@ services:
     image: mongo:7
     container_name: portfolio-mongo
     restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     volumes:
       - portfolio-mongo-data:/data/db
     # No se exponen puertos, solo accesible internamente
