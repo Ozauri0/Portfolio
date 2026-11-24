@@ -1,4 +1,14 @@
 export const en = {
+    nav: {
+      home: "Home",
+      about: "About",
+      skills: "Skills",
+      projects: "Projects",
+      contact: "Contact",
+      cta: "Let's talk",
+      openMenu: "Open menu",
+      closeMenu: "Close menu"
+    },
     hero: {
       title: "Software",
       subtitle: "Developer",
@@ -15,7 +25,7 @@ export const en = {
     skills: {
       title: "Skills & Technologies",
       description: "Technologies and tools I use to create effective and scalable digital solutions.",
-      mobile: "Mobile Development",
+      mobile: "Mobile & Desktop Development",
       web: "Web Development",
       api: "API Development",
       languages: "Languages",

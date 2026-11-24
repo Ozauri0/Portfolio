@@ -5,7 +5,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { ScrollToTopButton } from "@/components/ui/scroll-to-top-button"
 import UniverseBackground from "@/components/universe-background"
-import AuthNavigation from "@/components/auth-navigation"
+import SiteHeader from "@/components/site-header"
 import useSecretAccess from "@/hooks/useSecretAccess"
 import ProjectCard from "@/components/ProjectCard"
 import projectsService, { Project } from "@/services/projectsService"
@@ -17,7 +17,6 @@ import {
 } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { translations } from "@/translations"
-import LanguageSelector from "@/components/language-selector"
 import ContactForm from "@/components/contact-form"
 import SkillsSection from "@/components/skills-section"
 import analyticsService from "@/services/analyticsService"
@@ -85,15 +84,11 @@ export default function Home() {
     <div className="relative min-h-screen bg-black text-white">
       <UniverseBackground />
       
-      {/* Header with navigation */}
-      <header className="fixed top-0 left-0 z-50 p-4 flex items-center space-x-4">
-        <AuthNavigation />
-        <LanguageSelector />
-      </header>
+      <SiteHeader />
 
       <main className="relative z-10">
         {/* Hero Section - Redesigned */}
-        <section ref={heroRef} className="flex flex-col items-center justify-center min-h-screen px-4">
+        <section id="home" ref={heroRef} className="flex flex-col items-center justify-center min-h-screen px-4">
           <div className="container mx-auto max-w-6xl">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               {/* Text content */}
@@ -158,7 +153,7 @@ export default function Home() {
         </section>
 
         {/* About Section - Modified to complement the information */}
-        <section className="py-20 px-4 bg-zinc-900">
+        <section id="about" className="py-20 px-4 bg-zinc-900">
           <div className="container mx-auto max-w-6xl">
             <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center text-white">{t.about.title}</h2>
             <div className="space-y-6 max-w-3xl mx-auto">
@@ -184,7 +179,7 @@ export default function Home() {
         <SkillsSection />
 
         {/* Projects Section */}
-        <section ref={projectsRef} className="py-20 px-4 bg-zinc-900">
+        <section id="projects" ref={projectsRef} className="py-20 px-4 bg-zinc-900">
           <div className="container mx-auto max-w-6xl">
             <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center text-white">{t.projects.title}</h2>
             
@@ -213,7 +208,7 @@ export default function Home() {
         </section>
 
         {/* Contact Section */}
-        <section ref={contactRef} className="py-20 px-4">
+        <section id="contact" ref={contactRef} className="py-20 px-4">
           <div className="container mx-auto max-w-3xl">
             <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center text-white">{t.contact.title}</h2>
             <ContactForm />

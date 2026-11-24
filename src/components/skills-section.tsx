@@ -35,6 +35,9 @@ import {
   SiMongodb,
   SiSqlite,
   SiNextdotjs,
+  SiPostgresql,
+  SiTauri,
+  SiElectron,
 } from 'react-icons/si';
 
 export default function SkillsSection() {
@@ -42,7 +45,7 @@ export default function SkillsSection() {
   const t = translations[language];
 
   return (
-    <section className="py-20 px-4">
+    <section id="skills" className="py-20 px-4">
       <div className="container mx-auto max-w-6xl">
         <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center text-white">{t.skills.title}</h2>
         <p className="text-gray-400 text-center max-w-2xl mx-auto mb-12">
@@ -68,6 +71,10 @@ export default function SkillsSection() {
                 <div className="flex items-center gap-2 text-gray-300">
                   <SiReact className="text-[#61DAFB] h-4 w-4" />
                   <span>React</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-300">
+                  <SiNextdotjs className="text-white h-4 w-4" />
+                  <span>Next.js</span>
                 </div>
                 <div className="flex items-center gap-2 text-gray-300">
                   <SiDjango className="text-[#092E20] h-4 w-4" />
@@ -163,6 +170,10 @@ export default function SkillsSection() {
                   <span>Git</span>
                 </div>
                 <div className="flex items-center gap-2 text-gray-300">
+                  <SiPostgresql className="text-[#4169E1] h-4 w-4" />
+                  <span>PostgreSQL</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-300">
                   <SiMysql className="text-[#4479A1] h-4 w-4" />
                   <span>MySQL</span>
                 </div>
@@ -208,6 +219,14 @@ export default function SkillsSection() {
                 <div className="flex items-center gap-2 text-gray-300">
                   <SiAndroidstudio className="text-[#3DDC84] h-4 w-4" />
                   <span>Android Studio</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-300">
+                  <SiTauri className="text-[#FFC131] h-4 w-4" />
+                  <span>Tauri</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-300">
+                  <SiElectron className="text-[#47848F] h-4 w-4" />
+                  <span>Electron</span>
                 </div>
               </div>
             </CardContent>

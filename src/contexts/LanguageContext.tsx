@@ -1,6 +1,7 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { flushSync } from 'react-dom';
 
 type Language = 'es' | 'en';
 type LanguageContextType = {
@@ -43,8 +44,21 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('preferredLanguage', language);
   }, [language]);
 
+  // Cambio de idioma hecho por el usuario: fundido suave de la página con la View Transitions API
+  // (si el navegador no la soporta o el usuario pidió reducir movimiento, el cambio es inmediato)
+  const changeLanguage = useCallback((lang: Language) => {
+    if (lang === language) return;
+    const doc = document as Document & { startViewTransition?: (cb: () => void) => unknown };
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!doc.startViewTransition || reduceMotion) {
+      setLanguage(lang);
+      return;
+    }
+    doc.startViewTransition(() => flushSync(() => setLanguage(lang)));
+  }, [language]);
+
   return (
-    <LanguageContext.Provider value={{ language, setLanguage }}>
+    <LanguageContext.Provider value={{ language, setLanguage: changeLanguage }}>
       {children}
     </LanguageContext.Provider>
   );

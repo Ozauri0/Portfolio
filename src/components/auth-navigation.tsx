@@ -27,11 +27,11 @@ export default function AuthNavigation() {
   // Only show something if user is authenticated
   // The login button is completely hidden from the public
   return (
-    <div className="flex items-center justify-start space-x-4">
+    <>
       {isAuthenticated && user ? (
         <div className="flex items-center space-x-3">
           {/* Show user information */}
-          <div className="flex items-center space-x-2 text-sm text-gray-300">
+          <div className="hidden xl:flex items-center space-x-2 text-sm text-gray-300">
             <User className="h-4 w-4" />
             <span>{user.fullName || user.email}</span>
           </div>
@@ -61,10 +61,7 @@ export default function AuthNavigation() {
             Salir
           </Button>
         </div>
-      ) : (        // Don't show anything if not authenticated
-        // Access is completely secret
-        <div></div>
-      )}
-    </div>
+      ) : null /* Access is completely secret: nothing shown if not authenticated */}
+    </>
   );
 }
