@@ -35,8 +35,8 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ## Dependency review
 
 Run `bun audit --prod` in the repository root and in `api/` before every release (both must report no vulnerabilities).
-Dependabot (`.github/dependabot.yml`) opens weekly update PRs for both packages and monthly ones for the Docker base images.
-`react-icons` is pinned to `5.5.0` because newer versions removed icons used in `src/lib/techIcons.tsx`; `overrides` in `package.json` force patched `postcss` and `sharp` versions required by `next`.
+Updates are done by hand (no Dependabot): `bun outdated` in both folders, upgrade, then test with `docker-compose.local.yml`.
+When upgrading `react-icons`, run the typecheck: simple-icons removes brand icons from time to time (those are taken from `react-icons/fa` or `react-icons/tb` in `src/lib/techIcons.tsx`). `overrides` in `package.json` force patched `postcss` and `sharp` versions required by `next`.
 
 ## Client IP / reverse proxy
 

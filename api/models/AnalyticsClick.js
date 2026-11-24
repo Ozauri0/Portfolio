@@ -28,9 +28,8 @@ const analyticsClickSchema = new mongoose.Schema({
 analyticsClickSchema.index({ type: 1, target: 1 }, { unique: true });
 
 // Update updatedAt on save
-analyticsClickSchema.pre('save', function(next) {
+analyticsClickSchema.pre('save', function() {
   this.updatedAt = Date.now();
-  next();
 });
 
 module.exports = mongoose.model('AnalyticsClick', analyticsClickSchema);

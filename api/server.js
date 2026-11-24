@@ -4,7 +4,6 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
 const path = require('path');
-require('dotenv').config();
 
 // Fallar rápido si falta configuración obligatoria (sin secretos por defecto)
 const { validateEnv } = require('./utils/env');
@@ -57,8 +56,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Handle preflight requests
-app.options('*', cors(corsOptions));
+// Las peticiones preflight (OPTIONS) las responde el middleware cors de arriba
 
 // Security middleware
 app.use(helmet({
@@ -88,9 +86,8 @@ const limiter = rateLimit({
     error: 'Demasiadas peticiones desde esta IP, intenta de nuevo más tarde.'
   },
   standardHeaders: true,
-  legacyHeaders: false,
-  // Añadir esta opción para que sea compatible con la configuración de trust proxy
-  trustProxy: trustProxySetting
+  legacyHeaders: false
+  // La IP del cliente sale de req.ip, que respeta app.set('trust proxy') más abajo
 });
 
 // Rate limiting
@@ -104,6 +101,11 @@ app.use('/api/auth', express.json({ limit: '1kb' }));
 app.use('/api/auth', express.urlencoded({ extended: true, limit: '1kb' }));
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+// Express 5 deja req.body en undefined si no hubo cuerpo parseable; las rutas esperan un objeto
+app.use((req, res, next) => {
+  if (req.body === undefined) req.body = {};
+  next();
+});
 
 // Trust proxy for correct IP detection
 app.set('trust proxy', trustProxySetting);
@@ -157,7 +159,7 @@ app.get('/', (req, res) => {
 });
 
 // Middleware for not found routes
-app.use('*', (req, res) => {
+app.use((req, res) => {
   res.status(404).json({
     error: 'Ruta no encontrada',
     path: req.originalUrl

@@ -31,7 +31,7 @@ import {
   SiDocker, 
   SiLinux,
   SiHtml5,
-  SiCss3,
+  SiCss,
   SiMongodb,
   SiSqlite,
   SiNextdotjs,
@@ -89,7 +89,7 @@ export default function SkillsSection() {
                   <span>HTML5</span>
                 </div>
                 <div className="flex items-center gap-2 text-gray-300">
-                  <SiCss3 className="text-[#1572B6] h-4 w-4" />
+                  <SiCss className="text-[#1572B6] h-4 w-4" />
                   <span>CSS</span>
                 </div>
               </div>

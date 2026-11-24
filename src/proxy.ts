@@ -4,7 +4,7 @@ const isDev = process.env.NODE_ENV === 'development';
 
 // CSP con nonce por petición: sin 'unsafe-inline' ni 'unsafe-eval' en scripts (producción).
 // style-src mantiene 'unsafe-inline' porque React/Next emiten atributos style y estilos inline.
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
 
   const connectSrc = ["'self'", 'https://cloudflareinsights.com'];

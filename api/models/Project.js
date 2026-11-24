@@ -98,9 +98,8 @@ const projectSchema = new mongoose.Schema({
 });
 
 // Update timestamp on save
-projectSchema.pre('save', function(next) {
+projectSchema.pre('save', function() {
   this.updatedAt = Date.now();
-  next();
 });
 
 // Index for ordering

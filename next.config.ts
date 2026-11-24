@@ -34,16 +34,7 @@ const nextConfig: NextConfig = {
 
   async headers() {
     return [
-      {
-        // Archivos estáticos con hash - caché largo
-        source: '/_next/static/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
+      // /_next/static ya lo sirve Next con caché larga e immutable (Next 16 avisa si se sobrescribe)
       {
         // Todas las páginas HTML — sin caché + headers de seguridad (VUL-009)
         source: '/:path*',

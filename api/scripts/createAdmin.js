@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const readline = require('readline');
-const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+// Bun carga .env automáticamente (ejecutar desde la carpeta api)
 
 const User = require('../models/User');
 const connectDB = require('../config/database');

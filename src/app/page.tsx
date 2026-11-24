@@ -10,11 +10,10 @@ import useSecretAccess from "@/hooks/useSecretAccess"
 import ProjectCard from "@/components/ProjectCard"
 import projectsService, { Project } from "@/services/projectsService"
 import { 
-  Github, 
-  Linkedin, 
   Mail,
   Download
 } from "lucide-react"
+import { FaGithub as Github, FaLinkedin as Linkedin } from "react-icons/fa"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { translations } from "@/translations"
 import ContactForm from "@/components/contact-form"

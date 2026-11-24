@@ -19,9 +19,9 @@ import {
   ChevronDown,
   ChevronUp,
   ExternalLink,
-  Github,
   Upload
 } from 'lucide-react';
+import { FaGithub as Github } from 'react-icons/fa';
 import projectsService, { Project, CreateProjectData } from '@/services/projectsService';
 import { techIconsMap, techCategories, hoverColors } from '@/lib/techIcons';
 import { safeHref } from '@/lib/utils';

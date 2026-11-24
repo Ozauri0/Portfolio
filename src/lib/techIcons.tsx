@@ -21,7 +21,7 @@ import {
   SiDocker,
   SiLinux,
   SiHtml5,
-  SiCss3,
+  SiCss,
   SiMongodb,
   SiSqlite,
   SiNextdotjs,
@@ -33,12 +33,10 @@ import {
   SiRedis,
   SiFirebase,
   SiSupabase,
-  SiGraphql,
-  SiAmazonwebservices,
+  SiGraphql, 
   SiGooglecloud,
   SiVercel,
-  SiNetlify,
-  SiHeroku,
+  SiNetlify, 
   SiNginx,
   SiApache,
   SiKubernetes,
@@ -48,7 +46,7 @@ import {
   SiAnsible,
   SiVuedotjs,
   SiSvelte,
-  SiNuxtdotjs,
+  SiNuxt,
   SiExpress,
   SiNestjs,
   SiSpring,
@@ -78,8 +76,7 @@ import {
   SiJest,
   SiCypress,
   SiStorybook,
-  SiFigma,
-  SiAdobexd,
+  SiFigma, 
   SiBootstrap,
   SiMui,
   SiChakraui,
@@ -87,8 +84,7 @@ import {
   SiRadixui,
   SiFramer,
   SiGreensock,
-  SiThreedotjs,
-  SiOpenai,
+  SiThreedotjs, 
   SiTensorflow,
   SiPytorch,
   SiScikitlearn,
@@ -96,15 +92,13 @@ import {
   SiNumpy,
   SiJupyter,
   SiMarkdown,
-  SiNotion,
-  SiSlack,
+  SiNotion, 
   SiDiscord,
   SiGithub,
   SiGitlab,
   SiBitbucket,
   SiJira,
-  SiTrello,
-  SiLinkedin,
+  SiTrello, 
   SiWordpress,
   SiShopify,
   SiWoo,
@@ -119,12 +113,13 @@ import {
   SiResend, SiExpo, SiPwa, SiWebassembly, SiRabbitmq, SiApachekafka, SiElasticsearch,
   SiMeilisearch, SiCelery, SiPydantic, SiPoetry, SiUv, SiSqlalchemy, SiStreamlit, SiSelenium,
   SiPuppeteer, SiReactrouter, SiPostman, SiSwagger, SiN8N, SiZapier, SiNodered, SiWebrtc,
-  SiMqtt, SiPusher, SiArduino, SiRaspberrypi, SiLeaflet, SiMapbox, SiChartdotjs, SiD3Dotjs,
+  SiMqtt, SiPusher, SiArduino, SiRaspberrypi, SiLeaflet, SiMapbox, SiChartdotjs, SiD3,
   SiCaddy, SiTraefikproxy, SiProxmox, SiUbuntu, SiDebian, SiGnubash, SiMinio, SiMongoose,
   SiTypeorm, SiSequelize, SiAlpinedotjs, SiPreact, SiSass, SiStyledcomponents, SiDaisyui,
   SiUnocss, SiWails, SiQt, SiBlazor
 } from 'react-icons/si';
-import { TbBrandAzure } from 'react-icons/tb';
+import { TbBrandAzure, TbBrandAdobeXd, TbBrandOpenai, TbCloud } from 'react-icons/tb';
+import { FaAws, FaSlack } from 'react-icons/fa';
 import { IconType } from 'react-icons';
 
 export interface TechInfo {
@@ -141,7 +136,7 @@ export const techIconsMap: Record<string, TechInfo> = {
   angular: { name: 'Angular', icon: SiAngular, color: '#DD0031' },
   vue: { name: 'Vue.js', icon: SiVuedotjs, color: '#4FC08D' },
   svelte: { name: 'Svelte', icon: SiSvelte, color: '#FF3E00' },
-  nuxt: { name: 'Nuxt.js', icon: SiNuxtdotjs, color: '#00DC82' },
+  nuxt: { name: 'Nuxt.js', icon: SiNuxt, color: '#00DC82' },
   
   // Mobile
   ionic: { name: 'Ionic', icon: SiIonic, color: '#3880FF' },
@@ -155,7 +150,7 @@ export const techIconsMap: Record<string, TechInfo> = {
   
   // CSS / Styling
   tailwindcss: { name: 'TailwindCSS', icon: SiTailwindcss, color: '#06B6D4' },
-  css: { name: 'CSS3', icon: SiCss3, color: '#1572B6' },
+  css: { name: 'CSS3', icon: SiCss, color: '#1572B6' },
   bootstrap: { name: 'Bootstrap', icon: SiBootstrap, color: '#7952B3' },
   mui: { name: 'Material UI', icon: SiMui, color: '#007FFF' },
   chakra: { name: 'Chakra UI', icon: SiChakraui, color: '#319795' },
@@ -209,12 +204,12 @@ export const techIconsMap: Record<string, TechInfo> = {
   // DevOps & Cloud
   docker: { name: 'Docker', icon: SiDocker, color: '#2496ED' },
   kubernetes: { name: 'Kubernetes', icon: SiKubernetes, color: '#326CE5' },
-  aws: { name: 'AWS', icon: SiAmazonwebservices, color: '#FF9900' },
+  aws: { name: 'AWS', icon: FaAws, color: '#FF9900' },
   gcp: { name: 'Google Cloud', icon: SiGooglecloud, color: '#4285F4' },
   azure: { name: 'Azure', icon: TbBrandAzure, color: '#0078D4' },
   vercel: { name: 'Vercel', icon: SiVercel, color: '#000000' },
   netlify: { name: 'Netlify', icon: SiNetlify, color: '#00C7B7' },
-  heroku: { name: 'Heroku', icon: SiHeroku, color: '#430098' },
+  heroku: { name: 'Heroku', icon: TbCloud, color: '#430098' },
   nginx: { name: 'Nginx', icon: SiNginx, color: '#009639' },
   apache: { name: 'Apache', icon: SiApache, color: '#D22128' },
   linux: { name: 'Linux', icon: SiLinux, color: '#FCC624' },
@@ -251,13 +246,13 @@ export const techIconsMap: Record<string, TechInfo> = {
   
   // Design
   figma: { name: 'Figma', icon: SiFigma, color: '#F24E1E' },
-  adobexd: { name: 'Adobe XD', icon: SiAdobexd, color: '#FF61F6' },
+  adobexd: { name: 'Adobe XD', icon: TbBrandAdobeXd, color: '#FF61F6' },
   
   // 3D & Animation
   threejs: { name: 'Three.js', icon: SiThreedotjs, color: '#000000' },
   
   // AI/ML
-  openai: { name: 'OpenAI', icon: SiOpenai, color: '#412991' },
+  openai: { name: 'OpenAI', icon: TbBrandOpenai, color: '#412991' },
   tensorflow: { name: 'TensorFlow', icon: SiTensorflow, color: '#FF6F00' },
   pytorch: { name: 'PyTorch', icon: SiPytorch, color: '#EE4C2C' },
   sklearn: { name: 'Scikit-learn', icon: SiScikitlearn, color: '#F7931E' },
@@ -274,7 +269,7 @@ export const techIconsMap: Record<string, TechInfo> = {
   strapi: { name: 'Strapi', icon: SiStrapi, color: '#2F2E8B' },
   
   // Communication
-  slack: { name: 'Slack', icon: SiSlack, color: '#4A154B' },
+  slack: { name: 'Slack', icon: FaSlack, color: '#4A154B' },
   discord: { name: 'Discord', icon: SiDiscord, color: '#5865F2' },
   notion: { name: 'Notion', icon: SiNotion, color: '#000000' },
   jira: { name: 'Jira', icon: SiJira, color: '#0052CC' },
@@ -298,7 +293,7 @@ export const techIconsMap: Record<string, TechInfo> = {
   daisyui: { name: 'daisyUI', icon: SiDaisyui, color: '#5A0EF8' },
   unocss: { name: 'UnoCSS', icon: SiUnocss, color: '#FFFFFF' },
   chartjs: { name: 'Chart.js', icon: SiChartdotjs, color: '#FF6384' },
-  d3: { name: 'D3.js', icon: SiD3Dotjs, color: '#F9A03C' },
+  d3: { name: 'D3.js', icon: SiD3, color: '#F9A03C' },
   leaflet: { name: 'Leaflet', icon: SiLeaflet, color: '#199900' },
   mapbox: { name: 'Mapbox', icon: SiMapbox, color: '#FFFFFF' },
 

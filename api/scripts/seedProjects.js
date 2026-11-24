@@ -3,7 +3,6 @@
  * Ejecutar con: node scripts/seedProjects.js
  */
 
-require('dotenv').config();
 const mongoose = require('mongoose');
 const Project = require('../models/Project');
 
