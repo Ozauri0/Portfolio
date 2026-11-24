@@ -1,20 +1,21 @@
 'use client';
 
-import React from 'react';
-import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { LogOut, Shield } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { translations } from '@/translations';
-import { User, LogOut, Shield } from 'lucide-react';
-import Link from 'next/link';
 
+// Controles de sesión dentro del header: misma altura y estilo que el selector de idioma.
+// No muestra nada si no hay sesión (el acceso al login es secreto).
 export default function AuthNavigation() {
   const { language } = useLanguage();
-  const t = translations[language];
   const { user, isAuthenticated, logout } = useAuth();
-  
+
+  if (!isAuthenticated || !user) return null;
+
   // El rol viene en la respuesta de login/refresh; la autorización real se valida en la API
-  const isAdmin = isAuthenticated && user?.role === 'admin';
+  const isAdmin = user.role === 'admin';
+  const logoutLabel = language === 'es' ? 'Cerrar sesión' : 'Log out';
 
   const handleLogout = async () => {
     try {
@@ -24,44 +25,30 @@ export default function AuthNavigation() {
     }
   };
 
-  // Only show something if user is authenticated
-  // The login button is completely hidden from the public
   return (
-    <>
-      {isAuthenticated && user ? (
-        <div className="flex items-center space-x-3">
-          {/* Show user information */}
-          <div className="hidden xl:flex items-center space-x-2 text-sm text-gray-300">
-            <User className="h-4 w-4" />
-            <span>{user.fullName || user.email}</span>
-          </div>
-
-          {/* Admin button (only if admin) */}
-          {isAdmin && (
-            <Link href="/admin">
-              <Button
-                variant="outline"
-                size="sm"
-                className="bg-purple-600/20 border-purple-500/30 text-purple-300 hover:bg-purple-600/30"
-              >
-                <Shield className="h-4 w-4 mr-1" />
-                Admin
-              </Button>
-            </Link>
-          )}
-
-          {/* Logout button */}
-          <Button
-            onClick={handleLogout}
-            variant="outline"
-            size="sm"
-            className="bg-red-600/20 border-red-500/30 text-red-300 hover:bg-red-600/30"
-          >
-            <LogOut className="h-4 w-4 mr-1" />
-            Salir
-          </Button>
-        </div>
-      ) : null /* Access is completely secret: nothing shown if not authenticated */}
-    </>
+    <div
+      className="flex items-center gap-0.5 rounded-full border border-white/10 bg-white/5 p-0.5 text-xs font-semibold"
+      title={user.fullName || user.email}
+    >
+      {isAdmin && (
+        <Link
+          href="/admin"
+          aria-label="Admin"
+          className="inline-flex h-6 items-center gap-1.5 rounded-full px-2 text-purple-200 transition-colors hover:bg-purple-500/20 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:px-2.5"
+        >
+          <Shield className="h-3.5 w-3.5" aria-hidden="true" />
+          <span className="hidden lg:inline">Admin</span>
+        </Link>
+      )}
+      <button
+        type="button"
+        onClick={handleLogout}
+        aria-label={logoutLabel}
+        title={logoutLabel}
+        className="grid h-6 w-6 place-items-center rounded-full text-zinc-400 transition-colors hover:bg-red-500/20 hover:text-red-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+      >
+        <LogOut className="h-3.5 w-3.5" aria-hidden="true" />
+      </button>
+    </div>
   );
 }
