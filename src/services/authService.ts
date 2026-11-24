@@ -21,7 +21,7 @@ class AuthService {
   private pendingRequests: Array<() => void> = []; // Cola de peticiones esperando refresh
 
   constructor() {
-    this.baseURL = (process.env.NEXT_PUBLIC_API_URL ?? '') + '/api';
+    this.baseURL = '/api'; // mismo dominio, vía el proxy de Next
     
     // Cargar datos desde sessionStorage al inicializar
     this.loadFromStorage();

@@ -5,7 +5,8 @@
 
 import authService from './authService';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
+// Mismo dominio: Next reenvía /api/* a la API por la red interna
+const API_URL = '';
 
 export interface ProjectLinks {
   github?: string | null;
@@ -179,7 +180,7 @@ class ProjectsService {
 
   /**
    * Upload project image (Admin)
-   * Returns the image URL (API_URL + /public/<file>)
+   * Returns the image path (/public/<file>)
    */
   async uploadImage(file: File): Promise<string> {
     const formData = new FormData();
@@ -189,10 +190,8 @@ class ProjectsService {
       method: 'POST',
       body: formData
     });
-    // La API devuelve una ruta relativa (e.g. /public/filename.jpg).
-    // Construimos la URL absoluta apuntando al servidor de la API,
-    // que es quien tiene el archivo y lo sirve estáticamente.
-    return `${API_URL}${data.path as string}`;
+    // La API devuelve una ruta relativa (e.g. /public/filename.jpg), servida en el mismo dominio
+    return data.path as string;
   }
 }
 

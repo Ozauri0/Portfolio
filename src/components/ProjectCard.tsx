@@ -1,5 +1,6 @@
 'use client';
 
+import { resolveImageUrl } from '@/lib/imageUrl';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -63,10 +64,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
   const githubLink = safeHref(project.links.github);
   const hoverColorClass = hoverColors[project.hoverColor] || hoverColors.blue;
 
-  // Resolve image URL: local uploads like /filename.jpg → API_URL/public/filename.jpg
-  const imageUrl = project.image.startsWith('/') && !project.image.startsWith('/public/')
-    ? `${process.env.NEXT_PUBLIC_API_URL || ''}/public${project.image}`
-    : project.image;
+  const imageUrl = resolveImageUrl(project.image);
 
   return (
     <Card 

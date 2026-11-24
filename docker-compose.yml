@@ -3,8 +3,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        NEXT_PUBLIC_API_URL: "https://api.christianferrer.me"
     # ports:              <--- No se exponen puertos, accesible solo via nginx
     #   - "3002:3002"
     container_name: portfolio-christian

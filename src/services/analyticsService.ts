@@ -1,5 +1,6 @@
 // Analytics service for tracking clicks
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
+// Mismo dominio: Next reenvía /api/* a la API por la red interna
+const API_URL = '';
 
 class AnalyticsService {
   // Track click on social media links

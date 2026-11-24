@@ -1,5 +1,6 @@
 'use client';
 
+import { resolveImageUrl } from '@/lib/imageUrl';
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -410,7 +411,7 @@ export default function ProjectsManager() {
                   <div className="rounded-xl overflow-hidden border border-zinc-800 bg-zinc-900 aspect-video flex items-center justify-center">
                     {formData.image ? (
                       <img
-                        src={formData.image.startsWith('/') && !formData.image.startsWith('/public/') ? `${process.env.NEXT_PUBLIC_API_URL || ''}/public${formData.image}` : formData.image}
+                        src={resolveImageUrl(formData.image)}
                         alt="preview"
                         className="w-full h-full object-cover"
                       />
